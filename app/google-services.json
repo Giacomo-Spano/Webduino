@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "967167304447",
+    "firebase_url": "https://api-project-967167304447.firebaseio.com",
+    "project_id": "api-project-967167304447",
+    "storage_bucket": "api-project-967167304447.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967167304447:android:61f13679e27e6a40",
+        "android_client_info": {
+          "package_name": "com.webduino"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "967167304447-f0m84ke6gnhnfp4e31hdib0prgchcmvt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCW72PP267OmbTjifxUyp52fm2li0o-Xcs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
