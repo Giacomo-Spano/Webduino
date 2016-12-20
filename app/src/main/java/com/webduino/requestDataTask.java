@@ -1,18 +1,10 @@
 package com.webduino;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.os.Build;
+import android.support.v7.preference.PreferenceManager;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -35,8 +27,8 @@ public class requestDataTask extends
         AsyncTask<Object, Long, requestDataTask.Result> {
 
     public static final int REQUEST_REGISTERDEVICE = 1;
-    public static final int REQUEST_SENSOR = 3;
-    public static final int REQUEST_ACTUATOR = 4;
+    public static final int REQUEST_SENSORS = 3;
+    public static final int REQUEST_ACTUATORS = 4;
     public static final int REQUEST_SHIELD = 5;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -68,26 +60,37 @@ public class requestDataTask extends
         requestDataTask.Result result = new requestDataTask.Result();
         URL url;
 
-
         try {
-            String path = "/register?";
+            String path = "";
             if (requestType == REQUEST_REGISTERDEVICE) {
+                path = "/register?";
                 String tokenId = (String) params[0];
                 String model = (String) params[1];//Build.MODEL;
 
-                    path += "tokenid="+tokenId;
-                    path += "&name="+ model;
+                path += "tokenid=" + tokenId;
+                path += "&name=" + model;
 
-            } /*else if (requestType == REQUEST_LOGMETEODATA) {
+            } else if (requestType == REQUEST_SENSORS) {
 
-                } else if (requestType == REQUEST_SPOTLIST) {
+                path = "/sensor?";
 
-                } else if (requestType == REQUEST_FORECASTLOCATIONS) {
+            } else if (requestType == REQUEST_ACTUATORS) {
 
-                } else if (requestType == REQUEST_FAVORITESLASTMETEODATA) {
-                }*/
+                path = "/actuator?";
 
-            String serverUrl = "http://192.168.1.3:8080/webduino";//AAlarmPreferences.getServerUrl(activity);
+            }
+
+            Context context = MainActivity.activity;
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+            String serverUrl = "";
+            if (prefs != null) {
+
+                String key = context.getString(R.string.server_url_preference_key);
+                serverUrl = prefs.getString(key, context.getString(R.string.server_url_default));
+                //pref.setSummary(serverurl);
+            }
+
+            //String serverUrl = "http://192.168.1.3:8080/webduino";
             url = new URL(serverUrl + path);
             final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(5000); //set timeout to 5 seconds
@@ -127,16 +130,32 @@ public class requestDataTask extends
                             }
                         }*/
                     // TODO add favorites list
-                } else if (requestType == REQUEST_SENSOR) {
+                } else if (requestType == REQUEST_SENSORS) {
+
                     List<Sensor> list = new ArrayList<Sensor>();
-                    JSONObject jObject = new JSONObject(json);
-                    JSONArray jArray = jObject.getJSONArray("meteodata");
+                    JSONArray jArray = new JSONArray(json);
                     for (int i = 0; i < jArray.length(); i++) {
-                        JSONObject jObject2 = jArray.getJSONObject(i);
-                        Sensor md = new Sensor();//:(jObject2);
-                        list.add(md);
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        if (jObject.has("type") && jObject.getString("type").equals("temperature")) {
+                            TemperatureSensor sensor = new TemperatureSensor();
+                            sensor.fromJson(jObject);
+                            list.add(sensor);
+                        }
                     }
                     result.sensors = list;
+                } else if (requestType == REQUEST_ACTUATORS) {
+
+                    List<Actuator> list = new ArrayList<Actuator>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        if (jObject.has("type") && jObject.getString("type").equals("heater")) {
+                            HeaterActuator heater = new HeaterActuator();
+                            heater.fromJson(jObject);
+                            list.add(heater);
+                        }
+                    }
+                    result.actuators = list;
                 }
 
                 if (conn != null)
@@ -170,7 +189,7 @@ public class requestDataTask extends
         String message = "attendere prego...";
         if (requestType == REQUEST_REGISTERDEVICE)
             message = "Richiesta lista spot...";
-        else if (requestType == REQUEST_SENSOR)
+        else if (requestType == REQUEST_SENSORS)
             message = "Richiesta lista completa spot...";
         //else if (requestType == REQUEST_HISTORYMETEODATA)
         //message = "Richiesta dati storici...";
@@ -203,16 +222,11 @@ public class requestDataTask extends
 
         if (requestType == REQUEST_REGISTERDEVICE) {
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
-        } /*else if (requestType == REQUEST_LOGMETEODATA) {
-            List<MeteoStationData> data = new ArrayList<>();
-            if (result.meteoList != null) {
-                for (Object obj : result.meteoList) {
-
-                    data.add(new MeteoStationData((MeteoStationData) obj));
-                }
-            }
-            delegate.processFinishHistory(result.spotId,data, error, errorMessage);
-        } else if (requestType == REQUEST_LASTMETEODATA || requestType == REQUEST_FAVORITESLASTMETEODATA) {
+        } else if (requestType == REQUEST_SENSORS) {
+            delegate.processFinishSensors(result.sensors, error, errorMessage);
+        }  else if (requestType == REQUEST_ACTUATORS) {
+            delegate.processFinishActuators(result.actuators, error, errorMessage);
+        }/*else if (requestType == REQUEST_LASTMETEODATA || requestType == REQUEST_FAVORITESLASTMETEODATA) {
             delegate.processFinish(result.meteoList, error, errorMessage);
         } else if (requestType == REQUEST_ADDFAVORITES) {
             delegate.processFinishAddFavorite(result.spotId, error, errorMessage);

@@ -12,6 +12,8 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+
 
 public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
@@ -54,6 +56,16 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
             @Override
             public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
+
+            }
+
+            @Override
+            public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
+
+            }
+
+            @Override
+            public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
 
             }
         }, requestDataTask.REQUEST_REGISTERDEVICE).execute(token, model);

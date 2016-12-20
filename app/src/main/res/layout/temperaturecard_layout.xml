@@ -1,0 +1,50 @@
+<android.support.v7.widget.CardView
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardCornerRadius="4dp"
+    android:layout_margin="5dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="soggiorno"
+            android:gravity="center_vertical"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:id="@+id/temperature"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Surname"
+            android:gravity="center_vertical"
+            android:textSize="30sp"
+            android:layout_below="@+id/title"
+            android:layout_alignParentStart="false"
+            android:layout_centerHorizontal="true" />
+
+        <TextView
+            android:id="@+id/target"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:gravity="center_vertical"
+            android:textSize="24sp"
+            android:layout_below="@+id/temperature"
+            android:layout_centerHorizontal="true"
+            android:background="@color/colorAccent"
+            android:textAlignment="center"/>
+
+    </RelativeLayout>
+
+</android.support.v7.widget.CardView>

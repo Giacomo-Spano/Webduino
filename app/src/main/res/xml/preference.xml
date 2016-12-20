@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <ListPreference
+        android:key="@string/server_url_preference"
+        android:title="@string/title_server_url_preference"
+        android:summary="@string/summary_server_url_preference"
+        android:entries="@array/entries_server_url_preference"
+        android:entryValues="@array/entryvalues_server_url_preference"
+        android:dialogTitle="@string/dialog_title_server_url_preference" />
+
+
+</PreferenceScreen>

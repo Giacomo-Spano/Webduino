@@ -1,8 +1,15 @@
 package com.webduino;
 
+//import android.app.FragmentManager;
+//import android.app.FragmentTransaction;
+
+;
+//import android.app.FragmentTransaction;
+import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -16,16 +23,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.webduino.fragment.PanelFragment;
+import com.webduino.fragment.PrefsFragment;
+import com.webduino.fragment.SensorsFragment;
 import com.webduino.fragment._PanelFragment;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    public static Activity activity;
+
     PanelFragment panelFragment;
+    SensorsFragment sensorsFragment;
+    PrefsFragment preferencesFragment;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        activity = this;
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -36,6 +55,9 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                getSensorData();
+                getActuatorData();
             }
         });
 
@@ -49,6 +71,8 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         panelFragment = new PanelFragment();
+        sensorsFragment = new SensorsFragment();
+        preferencesFragment = new PrefsFragment();
     }
 
     @Override
@@ -98,10 +122,14 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
             ft.replace(R.id.content_frame, panelFragment);
         } else if (id == R.id.nav_gallery) {
+            // Handle the gallery action
+            ft.replace(R.id.content_frame, sensorsFragment);
 
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
+
+            ft.replace(R.id.content_frame, preferencesFragment);
 
         } else if (id == R.id.nav_share) {
 
@@ -117,5 +145,48 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void getSensorData() {
+        new requestDataTask(getAsyncResponse(), requestDataTask.REQUEST_SENSORS).execute();
+
+    }
+
+    public void getActuatorData() {
+        new requestDataTask(getAsyncResponse(), requestDataTask.REQUEST_ACTUATORS).execute();
+
+    }
+
+    @NonNull
+    private AsyncRequestDataResponse getAsyncResponse() {
+        return new AsyncRequestDataResponse() {
+
+            @Override
+            public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
+
+            }
+
+            @Override
+            public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
+
+                Sensors.list.clear();
+                for (Sensor sensor : sensors) {
+                    Sensors.add(sensor);
+                }
+
+                sensorsFragment.update();
+            }
+
+            @Override
+            public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
+                Actuators.list.clear();
+                for (Actuator actuator : actuators) {
+                    Actuators.add(actuator);
+                }
+
+                sensorsFragment.update();
+            }
+
+        };
     }
 }
