@@ -5,6 +5,7 @@ package com.webduino.fragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
 //import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -25,6 +26,7 @@ import com.webduino.R;
 import com.webduino.Sensors;
 import com.webduino.TemperatureSensor;
 import com.webduino.TemperatureSensorCardInfo;
+import com.webduino.TutorialActivity;
 import com.webduino.requestDataTask;
 
 import java.util.ArrayList;
@@ -143,17 +145,21 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
     @Override
     public void onHeaterClick(int id) {
 
+        Intent intent = new Intent(getActivity(), TutorialActivity.class);
+        startActivity(intent);
+
         // Getting reference to the FragmentManager
-        FragmentManager fragmentManager = getFragmentManager();
+       /* FragmentManager fragmentManager = getFragmentManager();
         // Creating a fragment transaction
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
-        HeaterFragment heaterFragment = new HeaterFragment();
+        //HeaterFragment heaterFragment = new HeaterFragment();
+        HeaterWizardFragment heaterFragment = new HeaterWizardFragment();
         ft.replace(R.id.content_frame, heaterFragment);
 
         ft.addToBackStack(null);
         // Committing the transaction
-        ft.commit();
+        ft.commit();*/
 
     }
 }

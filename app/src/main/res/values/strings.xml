@@ -22,4 +22,10 @@
         <item>http://192.168.1.8:8080/webduino</item>
     </string-array>
     <string name="server_url_default">http://giacomohome.ddns.net:8080/webduino</string>
+    <string name="sample_form_summary">sample_form_summary</string>
+    <string name="sample_form_text">sample_form_text</string>
+    <string name="hint_firstname">hint_firstname</string>
+    <string name="hint_lastname">hint_lastname</string>
+    <string name="sample_form_text2">sample_form_text2</string>
+    <string name="sample_form_checkbox">sample_form_checkbox</string>
 </resources>
