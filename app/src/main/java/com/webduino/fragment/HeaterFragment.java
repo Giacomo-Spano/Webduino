@@ -3,6 +3,7 @@ package com.webduino.fragment;
 //import android.app.Fragment;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -20,6 +21,7 @@ import com.webduino.Actuators;
 import com.webduino.CardInfo;
 import com.webduino.HeaterActuator;
 import com.webduino.HeaterCardInfo;
+import com.webduino.HeaterWizardActivity;
 import com.webduino.R;
 import com.webduino.Sensor;
 import com.webduino.SensorAdapter;
@@ -39,14 +41,13 @@ import java.util.List;
 
 public class HeaterFragment extends Fragment {
 
-    Button buttonOn30Minutes;
-    Button buttonOn60Minutes;
-    Button buttonOnHoursAndMinutes;
-    Button buttonOnToDate;
-    Button buttonOff30Minutes;
-    Button buttonOff60Minutes;
-    Button buttonOffHoursAndMinutes;
-    Button buttonOffToDate;
+    public static final int HEATERWIZARD_REQUEST = 1;  // The request code
+
+    Button buttonLeave;
+    Button buttonManualOn;
+    Button buttonAuto;
+    Button buttonPrograms;
+
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -56,20 +57,28 @@ public class HeaterFragment extends Fragment {
 
         }
 
+        String strtext = getArguments().getString("edttext");
+        final int id = Integer.valueOf(strtext);
+
         View v;
         v = inflater.inflate(R.layout.fragment_heater, container, false);
 
-        buttonOn30Minutes = (Button) v.findViewById(R.id.buttonOn30minutes);
-        buttonOn60Minutes = (Button) v.findViewById(R.id.buttonOn60minutes);
-        buttonOnHoursAndMinutes = (Button) v.findViewById(R.id.buttonOnHourAndminutes);
-        buttonOnToDate = (Button) v.findViewById(R.id.buttonOnToDate);
-        buttonOff30Minutes = (Button) v.findViewById(R.id.buttonOff30minutes);
-        buttonOff60Minutes = (Button) v.findViewById(R.id.buttonOff60Minutes);
-        buttonOffHoursAndMinutes = (Button) v.findViewById(R.id.buttonOffHourAndMinutes);
-        buttonOffToDate = (Button) v.findViewById(R.id.buttonOffToDate);
+        buttonLeave = (Button) v.findViewById(R.id.buttonLeave);
 
+        buttonManualOn = (Button) v.findViewById(R.id.buttonManualOn);
+        buttonManualOn.setOnClickListener(new View.OnClickListener() {
+                                              @Override
+                                              public void onClick(View v) {
+                                                  Intent intent = new Intent(getActivity(), HeaterWizardActivity.class);
+                                                  intent.putExtra("actuatorid", ""+id);
+                                                  startActivityForResult(intent, HEATERWIZARD_REQUEST);
 
-        final Scene scene = Scene.getSceneForLayout(container,
+                                              }
+                                          });
+        buttonAuto = (Button) v.findViewById(R.id.buttonAuto);
+        buttonPrograms = (Button) v.findViewById(R.id.buttonPrograms);
+
+        /*final Scene scene = Scene.getSceneForLayout(container,
                 R.layout.fragment_transition_scene_1, getActivity());
         Button goButton = (Button)v.findViewById(R.id.goButton);
         goButton.setOnClickListener(new View.OnClickListener() {
@@ -88,7 +97,7 @@ public class HeaterFragment extends Fragment {
                 //buttonOn30Minutes.animate().translationX(-width/2);
                 buttonOn30Minutes.animate().translationY(parentHeight);
             }
-        });
+        });*/
 
 
         return v;

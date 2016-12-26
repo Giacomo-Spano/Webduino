@@ -18,4 +18,13 @@ public class Actuators {
     public static void get(int index) {
         list.get(index);
     }
+
+    public static Actuator getFromId(int id) {
+        for(Actuator actuator : list) {
+            if (actuator.id == id) {
+                return actuator;
+            }
+        }
+        return null;
+    }
 }

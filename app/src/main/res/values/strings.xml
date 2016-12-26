@@ -15,11 +15,13 @@
         <item>Production</item>
         <item>Development</item>
         <item>Test</item>
+        <item>Dev remote</item>
     </string-array>
     <string-array name="entryvalues_server_url_preference">
         <item>http://giacomohome.ddns.net:8080/webduino</item>
         <item>http://192.168.1.3:8080/webduino</item>
         <item>http://192.168.1.8:8080/webduino</item>
+        <item>http://giacomohome.ddns.net:80/webduino</item>
     </string-array>
     <string name="server_url_default">http://giacomohome.ddns.net:8080/webduino</string>
     <string name="sample_form_summary">sample_form_summary</string>

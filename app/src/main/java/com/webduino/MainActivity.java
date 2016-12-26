@@ -187,6 +187,11 @@ public class MainActivity extends AppCompatActivity
                 sensorsFragment.update();
             }
 
+            @Override
+            public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
+
+            }
+
         };
     }
 }

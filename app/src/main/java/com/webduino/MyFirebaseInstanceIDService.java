@@ -68,6 +68,11 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
             public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
 
             }
+
+            @Override
+            public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
+
+            }
         }, requestDataTask.REQUEST_REGISTERDEVICE).execute(token, model);
 
     }

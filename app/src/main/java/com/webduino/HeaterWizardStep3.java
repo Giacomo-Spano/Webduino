@@ -13,7 +13,7 @@ import org.codepond.wizardroid.persistence.ContextVariable;
  * Created by Giacomo Spanò on 21/12/2016.
  */
 
-public class FormStep3 extends WizardStep {
+public class HeaterWizardStep3 extends WizardStep {
 
     /**
      * Tell WizarDroid that these are context variables.
@@ -22,27 +22,34 @@ public class FormStep3 extends WizardStep {
      * have the same name and type wherever you wish to use them.
      */
     @ContextVariable
-    private String firstname;
+    private boolean heaterAlwaysOn;
     @ContextVariable
-    private String lastname;
+    private boolean heaterOn30Minutes;
+    @ContextVariable
+    private boolean heaterOnToDate;
+
+    @ContextVariable
+    private double temperature;
+    @ContextVariable
+    private int sensorId;
 
 
     //You must have an empty constructor for every step
-    public FormStep3() {
+    public HeaterWizardStep3() {
     }
 
     //Set your layout here
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.step_summary, container, false);
+        View v = inflater.inflate(R.layout.heaterwizard_summary, container, false);
         TextView firstnameTv = (TextView) v.findViewById(R.id.firstname);
         TextView lastnameTv = (TextView) v.findViewById(R.id.lastname);
 
         //WizarDroid will automatically inject the values for these fields
         //so we can simply set the text views
-        firstnameTv.setText(firstname);
-        lastnameTv.setText(lastname);
+        //firstnameTv.setText(firstname);
+        //lastnameTv.setText(lastname);
 
         return v;
     }

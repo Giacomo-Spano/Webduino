@@ -6,4 +6,7 @@ package com.webduino;
 
 public class CardInfo {
     public String name;
+    public int id;
+
+
 }

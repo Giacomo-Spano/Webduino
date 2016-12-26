@@ -8,15 +8,16 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 //import android.support.v4.app.Fragment;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
 import com.webduino.Actuator;
 import com.webduino.Actuators;
-import com.webduino.AsyncRequestDataResponse;
 import com.webduino.HeaterActuator;
 import com.webduino.HeaterCardInfo;
 import com.webduino.Sensor;
@@ -26,11 +27,12 @@ import com.webduino.R;
 import com.webduino.Sensors;
 import com.webduino.TemperatureSensor;
 import com.webduino.TemperatureSensorCardInfo;
-import com.webduino.TutorialActivity;
-import com.webduino.requestDataTask;
+import com.webduino.HeaterWizardActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.app.Activity.RESULT_OK;
 //import android.support.v4.app.Fragment;
 
 /**
@@ -39,7 +41,11 @@ import java.util.List;
 
 public class SensorsFragment extends Fragment implements SensorAdapter.OnListener {
 
+    public static final int HEATERWIZARD_REQUEST = 1;  // The request code
+
+    private List<CardInfo> list;
     private SensorAdapter sensorAdapter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -53,10 +59,6 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
 
         RecyclerView recList = (RecyclerView) v.findViewById(R.id.cardList);
         recList.setHasFixedSize(true);
-
-        /*LinearLayoutManager llm = new LinearLayoutManager(this.getActivity());//// cambiato
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        recList.setLayoutManager(llm);*/
 
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
         StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -73,8 +75,28 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
     }
 
     public void update() {
-        List<CardInfo> list = createSensorList();
+        /*List<CardInfo>*/
+        list = createSensorList();
         sensorAdapter.swap(list);
+    }
+
+    public void updateActuator(Actuator actuator) {
+
+        for (CardInfo ci : list) {
+
+            try {
+                HeaterCardInfo hci = (HeaterCardInfo) ci;
+                if (hci.actuatorId == actuator.getId()) {
+                    hci.copyFrom((HeaterActuator) actuator);
+                }
+                sensorAdapter.swap(list);
+                return;
+            } catch (ClassCastException e) {
+
+            }
+        }
+
+
     }
 
     public List<CardInfo> createSensorList() {
@@ -85,15 +107,7 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
         for (Actuator actuator : Actuators.list) {
 
             try {
-                HeaterActuator heater = (HeaterActuator) actuator;
-
-
-                HeaterCardInfo ci = new HeaterCardInfo();
-                ci.name = heater.getName();
-                ci.status = heater.getStatus();
-                ci.target = heater.getTarget();
-                ci.releStatus = heater.getReleStatus();
-
+                HeaterCardInfo ci = heaterCardInfoFromActuator((HeaterActuator) actuator);
                 result.add(ci);
             } catch (Exception e) {
 
@@ -115,51 +129,62 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
 
             }
         }
-        /*TemperatureSensorCardInfo ci = new TemperatureSensorCardInfo();
-        ci.name = "Soggiorno";
-        ci.temperature = 20.1;
-        ci.target = 21.0;
-        result.add(ci);
-
-        ci = new TemperatureSensorCardInfo();
-        ci.name = "Camera";
-        ci.temperature = 20.1;
-        ci.target = 21.0;
-        result.add(ci);
-
-        ci = new TemperatureSensorCardInfo();
-        ci.name = "Studio";
-        ci.temperature = 20.1;
-        ci.target = 21.0;
-        result.add(ci);
-
-        HeaterCardInfo hci = new HeaterCardInfo();
-        hci.name = "Riscaldamento";
-        hci.target = 20.1;
-        hci.status = "acceso";
-        result.add(hci);*/
-
         return result;
+    }
+
+    @NonNull
+    private HeaterCardInfo heaterCardInfoFromActuator(HeaterActuator actuator) {
+        HeaterActuator heater = actuator;
+        HeaterCardInfo ci = new HeaterCardInfo();
+        ci.name = heater.getName();
+        ci.actuatorId = heater.getId();
+        ci.status = heater.getStatus();
+        ci.target = heater.getTarget();
+        ci.releStatus = heater.getReleStatus();
+        return ci;
     }
 
     @Override
     public void onHeaterClick(int id) {
 
-        Intent intent = new Intent(getActivity(), TutorialActivity.class);
-        startActivity(intent);
+        // sostituire con show fragment
+        /*Intent intent = new Intent(getActivity(), HeaterWizardActivity.class);
+        intent.putExtra("actuatorid", id);
+        startActivityForResult(intent, HEATERWIZARD_REQUEST);*/
 
-        // Getting reference to the FragmentManager
-       /* FragmentManager fragmentManager = getFragmentManager();
-        // Creating a fragment transaction
+        Bundle bundle = new Bundle();
+        bundle.putString("actuatorid", "" + id);
+
+        HeaterFragment fragment = new HeaterFragment();
+        fragment.setArguments(bundle);
+        FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
+        ft.replace(R.id.content_frame, fragment);
 
-        //HeaterFragment heaterFragment = new HeaterFragment();
-        HeaterWizardFragment heaterFragment = new HeaterWizardFragment();
-        ft.replace(R.id.content_frame, heaterFragment);
+    }
 
-        ft.addToBackStack(null);
-        // Committing the transaction
-        ft.commit();*/
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == HEATERWIZARD_REQUEST) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                // The user picked a contact.
+                // The Intent's data Uri identifies which contact was selected.
+                // fetch the message String
 
+                Bundle extras = data.getExtras();
+                if (extras != null) {
+                    String strJson = extras.getString("actuator");
+                    //strJson = extras.getString("WindAlarmProgram");
+                    HeaterActuator heaterActuator = new Gson().fromJson(strJson, HeaterActuator.class);
+                    updateActuator(heaterActuator);
+
+                }
+                // Set the message string in textView
+                //textViewMessage.setText("Message from second Activity: " + message);
+                // Do something with the contact here (bigger example below)
+            }
+        }
     }
 }

@@ -1,11 +1,15 @@
 package com.webduino;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import org.json.JSONObject;
 
 /**
  * Created by Giacomo Spanò on 20/11/2016.
  */
-public class Actuator extends Sensor{
+public class Actuator extends Sensor {
+
 
     private String status;
 
@@ -14,6 +18,10 @@ public class Actuator extends Sensor{
 
     public String getStatus() {
         return status;
+    }
+
+    public int getId() {
+        return id;
     }
 
     @Override
@@ -30,4 +38,5 @@ public class Actuator extends Sensor{
             e.printStackTrace();
         }
     }
+
 }

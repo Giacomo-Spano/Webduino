@@ -7,6 +7,12 @@ import org.json.JSONObject;
  */
 public class HeaterActuator extends Actuator {
 
+    //public static final String Command_Program_Off = "stop";
+    //public static final String Command_Program_On = 1;
+    //public static final String Command_Send_Temperature = 2;
+    public static final String Command_Manual_Start = "start";
+    public static final String Command_Manual_Stop = "stop";
+
     protected boolean releStatus;
     protected double avTemperature;
     protected double temperature;

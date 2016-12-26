@@ -99,6 +99,11 @@ public class PrefsFragment extends PreferenceFragment {
             public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
 
             }
+
+            @Override
+            public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
+
+            }
         }, requestDataTask.REQUEST_REGISTERDEVICE).execute(refreshedToken, model);
 
     }

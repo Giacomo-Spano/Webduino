@@ -31,7 +31,7 @@ public class HeaterWizardFragment extends Fragment {
         }
 
         View v;
-        v = inflater.inflate(R.layout.activity_tutorial, container, false);
+        v = inflater.inflate(R.layout.activity_heaterwizard, container, false);
 
 
 

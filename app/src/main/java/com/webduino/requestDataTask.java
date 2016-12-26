@@ -3,8 +3,16 @@ package com.webduino;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,11 +22,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+
+import javax.net.ssl.HttpsURLConnection;
 
 /**
  * Created by giacomo on 01/07/2015.
@@ -30,6 +42,7 @@ public class requestDataTask extends
     public static final int REQUEST_SENSORS = 3;
     public static final int REQUEST_ACTUATORS = 4;
     public static final int REQUEST_SHIELD = 5;
+    public static final int POST_ACTUATOR_COMMAND = 6;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
     //private ProgressDialog dialog;
@@ -46,6 +59,7 @@ public class requestDataTask extends
         public List<Sensor> sensors;
         public List<Actuator> actuators;
         public List<Shield> shields;
+        public Actuator actuator;
     }
 
     public requestDataTask(/*Activity activity, */AsyncRequestDataResponse asyncResponse, int type) {
@@ -57,7 +71,22 @@ public class requestDataTask extends
 
     protected requestDataTask.Result doInBackground(Object... params) {
 
-        requestDataTask.Result result = new requestDataTask.Result();
+        requestDataTask.Result result = null;
+
+        if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS || requestType == REQUEST_ACTUATORS) {
+            result = performGetRequest(params);
+        } else {
+            result = performPostCall(params);
+        }
+
+        return result;
+
+    }
+
+    @NonNull
+    private Result performGetRequest(Object[] params) {
+        Result result;
+        result = new Result();
         URL url;
 
         try {
@@ -80,15 +109,7 @@ public class requestDataTask extends
 
             }
 
-            Context context = MainActivity.activity;
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-            String serverUrl = "";
-            if (prefs != null) {
-
-                String key = context.getString(R.string.server_url_preference_key);
-                serverUrl = prefs.getString(key, context.getString(R.string.server_url_default));
-                //pref.setSummary(serverurl);
-            }
+            String serverUrl = getServerUrl();
 
             //String serverUrl = "http://192.168.1.3:8080/webduino";
             url = new URL(serverUrl + path);
@@ -108,27 +129,6 @@ public class requestDataTask extends
                 String json = convertStreamToString(in);
 
                 if (requestType == REQUEST_REGISTERDEVICE) {
-                        /*List<Spot> list = new ArrayList<Spot>();
-                        JSONObject jObject = new JSONObject(json);
-                        JSONArray jArray = jObject.getJSONArray("spotlist");
-                        for (int i = 0; i < jArray.length(); i++) {
-                            JSONObject jObject2 = jArray.getJSONObject(i);
-                            Spot spt = new Spot(jObject2);
-                            list.add(spt);
-                        }
-                        String favorites = jObject.getString("favorites");
-                        result.spotList = list;
-                        result.favorites = new ArrayList<Long>();
-                        String[] split = favorites.split(",");
-                        if (split != null) {
-                            for (int i = 0; i < split.length; i++) {
-                                if (!split[i].equals("")) {
-                                    long id = Integer.valueOf(split[i]);
-                                    if (id != 0)
-                                        result.favorites.add(id);
-                                }
-                            }
-                        }*/
                     // TODO add favorites list
                 } else if (requestType == REQUEST_SENSORS) {
 
@@ -178,10 +178,22 @@ public class requestDataTask extends
             e.printStackTrace();
             errorMessage = e.toString();
         }
-
         return result;
-
     }
+
+    @NonNull
+    private String getServerUrl() {
+        Context context = MainActivity.activity;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String serverUrl = "";
+        if (prefs != null) {
+
+            String key = context.getString(R.string.server_url_preference_key);
+            serverUrl = prefs.getString(key, context.getString(R.string.server_url_default));
+        }
+        return serverUrl;
+    }
+
 
     protected void onPreExecute() {
 
@@ -224,22 +236,11 @@ public class requestDataTask extends
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
         } else if (requestType == REQUEST_SENSORS) {
             delegate.processFinishSensors(result.sensors, error, errorMessage);
-        }  else if (requestType == REQUEST_ACTUATORS) {
+        } else if (requestType == REQUEST_ACTUATORS) {
             delegate.processFinishActuators(result.actuators, error, errorMessage);
-        }/*else if (requestType == REQUEST_LASTMETEODATA || requestType == REQUEST_FAVORITESLASTMETEODATA) {
-            delegate.processFinish(result.meteoList, error, errorMessage);
-        } else if (requestType == REQUEST_ADDFAVORITES) {
-            delegate.processFinishAddFavorite(result.spotId, error, errorMessage);
-        } else if (requestType == REQUEST_REMOVEFAVORITE) {
-            delegate.processFinishRemoveFavorite(result.spotId, error, errorMessage);
-        } else if (requestType == REQUEST_FORECAST) {
-            delegate.processFinishForecast(requestId, result.forecast, error, errorMessage);
-        } else if (requestType == REQUEST_FORECASTLOCATIONS) {
-            delegate.processFinishForecastLocation(result.locations, error, errorMessage);
-        }*/
-
-
-        //progressBar.setVisibility(View.GONE);
+        } else if (requestType == POST_ACTUATOR_COMMAND) {
+            delegate.processFinishSendCommand(result.actuator, error, errorMessage);
+        }
     }
 
     private String convertStreamToString(InputStream is) {
@@ -266,5 +267,118 @@ public class requestDataTask extends
             }
         }
         return sb.toString();
+    }
+
+
+    protected Result performPostCall(Object[] params) {
+        boolean status = false;
+
+        Result result;
+        result = new Result();
+        //URL url;
+
+        String path = "";
+        if (requestType == POST_ACTUATOR_COMMAND) {
+            path = "/actuator?";
+            int actuatorId = (int) params[0];
+            String command = (String) params[1];
+            int duration = (int) params[2];
+            double target = (double) params[3];
+            int sensorId = (int) params[4];
+            boolean remote = (boolean) params[5];
+
+            /*Actuator actuator = Actuators.getFromId(actuatorId);
+            if (actuator == null)
+                return null;
+            HeaterActuator heater = (HeaterActuator) actuator;
+*/
+            String serverUrl = getServerUrl();
+            String url = serverUrl + path;
+
+            String response;
+            HashMap<String, String> map = new HashMap<String, String>();
+            map.put("id", "" + actuatorId);
+            map.put("command", command);
+            map.put("duration", "" + 3000);
+            map.put("target", "" + target);
+            map.put("sensorid", "" + sensorId);
+            map.put("remote", "" + remote);
+            response = postCall(url, map);
+            if (response != null) {
+                try {
+                    JSONObject json = new JSONObject(response);
+
+                    if (json.has("answer") && json.getString("answer").equals("success")) {
+
+                        JSONObject actuator = new JSONObject(json.getString("actuator"));
+                        if (actuator != null) {
+                            result.actuator = new HeaterActuator();
+                            result.actuator.fromJson(actuator);
+                            return result;
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        } else {
+            // other command
+            return null;
+        }
+        return null;
+    }
+
+    public String postCall(String requestURL,
+                           HashMap<String, String> postDataParams) {
+
+        URL url;
+        String response = "";
+        try {
+            url = new URL(requestURL);
+
+            Context context = MainActivity.activity;
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(5000); // 5 sec
+            conn.setReadTimeout(10000); // 10 sec
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+
+            conn.setRequestProperty("Content-Type", "application/json");
+
+            /*
+             * JSON
+             */
+
+            JSONObject root = new JSONObject();
+            for (HashMap.Entry<String, String> entry : postDataParams.entrySet()) {
+                root.put(entry.getKey(),  entry.getValue());
+            }
+
+            String str = root.toString();
+            byte[] outputBytes = str.getBytes("UTF-8");
+            OutputStream os = conn.getOutputStream();
+            os.write(outputBytes);
+
+            int responseCode = conn.getResponseCode();
+
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+
+                String line;
+                BufferedReader br = new BufferedReader(new InputStreamReader(
+                        conn.getInputStream()));
+                while ((line = br.readLine()) != null) {
+                    response += line;
+                }
+            } else {
+                response = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+        return response;
     }
 }

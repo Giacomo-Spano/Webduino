@@ -60,6 +60,7 @@ public class SensorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 HeaterViewHolder heaterViewHolder = (HeaterViewHolder) viewHolder;
                 HeaterCardInfo hci = (HeaterCardInfo) ci;
 
+                heaterViewHolder.id = hci.actuatorId;
                 heaterViewHolder.title.setText(hci.name);
                 heaterViewHolder.target.setText(""+hci.target+"°");
                 heaterViewHolder.status.setText(hci.status);
@@ -124,6 +125,8 @@ public class SensorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         protected TextView title;
         protected TextView status;
         protected TextView target;
+        protected int id;
+
 
         public HeaterViewHolder(View v) {
             super(v);
@@ -133,7 +136,7 @@ public class SensorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             v.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     // item clicked
-                    mCallback.onHeaterClick(0);
+                    mCallback.onHeaterClick(id);
                 }
             });
         }

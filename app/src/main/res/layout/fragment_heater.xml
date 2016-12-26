@@ -5,74 +5,72 @@ android:layout_width="match_parent"
 android:layout_height="match_parent"
 tools:context=".MainActivity">
 
-    <TextView
-        android:text="Heater"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/textView5" />
-
-    <Button
-        android:id="@+id/goButton"
-        android:text="button_go"
-        android:layout_below="@id/textView5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true">
+        android:layout_alignParentStart="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="119dp">
+
+            <Button
+                android:text="Sù"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:id="@+id/buttonUp" />
+
+            <TextView
+                android:text="23.0"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/textViewTarget"
+                android:textSize="36sp"
+                android:layout_centerInParent="false"
+                android:gravity="center_vertical"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:paddingLeft="30dp" />
+
+            <Button
+                android:text="Giù"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/buttonDown"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true" />
+
+        </RelativeLayout>
 
         <Button
-            android:text="Acceso 30 minuti"
+            android:text="Fuori casa"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/buttonOn30minutes" />
+            android:id="@+id/buttonLeave" />
 
         <Button
-            android:text="Acceso 1 ora"
+            android:text="Fuori casa"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/buttonOn60minutes" />
+            android:id="@+id/buttonManualOn"
+            tools:text="Accendi" />
 
         <Button
-            android:text="Acceso per ... ore, minuti "
+            android:text="Automatico"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/buttonOnHourAndminutes" />
+            android:id="@+id/buttonAuto" />
 
         <Button
-            android:text="Acceso fino a data"
+            android:text="Programmi"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/buttonOnToDate" />
+            android:id="@+id/buttonPrograms" />
 
-        <Button
-            android:text="Spento 30 minuti"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonOff30minutes" />
-
-        <Button
-            android:text="Spento 1 ora"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonOff60Minutes" />
-
-        <Button
-            android:text="Spento per ... ore, minuti"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonOffHourAndMinutes" />
-
-        <Button
-            android:text="Spento fino a data"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonOffToDate" />
     </LinearLayout>
 
-    <include layout="@layout/heater_details"/>
 </RelativeLayout>
