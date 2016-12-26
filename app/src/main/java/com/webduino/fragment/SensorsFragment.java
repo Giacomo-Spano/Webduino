@@ -147,11 +147,6 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
     @Override
     public void onHeaterClick(int id) {
 
-        // sostituire con show fragment
-        /*Intent intent = new Intent(getActivity(), HeaterWizardActivity.class);
-        intent.putExtra("actuatorid", id);
-        startActivityForResult(intent, HEATERWIZARD_REQUEST);*/
-
         Bundle bundle = new Bundle();
         bundle.putString("actuatorid", "" + id);
 
@@ -160,31 +155,8 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
         ft.replace(R.id.content_frame, fragment);
+        ft.addToBackStack(null);
+        ft.commit();
 
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        if (requestCode == HEATERWIZARD_REQUEST) {
-            // Make sure the request was successful
-            if (resultCode == RESULT_OK) {
-                // The user picked a contact.
-                // The Intent's data Uri identifies which contact was selected.
-                // fetch the message String
-
-                Bundle extras = data.getExtras();
-                if (extras != null) {
-                    String strJson = extras.getString("actuator");
-                    //strJson = extras.getString("WindAlarmProgram");
-                    HeaterActuator heaterActuator = new Gson().fromJson(strJson, HeaterActuator.class);
-                    updateActuator(heaterActuator);
-
-                }
-                // Set the message string in textView
-                //textViewMessage.setText("Message from second Activity: " + message);
-                // Do something with the contact here (bigger example below)
-            }
-        }
     }
 }

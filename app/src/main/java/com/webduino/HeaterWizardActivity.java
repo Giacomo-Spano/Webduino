@@ -10,20 +10,27 @@ import android.support.v4.app.FragmentActivity;
 public class HeaterWizardActivity extends FragmentActivity {
 
     private int actuatorId = 0;
+    private String command = "";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle bundle = getIntent().getExtras();
+        actuatorId = bundle.getInt("actuatorid");
+        command = bundle.getString("command");
+
         setContentView(R.layout.activity_heaterwizard);
 
-        actuatorId = getIntent().getIntExtra("actuatorid",0);
-
-        //HeaterWizard fragment = (HeaterWizard) getSupportFragmentManager().findFragmentById(R.actuatorId.tutorial_wizard_fragment);
 
 
     }
 
     public int getActuatorId() {
         return actuatorId;
+    }
+
+    public String getCommand() {
+        return command;
     }
 }

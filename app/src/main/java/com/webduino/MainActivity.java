@@ -22,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.webduino.fragment.HeaterFragment;
 import com.webduino.fragment.PanelFragment;
 import com.webduino.fragment.PrefsFragment;
 import com.webduino.fragment.SensorsFragment;
@@ -30,7 +31,7 @@ import com.webduino.fragment._PanelFragment;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, HeaterFragment.OnHeaterUpdatedListener {
 
     public static Activity activity;
 
@@ -193,5 +194,10 @@ public class MainActivity extends AppCompatActivity
             }
 
         };
+    }
+
+    @Override
+    public void OnHeaterUpdated(HeaterActuator heaterActuator) {
+        sensorsFragment.updateActuator(heaterActuator);
     }
 }

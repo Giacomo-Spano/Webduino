@@ -15,7 +15,10 @@ import com.google.gson.Gson;
 
 import java.util.List;
 
+import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
+import static com.webduino.HeaterActuator.Command_Manual_On;
+import static com.webduino.HeaterActuator.Command_Manual_Off;
 import static com.webduino.fragment.SensorsFragment.HEATERWIZARD_REQUEST;
 
 /**
@@ -32,6 +35,7 @@ public class HeaterWizard extends BasicWizardLayout {
      */
 
     private int actuatorId = 0;
+    String command = "";
 
     @ContextVariable
     private boolean heaterAlwaysOn;
@@ -60,11 +64,24 @@ public class HeaterWizard extends BasicWizardLayout {
     @Override
     public WizardFlow onSetup() {
 
-        return new WizardFlow.Builder()
-                .addStep(HeaterWizardStep1.class)
-                .addStep(HeaterWizardStep2.class/*, true*/)
-                .addStep(HeaterWizardStep3.class)
-                .create();
+        HeaterWizardActivity a = (HeaterWizardActivity) getActivity();
+        command = a.getCommand();
+        actuatorId = a.getActuatorId();
+
+        if (command.equals(Command_Manual_On)) {
+            return new WizardFlow.Builder()
+                    .addStep(HeaterWizardStep1.class)
+                    .addStep(HeaterWizardStep2.class/*, true*/)
+                    .addStep(HeaterWizardStep3.class)
+                    .create();
+        } else if (command.equals(Command_Manual_Off)) {
+            return new WizardFlow.Builder()
+                    .addStep(HeaterWizardStep1.class)
+                    //.addStep(HeaterWizardStep2.class/*, true*/)
+                    .addStep(HeaterWizardStep3.class)
+                    .create();
+        }
+        return null;
     }
 
     /*
@@ -77,13 +94,15 @@ public class HeaterWizard extends BasicWizardLayout {
         //...
         //String fullname = firstname + lastname;
 
-        HeaterWizardActivity a = (HeaterWizardActivity) getActivity();
-        actuatorId = a.getActuatorId();
+        //HeaterWizardActivity a = (HeaterWizardActivity) getActivity();
+        //actuatorId = a.getActuatorId();
+        //new requestDataTask(requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, Command_Manual_Start, 3000, temperature, sensorId, true);
 
-        new requestDataTask(requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, HeaterActuator.Command_Manual_Start, 3000, temperature, sensorId, true);
-
-
-
+        if (command.equals(Command_Manual_On)) {
+            new requestDataTask(requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, "start", 3000, temperature, sensorId, true);
+        } else if (command.equals(Command_Manual_Off)) {
+            new requestDataTask(requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, "stop", 3000, 0.1, 0, false);
+        }
     }
 
     @NonNull
@@ -108,7 +127,7 @@ public class HeaterWizard extends BasicWizardLayout {
             @Override
             public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
 
-                if (actuator != null) {
+                if (!error && actuator != null) {
                     HeaterActuator heater = (HeaterActuator) actuator;
 
                     Gson gson = new Gson();
@@ -119,6 +138,9 @@ public class HeaterWizard extends BasicWizardLayout {
                     //getActivity().setResult(HEATERWIZARD_REQUEST,intentMessage);
 
                     getActivity().setResult(RESULT_OK,intentMessage);
+                    getActivity().finish();     //Terminate the wizard
+                } else {
+                    getActivity().setResult(RESULT_CANCELED);
                     getActivity().finish();     //Terminate the wizard
                 }
             }

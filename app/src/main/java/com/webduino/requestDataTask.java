@@ -1,6 +1,8 @@
 package com.webduino;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -231,6 +233,23 @@ public class requestDataTask extends
         /*if (dialog.isShowing()) {
             dialog.dismiss();
         }*/
+        if (result == null) {
+            error = true;
+            errorMessage = "errore";
+            result = new Result();
+
+            new AlertDialog.Builder(MainActivity.activity)
+                    .setTitle("Your Alert")
+                    .setMessage("Your Message")
+                    .setCancelable(false)
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // Whatever...
+                        }
+                    }).show();
+            //return;
+        }
 
         if (requestType == REQUEST_REGISTERDEVICE) {
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
@@ -339,8 +358,8 @@ public class requestDataTask extends
 
             Context context = MainActivity.activity;
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(5000); // 5 sec
-            conn.setReadTimeout(10000); // 10 sec
+            conn.setConnectTimeout(3000); // 7 sec
+            conn.setReadTimeout(10000); // 12 sec
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
