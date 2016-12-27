@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.webduino.Actuator;
 import com.webduino.AsyncRequestDataResponse;
+import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.Sensor;
 import com.webduino.requestDataTask;
@@ -83,7 +84,7 @@ public class PrefsFragment extends PreferenceFragment {
         //String tokenId = (String) params[0];
         String model = Build.MODEL;
 
-        new requestDataTask(new AsyncRequestDataResponse() {
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponse() {
 
             @Override
             public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
