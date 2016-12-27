@@ -6,6 +6,7 @@ package com.webduino;
 ;
 //import android.app.FragmentTransaction;
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
@@ -57,8 +58,7 @@ public class MainActivity extends AppCompatActivity
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                getSensorData();
-                getActuatorData();
+                refreshData();
             }
         });
 
@@ -74,6 +74,14 @@ public class MainActivity extends AppCompatActivity
         panelFragment = new PanelFragment();
         sensorsFragment = new SensorsFragment();
         preferencesFragment = new PrefsFragment();
+
+        showFragment(sensorsFragment);
+        refreshData();
+    }
+
+    private void refreshData() {
+        getSensorData();
+        getActuatorData();
     }
 
     @Override
@@ -137,24 +145,30 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_send) {
 
         }
-
         ft.addToBackStack(null);
         // Committing the transaction
         ft.commit();
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+    private void showFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        ft.replace(R.id.content_frame, fragment);
+        ft.addToBackStack(null);
+        ft.commit();
+
+    }
 
     public void getSensorData() {
-        new requestDataTask(getAsyncResponse(), requestDataTask.REQUEST_SENSORS).execute();
+        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORS).execute();
 
     }
 
     public void getActuatorData() {
-        new requestDataTask(getAsyncResponse(), requestDataTask.REQUEST_ACTUATORS).execute();
+        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_ACTUATORS).execute();
 
     }
 
@@ -170,6 +184,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
 
+                if (error)
+                    return;
                 Sensors.list.clear();
                 for (Sensor sensor : sensors) {
                     Sensors.add(sensor);
@@ -180,6 +196,10 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
+
+                if (error)
+                    return;
+
                 Actuators.list.clear();
                 for (Actuator actuator : actuators) {
                     Actuators.add(actuator);

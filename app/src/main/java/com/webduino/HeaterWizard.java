@@ -99,9 +99,9 @@ public class HeaterWizard extends BasicWizardLayout {
         //new requestDataTask(requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, Command_Manual_Start, 3000, temperature, sensorId, true);
 
         if (command.equals(Command_Manual_On)) {
-            new requestDataTask(requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, "start", 3000, temperature, sensorId, true);
+            new requestDataTask(HeaterWizardActivity.activity, requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, "start", 3000, temperature, sensorId, true);
         } else if (command.equals(Command_Manual_Off)) {
-            new requestDataTask(requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, "stop", 3000, 0.1, 0, false);
+            new requestDataTask(HeaterWizardActivity.activity, requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, "stop", 3000, 0.1, 0, false);
         }
     }
 

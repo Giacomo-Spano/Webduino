@@ -52,7 +52,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         //String tokenId = (String) params[0];
         String model = Build.MODEL;
 
-        new requestDataTask(new AsyncRequestDataResponse() {
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponse() {
 
             @Override
             public void processFinishRegister(long shieldId, boolean error, String errorMessage) {

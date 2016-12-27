@@ -1,12 +1,15 @@
 package com.webduino;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
+import android.view.View;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -45,8 +48,10 @@ public class requestDataTask extends
     public static final int REQUEST_ACTUATORS = 4;
     public static final int REQUEST_SHIELD = 5;
     public static final int POST_ACTUATOR_COMMAND = 6;
+    private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
+    ProgressDialog ringProgressDialog;
     //private ProgressDialog dialog;
     //private Activity activity;
     private boolean error = false;
@@ -64,11 +69,13 @@ public class requestDataTask extends
         public Actuator actuator;
     }
 
-    public requestDataTask(/*Activity activity, */AsyncRequestDataResponse asyncResponse, int type) {
-        //this.activity = activity;
+    public requestDataTask(Activity activity, AsyncRequestDataResponse asyncResponse, int type) {
+        this.activity = activity;
         //dialog = new ProgressDialog(activity);
         delegate = asyncResponse;//Assigning call back interfacethrough constructor
         requestType = type;
+
+        ringProgressDialog = new ProgressDialog(/*MainActivity.activity*/activity);
     }
 
     protected requestDataTask.Result doInBackground(Object... params) {
@@ -87,8 +94,7 @@ public class requestDataTask extends
 
     @NonNull
     private Result performGetRequest(Object[] params) {
-        Result result;
-        result = new Result();
+
         URL url;
 
         try {
@@ -130,6 +136,7 @@ public class requestDataTask extends
                 contentSize = 1000;//Integer.valueOf(conn.getHeaderField("Length"));//conn.getContentLength();
                 String json = convertStreamToString(in);
 
+                Result result = new Result();
                 if (requestType == REQUEST_REGISTERDEVICE) {
                     // TODO add favorites list
                 } else if (requestType == REQUEST_SENSORS) {
@@ -157,11 +164,15 @@ public class requestDataTask extends
                             list.add(heater);
                         }
                     }
+
                     result.actuators = list;
                 }
 
                 if (conn != null)
                     conn.disconnect();
+
+                return result;
+
             } catch (JSONException e) {
                 error = true;
                 e.printStackTrace();
@@ -171,16 +182,19 @@ public class requestDataTask extends
             error = true;
             e.printStackTrace();
             errorMessage = e.toString();
+            return null;
         } catch (java.net.SocketTimeoutException e) {
             error = true;
             e.printStackTrace();
             errorMessage = e.toString();
+            return null;
         } catch (IOException e) {
             error = true;
             e.printStackTrace();
             errorMessage = e.toString();
+            return null;
         }
-        return result;
+        return null;
     }
 
     @NonNull
@@ -221,26 +235,49 @@ public class requestDataTask extends
 
         //this.dialog.setMessage(message);
         //this.dialog.show();
+        ringProgressDialog.setMessage("Doing something, please wait.");
+        ringProgressDialog.setTitle("comando");
+        ringProgressDialog.show();
+
     }
+
+    /*public void launchRingDialog() {
+        ringProgressDialog = ProgressDialog.show(MainActivity.activity,"Please wait ...",	"Downloading Image ...", true);
+        ringProgressDialog.setCancelable(true);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    // Here you should write your time consuming task...
+                    // Let the progress ring for 10 seconds...
+                    Thread.sleep(10000);
+                } catch (Exception e) {
+
+                }
+                ringProgressDialog.dismiss();
+            }
+        }).start();
+    }*/
 
     @Override
     protected void onProgressUpdate(Long... values) {
         //progressBar.setProgress(values[0].intValue());
+
     }
 
     protected void onPostExecute(Result result) {
 
-        /*if (dialog.isShowing()) {
-            dialog.dismiss();
-        }*/
-        if (result == null) {
+        if (ringProgressDialog != null && ringProgressDialog.isShowing())
+            ringProgressDialog.dismiss();
+
+        if (result == null || error) {
             error = true;
             errorMessage = "errore";
             result = new Result();
 
-            new AlertDialog.Builder(MainActivity.activity)
-                    .setTitle("Your Alert")
-                    .setMessage("Your Message")
+            new AlertDialog.Builder(activity)
+                    .setTitle("errore")
+                    .setMessage(errorMessage)
                     .setCancelable(false)
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                         @Override
@@ -248,7 +285,7 @@ public class requestDataTask extends
                             // Whatever...
                         }
                     }).show();
-            //return;
+
         }
 
         if (requestType == REQUEST_REGISTERDEVICE) {
@@ -290,7 +327,8 @@ public class requestDataTask extends
 
 
     protected Result performPostCall(Object[] params) {
-        boolean status = false;
+
+        //launchRingDialog();
 
         Result result;
         result = new Result();
@@ -306,11 +344,6 @@ public class requestDataTask extends
             int sensorId = (int) params[4];
             boolean remote = (boolean) params[5];
 
-            /*Actuator actuator = Actuators.getFromId(actuatorId);
-            if (actuator == null)
-                return null;
-            HeaterActuator heater = (HeaterActuator) actuator;
-*/
             String serverUrl = getServerUrl();
             String url = serverUrl + path;
 
@@ -351,6 +384,8 @@ public class requestDataTask extends
     public String postCall(String requestURL,
                            HashMap<String, String> postDataParams) {
 
+
+
         URL url;
         String response = "";
         try {
@@ -358,21 +393,17 @@ public class requestDataTask extends
 
             Context context = MainActivity.activity;
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(3000); // 7 sec
-            conn.setReadTimeout(10000); // 12 sec
+            conn.setConnectTimeout(7000); // 7 sec
+            conn.setReadTimeout(12000); // 12 sec
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
 
             conn.setRequestProperty("Content-Type", "application/json");
 
-            /*
-             * JSON
-             */
-
             JSONObject root = new JSONObject();
             for (HashMap.Entry<String, String> entry : postDataParams.entrySet()) {
-                root.put(entry.getKey(),  entry.getValue());
+                root.put(entry.getKey(), entry.getValue());
             }
 
             String str = root.toString();
@@ -395,6 +426,8 @@ public class requestDataTask extends
             }
         } catch (Exception e) {
             e.printStackTrace();
+            errorMessage = e.toString();
+            error = true;
             return null;
         }
 
