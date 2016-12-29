@@ -2,17 +2,12 @@ package com.webduino.fragment;
 
 //import android.app.Fragment;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.transition.Scene;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,21 +15,11 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.webduino.Actuator;
 import com.webduino.Actuators;
-import com.webduino.CardInfo;
 import com.webduino.HeaterActuator;
-import com.webduino.HeaterCardInfo;
-import com.webduino.HeaterWizardActivity;
+import com.webduino.MainActivity;
+import com.webduino.wizard.HeaterWizardActivity;
 import com.webduino.R;
-import com.webduino.Sensor;
-import com.webduino.SensorAdapter;
-import com.webduino.Sensors;
-import com.webduino.TemperatureSensor;
-import com.webduino.TemperatureSensorCardInfo;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 import static com.webduino.HeaterActuator.Command_Manual_Off;
@@ -52,13 +37,16 @@ public class HeaterFragment extends Fragment {
     public static final int HEATERWIZARD_MANUAL_OFF = 1;  // The request code
     public static final int HEATERWIZARD_MANUAL_ON = 2;  // The request code
 
-    Button buttonLeave;
-    Button buttonManualOn;
-    Button buttonAuto;
-    Button buttonPrograms;
-    TextView textViewReleStatus;
-    TextView textViewStatus;
-    TextView textViewTarget;
+    private Button buttonLeave;
+    private Button buttonManualOn;
+    private Button buttonAuto;
+    private Button buttonPrograms;
+    private TextView textViewReleStatus;
+    private TextView textViewStatus;
+    private TextView textViewProgram;
+    private TextView textViewTarget;
+
+    private int actuatorId;
 
     // Container Activity must implement this interface
     public interface OnHeaterUpdatedListener {
@@ -87,7 +75,7 @@ public class HeaterFragment extends Fragment {
         }
 
         String strtext = getArguments().getString("actuatorid");
-        final int id = Integer.valueOf(strtext);
+        actuatorId = Integer.valueOf(strtext);
 
         View v;
         v = inflater.inflate(R.layout.fragment_heater, container, false);
@@ -95,6 +83,7 @@ public class HeaterFragment extends Fragment {
         textViewStatus = (TextView) v.findViewById(R.id.textViewStatus);
         textViewReleStatus = (TextView) v.findViewById(R.id.textViewReleStatus);
         textViewTarget = (TextView) v.findViewById(R.id.textViewTarget);
+        textViewProgram = (TextView) v.findViewById(R.id.textViewProgram);
 
         buttonLeave = (Button) v.findViewById(R.id.buttonLeave);
         buttonLeave.setOnClickListener(new View.OnClickListener() {
@@ -102,7 +91,7 @@ public class HeaterFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), HeaterWizardActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putInt("actuatorid", id);
+                bundle.putInt("actuatorid", actuatorId);
                 bundle.putString("command", Command_Manual_Off);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, HEATERWIZARD_MANUAL_OFF);
@@ -115,7 +104,7 @@ public class HeaterFragment extends Fragment {
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), HeaterWizardActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putInt("actuatorid", id);
+                bundle.putInt("actuatorid", actuatorId);
                 bundle.putString("command", Command_Manual_On);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, HEATERWIZARD_MANUAL_ON);
@@ -123,9 +112,20 @@ public class HeaterFragment extends Fragment {
         });
         buttonAuto = (Button) v.findViewById(R.id.buttonAuto);
         buttonPrograms = (Button) v.findViewById(R.id.buttonPrograms);
+        buttonPrograms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*Intent intent = new Intent(getActivity(), HeaterWizardActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt("actuatorid", id);
+                bundle.putString("command", Command_Manual_On);
+                intent.putExtras(bundle);
+                startActivityForResult(intent, HEATERWIZARD_MANUAL_ON);*/
+            }
+        });
 
-        HeaterActuator heater = (HeaterActuator) Actuators.getFromId(id);
-        update(heater);
+        //HeaterActuator heater = (HeaterActuator) Actuators.getFromId(actuatorId);
+        update(/*heater*/);
 
         /*final Scene scene = Scene.getSceneForLayout(container,
                 R.layout.fragment_transition_scene_1, getActivity());
@@ -161,17 +161,23 @@ public class HeaterFragment extends Fragment {
                 // The user picked a contact.
                 // The Intent's data Uri identifies which contact was selected.
                 // fetch the message String
+                MainActivity a = (MainActivity) getActivity();
+                a.getActuatorData();
 
-                Bundle extras = data.getExtras();
-                if (extras != null) {
-                    String strJson = extras.getString("actuator");
-                    //strJson = extras.getString("WindAlarmProgram");
-                    HeaterActuator heaterActuator = new Gson().fromJson(strJson, HeaterActuator.class);
-                    mListener.OnHeaterUpdated(heaterActuator);
-                    update(heaterActuator);
-                    //updateActuator(heaterActuator);
 
-                }
+                /*if (data != null) {
+                    Bundle extras = data.getExtras();
+
+                    if (extras != null) {
+                        String strJson = extras.getString("actuator");
+                        //strJson = extras.getString("WindAlarmProgram");
+                        HeaterActuator heaterActuator = new Gson().fromJson(strJson, HeaterActuator.class);
+                        mListener.OnHeaterUpdated(heaterActuator);
+                        update(heaterActuator);
+                        //updateActuator(heaterActuator);
+
+                    }
+                }*/
                 // Set the message string in textView
                 //textViewMessage.setText("Message from second Activity: " + message);
                 // Do something with the contact here (bigger example below)
@@ -179,7 +185,9 @@ public class HeaterFragment extends Fragment {
         }
     }
 
-    private void update(HeaterActuator heater) {
+    public void update(/*HeaterActuator heater*/) {
+
+        HeaterActuator heater = (HeaterActuator) Actuators.getFromId(actuatorId);
 
         if (heater == null)
             return;
@@ -190,7 +198,20 @@ public class HeaterFragment extends Fragment {
             textViewReleStatus.setText("ACCESO");
         else
             textViewReleStatus.setText("SPENTO");
-
+        String program = "";
+        if (heater.getStatus().equals(HeaterActuator.StatusProgram)) {
+            program += "program [" + heater.getActiveProgramId() + "." + heater.getActiveTimeRangeId() + "] ";
+            program += heater.getActiveProgramIdName() + "." + heater.getActiveTimeRangeIdName();
+            program += " target " + heater.getTarget() + "°C";
+            if (heater.getLocalsensor()) {
+                program += " local sensor ";
+            } else {
+                program += " sensore [" + heater.getSensorId() + "]" + heater.getSensorIdName() + "(" + heater.getRemoteTemperature() + ")";
+            }
+        } else if (heater.getStatus().equals(HeaterActuator.StatusManual)) {
+            program += "manual [" + heater.getActiveProgramId() + heater.getActiveTimeRangeId() + "] ";
+        }
+        textViewProgram.setText(program);
 
     }
 }

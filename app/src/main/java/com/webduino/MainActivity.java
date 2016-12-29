@@ -27,7 +27,7 @@ import com.webduino.fragment.HeaterFragment;
 import com.webduino.fragment.PanelFragment;
 import com.webduino.fragment.PrefsFragment;
 import com.webduino.fragment.SensorsFragment;
-import com.webduino.fragment._PanelFragment;
+
 
 import java.util.List;
 
@@ -206,6 +206,7 @@ public class MainActivity extends AppCompatActivity
                 }
 
                 sensorsFragment.update();
+
             }
 
             @Override
@@ -218,6 +219,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void OnHeaterUpdated(HeaterActuator heaterActuator) {
-        sensorsFragment.updateActuator(heaterActuator);
+        //sensorsFragment.updateActuator(heaterActuator);
+        Actuators.update(heaterActuator);
     }
 }

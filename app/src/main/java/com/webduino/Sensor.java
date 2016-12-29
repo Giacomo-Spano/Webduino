@@ -17,6 +17,10 @@ public class Sensor {
     protected String name;
     protected Date lastUpdate;
 
+    public int getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }

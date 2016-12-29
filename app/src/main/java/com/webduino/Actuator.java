@@ -20,9 +20,6 @@ public class Actuator extends Sensor {
         return status;
     }
 
-    public int getId() {
-        return id;
-    }
 
     @Override
     void fromJson(JSONObject json) {

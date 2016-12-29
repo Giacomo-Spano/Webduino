@@ -272,9 +272,10 @@ public class requestDataTask extends
 
         if (result == null || error) {
             error = true;
-            errorMessage = "errore";
+            //errorMessage = "errore";
             result = new Result();
 
+            final Result finalResult = result;
             new AlertDialog.Builder(activity)
                     .setTitle("errore")
                     .setMessage(errorMessage)
@@ -283,11 +284,20 @@ public class requestDataTask extends
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             // Whatever...
+                            processFinish(finalResult);
                         }
                     }).show();
 
-        }
+        } else {
 
+            processFinish(result);
+        }
+    }
+
+    private void processFinish(Result result) {
+
+        if (ringProgressDialog != null || ringProgressDialog.isShowing())
+            ringProgressDialog.dismiss();
         if (requestType == REQUEST_REGISTERDEVICE) {
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
         } else if (requestType == REQUEST_SENSORS) {
@@ -351,7 +361,7 @@ public class requestDataTask extends
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("id", "" + actuatorId);
             map.put("command", command);
-            map.put("duration", "" + 3000);
+            map.put("duration", "" + duration);
             map.put("target", "" + target);
             map.put("sensorid", "" + sensorId);
             map.put("remote", "" + remote);
@@ -362,12 +372,13 @@ public class requestDataTask extends
 
                     if (json.has("answer") && json.getString("answer").equals("success")) {
 
-                        JSONObject actuator = new JSONObject(json.getString("actuator"));
+                        return result;
+                        /*JSONObject actuator = new JSONObject(json.getString("actuator"));
                         if (actuator != null) {
                             result.actuator = new HeaterActuator();
                             result.actuator.fromJson(actuator);
                             return result;
-                        }
+                        }*/
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -393,8 +404,8 @@ public class requestDataTask extends
 
             Context context = MainActivity.activity;
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(7000); // 7 sec
-            conn.setReadTimeout(12000); // 12 sec
+            conn.setConnectTimeout(10000); // 7 sec
+            conn.setReadTimeout(15000); // 12 sec
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
@@ -423,6 +434,8 @@ public class requestDataTask extends
                 }
             } else {
                 response = null;
+                error = true;
+                errorMessage = conn.getResponseMessage() + " responseCode:" + responseCode ;
             }
         } catch (Exception e) {
             e.printStackTrace();

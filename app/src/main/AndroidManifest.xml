@@ -21,7 +21,7 @@
 
 
         <activity
-            android:name=".HeaterWizardActivity"
+            android:name=".wizard.HeaterWizardActivity"
             android:label="@string/app_name"
             android:windowSoftInputMode="stateHidden"
             android:theme="@style/AppTheme.NoActionBar">

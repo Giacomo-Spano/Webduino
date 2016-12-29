@@ -27,4 +27,21 @@ public class Actuators {
         }
         return null;
     }
+
+    public static void update(Actuator actuator) {
+
+        int index = 0;
+        for (Actuator actr: list) {
+
+            try {
+                if (actuator.id == actr.id) {
+                    list.set(index,actuator);
+                }
+                return;
+            } catch (ClassCastException e) {
+
+            }
+            index++;
+        }
+    }
 }

@@ -5,7 +5,6 @@ package com.webduino.fragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.content.Intent;
 import android.os.Bundle;
 //import android.support.v4.app.Fragment;
 import android.support.annotation.NonNull;
@@ -15,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.gson.Gson;
 import com.webduino.Actuator;
 import com.webduino.Actuators;
 import com.webduino.HeaterActuator;
@@ -27,12 +25,9 @@ import com.webduino.R;
 import com.webduino.Sensors;
 import com.webduino.TemperatureSensor;
 import com.webduino.TemperatureSensorCardInfo;
-import com.webduino.HeaterWizardActivity;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.app.Activity.RESULT_OK;
 //import android.support.v4.app.Fragment;
 
 /**
@@ -45,6 +40,7 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
 
     private List<CardInfo> list;
     private SensorAdapter sensorAdapter;
+    private HeaterFragment heaterFragment = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -75,9 +71,14 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
     }
 
     public void update() {
-        /*List<CardInfo>*/
+
         list = createSensorList();
         sensorAdapter.swap(list);
+
+        if (heaterFragment != null) {
+
+            heaterFragment.update();
+        }
     }
 
     public void updateActuator(Actuator actuator) {
@@ -100,7 +101,6 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
     }
 
     public List<CardInfo> createSensorList() {
-
 
         List<CardInfo> result = new ArrayList<CardInfo>();
 
@@ -150,13 +150,13 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
         Bundle bundle = new Bundle();
         bundle.putString("actuatorid", "" + id);
 
-        HeaterFragment fragment = new HeaterFragment();
-        fragment.setArguments(bundle);
+        /*HeaterFragment */
+        heaterFragment = new HeaterFragment();
+        heaterFragment.setArguments(bundle);
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        ft.replace(R.id.content_frame, fragment);
+        ft.replace(R.id.content_frame, heaterFragment);
         ft.addToBackStack(null);
         ft.commit();
-
     }
 }
