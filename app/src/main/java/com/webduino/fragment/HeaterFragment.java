@@ -14,16 +14,16 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.webduino.Actuators;
-import com.webduino.HeaterActuator;
+import com.webduino.elements.Actuators;
+import com.webduino.elements.HeaterActuator;
 import com.webduino.MainActivity;
 import com.webduino.wizard.HeaterWizardActivity;
 import com.webduino.R;
 
 import static android.app.Activity.RESULT_OK;
-import static com.webduino.HeaterActuator.Command_Manual_Off;
-import static com.webduino.HeaterActuator.Command_Manual_On;
+import static com.webduino.elements.HeaterActuator.Command_Manual_End;
+import static com.webduino.elements.HeaterActuator.Command_Manual_Off;
+import static com.webduino.elements.HeaterActuator.Command_Manual_Auto;
 
 //import android.support.v4.app.Fragment;
 //import android.support.v4.app.Fragment;
@@ -36,6 +36,7 @@ public class HeaterFragment extends Fragment {
 
     public static final int HEATERWIZARD_MANUAL_OFF = 1;  // The request code
     public static final int HEATERWIZARD_MANUAL_ON = 2;  // The request code
+    public static final int HEATERWIZARD_MANUAL_END = 3;  // The request code
 
     private Button buttonLeave;
     private Button buttonManualOn;
@@ -65,7 +66,6 @@ public class HeaterFragment extends Fragment {
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -105,12 +105,24 @@ public class HeaterFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), HeaterWizardActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putInt("actuatorid", actuatorId);
-                bundle.putString("command", Command_Manual_On);
+                bundle.putString("command", Command_Manual_Auto);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, HEATERWIZARD_MANUAL_ON);
             }
         });
         buttonAuto = (Button) v.findViewById(R.id.buttonAuto);
+        buttonAuto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), HeaterWizardActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putInt("actuatorid", actuatorId);
+                bundle.putString("command", Command_Manual_End);
+                intent.putExtras(bundle);
+                startActivityForResult(intent, HEATERWIZARD_MANUAL_END);
+            }
+        });
+
         buttonPrograms = (Button) v.findViewById(R.id.buttonPrograms);
         buttonPrograms.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,7 +222,19 @@ public class HeaterFragment extends Fragment {
             }
         } else if (heater.getStatus().equals(HeaterActuator.StatusManual)) {
             program += "manual [" + heater.getActiveProgramId() + heater.getActiveTimeRangeId() + "] ";
+        } else if (heater.getStatus().equals(HeaterActuator.StatusIdle)) {
+            program += "idle";
         }
+
+
+        if (heater.getStatus().equals(HeaterActuator.StatusProgram) ||
+                heater.getStatus().equals(HeaterActuator.StatusManual) ||
+                heater.getStatus().equals(HeaterActuator.StatusManualOff)) {
+            program += " tempo rimanente " + heater.getRemainig();
+            program += "durata " + heater.getDuration();
+        }
+
+
         textViewProgram.setText(program);
 
     }

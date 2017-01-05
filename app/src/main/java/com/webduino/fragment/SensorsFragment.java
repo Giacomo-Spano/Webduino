@@ -14,17 +14,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.webduino.Actuator;
-import com.webduino.Actuators;
-import com.webduino.HeaterActuator;
-import com.webduino.HeaterCardInfo;
-import com.webduino.Sensor;
-import com.webduino.SensorAdapter;
-import com.webduino.CardInfo;
+import com.webduino.elements.Actuator;
+import com.webduino.elements.Actuators;
+import com.webduino.elements.HeaterActuator;
+import com.webduino.elements.Sensor;
 import com.webduino.R;
-import com.webduino.Sensors;
-import com.webduino.TemperatureSensor;
-import com.webduino.TemperatureSensorCardInfo;
+import com.webduino.elements.Sensors;
+import com.webduino.elements.TemperatureSensor;
+import com.webduino.fragment.adapters.SensorAdapter;
+import com.webduino.fragment.cardinfo.CardInfo;
+import com.webduino.fragment.cardinfo.HeaterCardInfo;
+import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
 
 import java.util.ArrayList;
 import java.util.List;

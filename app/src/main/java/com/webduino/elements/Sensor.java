@@ -1,4 +1,4 @@
-package com.webduino;
+package com.webduino.elements;
 
 import org.json.JSONObject;
 

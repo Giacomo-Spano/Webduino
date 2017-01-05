@@ -1,4 +1,4 @@
-package com.webduino;
+package com.webduino.elements;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -9,15 +9,11 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
-import android.view.View;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
+import com.webduino.AsyncRequestDataResponse;
+import com.webduino.MainActivity;
+import com.webduino.R;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +43,9 @@ public class requestDataTask extends
     public static final int REQUEST_SENSORS = 3;
     public static final int REQUEST_ACTUATORS = 4;
     public static final int REQUEST_SHIELD = 5;
-    public static final int POST_ACTUATOR_COMMAND = 6;
+    public static final int REQUEST_PROGRAMS = 6;
+    public static final int POST_ACTUATOR_COMMAND = 7;
+    public static final int POST_PROGRAM = 8;
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -66,7 +64,9 @@ public class requestDataTask extends
         public List<Sensor> sensors;
         public List<Actuator> actuators;
         public List<Shield> shields;
+        public List<Program> programs;
         public Actuator actuator;
+        public boolean response;
     }
 
     public requestDataTask(Activity activity, AsyncRequestDataResponse asyncResponse, int type) {
@@ -82,9 +82,10 @@ public class requestDataTask extends
 
         requestDataTask.Result result = null;
 
-        if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS || requestType == REQUEST_ACTUATORS) {
+        if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS || requestType == REQUEST_ACTUATORS
+                || requestType == REQUEST_PROGRAMS) {
             result = performGetRequest(params);
-        } else {
+        } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM) {
             result = performPostCall(params);
         }
 
@@ -115,11 +116,14 @@ public class requestDataTask extends
 
                 path = "/actuator?";
 
+            } else if (requestType == REQUEST_PROGRAMS) {
+
+                path = "/program?";
+
             }
 
             String serverUrl = getServerUrl();
 
-            //String serverUrl = "http://192.168.1.3:8080/webduino";
             url = new URL(serverUrl + path);
             final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setConnectTimeout(5000); //set timeout to 5 seconds
@@ -166,6 +170,18 @@ public class requestDataTask extends
                     }
 
                     result.actuators = list;
+                } else if (requestType == REQUEST_PROGRAMS) {
+
+                    List<Program> list = new ArrayList<Program>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        Program program = new Program();
+                        program.fromJson(jObject);
+                        list.add(program);
+                    }
+
+                    result.programs = list;
                 }
 
                 if (conn != null)
@@ -214,55 +230,32 @@ public class requestDataTask extends
     protected void onPreExecute() {
 
         //progressBar.setProgress(10);
-        String message = "attendere prego...";
+        String title = "Attendere prego";
+        String message = "";
         if (requestType == REQUEST_REGISTERDEVICE)
-            message = "Richiesta lista spot...";
+            message = "Richiesta registrazione inviata";
         else if (requestType == REQUEST_SENSORS)
-            message = "Richiesta lista completa spot...";
-        //else if (requestType == REQUEST_HISTORYMETEODATA)
-        //message = "Richiesta dati storici...";
-        /*else if (requestType == REQUEST_LASTMETEODATA)
-            message = "Richiesta dati meteo...";
-        else if (requestType == REQUEST_FORECAST) {
-            message = "caricamento ...";
-            //this.dialog.setMessage(message);
-            //this.dialog.show();
-        } else if (requestType == REQUEST_FORECASTLOCATIONS) {
-            message = "caricamento...";
-            this.dialog.setMessage(message);
-            this.dialog.show();
-        }*/
+            message = "Aggiornamnento";
+        else if (requestType == REQUEST_ACTUATORS)
+            message = "Aggiornamnento";
+        else if (requestType == REQUEST_PROGRAMS)
+            message = "Aggiornamnento";
+        else if (requestType == REQUEST_SHIELD)
+            message = "Aggiornamnento";
+        else if (requestType == POST_PROGRAM)
+            message = "Salvataggio programma";
+        else if (requestType == POST_ACTUATOR_COMMAND)
+            message = "Comando inviato";
 
-        //this.dialog.setMessage(message);
-        //this.dialog.show();
-        ringProgressDialog.setMessage("Doing something, please wait.");
-        ringProgressDialog.setTitle("comando");
+        ringProgressDialog.setMessage(message);
+        ringProgressDialog.setTitle(title);
         ringProgressDialog.show();
 
     }
 
-    /*public void launchRingDialog() {
-        ringProgressDialog = ProgressDialog.show(MainActivity.activity,"Please wait ...",	"Downloading Image ...", true);
-        ringProgressDialog.setCancelable(true);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // Here you should write your time consuming task...
-                    // Let the progress ring for 10 seconds...
-                    Thread.sleep(10000);
-                } catch (Exception e) {
-
-                }
-                ringProgressDialog.dismiss();
-            }
-        }).start();
-    }*/
-
     @Override
     protected void onProgressUpdate(Long... values) {
         //progressBar.setProgress(values[0].intValue());
-
     }
 
     protected void onPostExecute(Result result) {
@@ -277,7 +270,7 @@ public class requestDataTask extends
 
             final Result finalResult = result;
             new AlertDialog.Builder(activity)
-                    .setTitle("errore")
+                    .setTitle("Errore")
                     .setMessage(errorMessage)
                     .setCancelable(false)
                     .setPositiveButton("ok", new DialogInterface.OnClickListener() {
@@ -304,8 +297,12 @@ public class requestDataTask extends
             delegate.processFinishSensors(result.sensors, error, errorMessage);
         } else if (requestType == REQUEST_ACTUATORS) {
             delegate.processFinishActuators(result.actuators, error, errorMessage);
+        } else if (requestType == REQUEST_PROGRAMS) {
+            delegate.processFinishPrograms(result.programs, error, errorMessage);
         } else if (requestType == POST_ACTUATOR_COMMAND) {
             delegate.processFinishSendCommand(result.actuator, error, errorMessage);
+        } else if (requestType == POST_PROGRAM) {
+        delegate.processFinishPostProgram(result.response, error, errorMessage);
         }
     }
 
@@ -338,64 +335,69 @@ public class requestDataTask extends
 
     protected Result performPostCall(Object[] params) {
 
-        //launchRingDialog();
-
-        Result result;
-        result = new Result();
-        //URL url;
-
         String path = "";
         if (requestType == POST_ACTUATOR_COMMAND) {
             path = "/actuator?";
+            String serverUrl = getServerUrl();
+            String url = serverUrl + path;
+
             int actuatorId = (int) params[0];
             String command = (String) params[1];
             int duration = (int) params[2];
             double target = (double) params[3];
             int sensorId = (int) params[4];
             boolean remote = (boolean) params[5];
+            JSONObject json = new JSONObject();
+            try {
+                json.put("actuatorid", "" + actuatorId);
+                json.put("command", command);
+                json.put("duration", "" + duration);
+                json.put("target", "" + target);
+                json.put("sensorid", "" + sensorId);
+                json.put("remote", "" + remote);
+                String response = postCall(url, json.toString());
+                Result result = getResult(response);
+                return result;
 
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return null;
+            }
+
+        } else if (requestType == POST_PROGRAM) {
+            path = "/program?";
             String serverUrl = getServerUrl();
             String url = serverUrl + path;
-
-            String response;
-            HashMap<String, String> map = new HashMap<String, String>();
-            map.put("id", "" + actuatorId);
-            map.put("command", command);
-            map.put("duration", "" + duration);
-            map.put("target", "" + target);
-            map.put("sensorid", "" + sensorId);
-            map.put("remote", "" + remote);
-            response = postCall(url, map);
-            if (response != null) {
-                try {
-                    JSONObject json = new JSONObject(response);
-
-                    if (json.has("answer") && json.getString("answer").equals("success")) {
-
-                        return result;
-                        /*JSONObject actuator = new JSONObject(json.getString("actuator"));
-                        if (actuator != null) {
-                            result.actuator = new HeaterActuator();
-                            result.actuator.fromJson(actuator);
-                            return result;
-                        }*/
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                    return null;
-                }
+            Program program = (Program) params[0];
+            if (program != null && program.getJson() != null) {
+                String response = postCall(url, program.getJson().toString());
+                Result result = getResult(response);
+                return result;
             }
-        } else {
-            // other command
             return null;
         }
         return null;
     }
 
-    public String postCall(String requestURL,
-                           HashMap<String, String> postDataParams) {
+    public Result getResult(String response) {
+        if (response != null) {
+            try {
+                JSONObject json = new JSONObject(response);
+                if (json.has("answer") && json.getString("answer").equals("success")) {
+                    Result res = new Result();
+                    res.response = true;
+                    return res;
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return null;
+    }
 
-
+    public String postCall(String requestURL, String json
+                           /*HashMap<String, String> postDataParams*/) {
 
         URL url;
         String response = "";
@@ -409,16 +411,15 @@ public class requestDataTask extends
             conn.setRequestMethod("POST");
             conn.setDoInput(true);
             conn.setDoOutput(true);
-
             conn.setRequestProperty("Content-Type", "application/json");
 
-            JSONObject root = new JSONObject();
+            /*JSONObject root = new JSONObject();
             for (HashMap.Entry<String, String> entry : postDataParams.entrySet()) {
                 root.put(entry.getKey(), entry.getValue());
-            }
+            }*/
+            //String json = root.toString();
 
-            String str = root.toString();
-            byte[] outputBytes = str.getBytes("UTF-8");
+            byte[] outputBytes = json.getBytes("UTF-8");
             OutputStream os = conn.getOutputStream();
             os.write(outputBytes);
 

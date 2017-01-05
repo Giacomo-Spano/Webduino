@@ -1,7 +1,6 @@
-package com.webduino;
+package com.webduino.elements;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import com.webduino.elements.Sensor;
 
 import org.json.JSONObject;
 

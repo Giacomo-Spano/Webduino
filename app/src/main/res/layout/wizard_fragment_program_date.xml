@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp">
+
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/radioGroup">
+
+        <RadioButton
+            android:text="Sempre"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/alwaysRadioButton"
+            android:layout_marginTop="20dp"
+            android:layout_weight="1" />
+
+        <RadioButton
+            android:text="Intervallo di date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/dateRangeRadioButton"
+            android:layout_marginTop="20dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp">
+
+            <TextView
+                android:text="Da:"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/fromTextView"
+                android:layout_weight="1"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/startDateEditText"
+                android:layout_width="163dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+
+                android:inputType="datetime"
+                tools:text="1/1/1970 20:30"
+                android:focusable="false"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="40dp">
+
+            <TextView
+                android:text="A:"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/toTextView"
+                android:layout_weight="1"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/endDateEditText"
+                android:layout_width="163dp"
+                android:layout_height="wrap_content"
+                android:ems="10"
+
+                android:inputType="datetime"
+                tools:text="1/1/1970 20:30"
+                android:focusable="false"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <RadioButton
+            android:text="Mai"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/neverRadioButton"
+            android:layout_marginTop="20dp"
+            android:layout_weight="1" />
+
+
+    </RadioGroup>
+
+
+
+
+</RelativeLayout>

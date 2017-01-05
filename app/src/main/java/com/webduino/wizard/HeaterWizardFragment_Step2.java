@@ -13,10 +13,8 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 
 import com.webduino.R;
-import com.webduino.Sensor;
-import com.webduino.Sensors;
-
-import org.codepond.wizardroid.persistence.ContextVariable;
+import com.webduino.elements.Sensor;
+import com.webduino.elements.Sensors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,10 +34,6 @@ public class HeaterWizardFragment_Step2 extends Fragment implements CompoundButt
         return sensorId;
     }
 
-    public double getTemperature() {
-        return temperature;
-    }
-
     private int sensorId = 0;
 
     private EditText temperatureEditText;
@@ -57,7 +51,7 @@ public class HeaterWizardFragment_Step2 extends Fragment implements CompoundButt
         }
 
         View v;
-        v = inflater.inflate(R.layout.heaterwizardfragmentstep2, container, false);
+        v = inflater.inflate(R.layout.wizard_fragment_heater_step2, container, false);
 
         temperatureEditText = (EditText) v.findViewById(R.id.temperatureEditText);
         radioGroup = (RadioGroup) v.findViewById(R.id.radioGroup);
@@ -88,5 +82,13 @@ public class HeaterWizardFragment_Step2 extends Fragment implements CompoundButt
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         sensorId = (int) buttonView.getTag();
+    }
+
+    public double getTemperature() {
+        return temperature;
+    }
+
+    public boolean getRemoteSensor() {
+        return true;
     }
 }

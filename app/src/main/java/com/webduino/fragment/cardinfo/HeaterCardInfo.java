@@ -1,4 +1,6 @@
-package com.webduino;
+package com.webduino.fragment.cardinfo;
+
+import com.webduino.elements.HeaterActuator;
 
 /**
  * Created by Giacomo Spanò on 17/12/2016.

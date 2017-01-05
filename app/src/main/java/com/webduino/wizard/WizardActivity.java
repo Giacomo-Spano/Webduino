@@ -10,26 +10,22 @@ import android.view.View;
 import android.widget.Button;
 
 import com.webduino.R;
-import com.webduino.wizard.HeaterWizardFragment_Step1;
-import com.webduino.wizard.HeaterWizardFragment_Step2;
-import com.webduino.wizard.HeaterWizardFragment_Summary;
 
-import static com.webduino.HeaterActuator.Command_Manual_Off;
-import static com.webduino.HeaterActuator.Command_Manual_On;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Giacomo Spanò on 21/12/2016.
  */
 
-public class WizardActivity extends AppCompatActivity {
+public class WizardActivity extends AppCompatActivity implements WizardFragment.OnNextListener {
 
-    //private int actuatorId = 0;
-    //private String command = "";
 
     public static Activity activity;
+    protected List<Fragment> fragmentList = new ArrayList<>();
 
     Button nextButton, backButton;
-    int position = 0;
+    protected int position = 0;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -37,13 +33,12 @@ public class WizardActivity extends AppCompatActivity {
 
         activity = this;
 
-        setContentView(R.layout.heaterwizard_activity);
+        setContentView(R.layout.activity_wizard);
 
         backButton = (Button) findViewById(R.id.cancelButton);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //showFragment(step1);
                 back();
             }
         });
@@ -53,13 +48,12 @@ public class WizardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 next();
-                //showFragment(step2);
             }
         });
+    }
 
-
-        //showFragment(step1);
-
+    public void addStep(Fragment fragment) {
+        fragmentList.add(fragment);
     }
 
     protected void showFragment(Fragment fragment) {
@@ -71,24 +65,56 @@ public class WizardActivity extends AppCompatActivity {
         ft.replace(R.id.content_frame, fragment);
         ft.addToBackStack(null);
         ft.commit();
-
     }
 
+    public void showFirstFragment() {
+        position = 0;
+        showCurrentFragment();
+    }
 
     public void next() {
 
+        if (fragmentList.size() > 0 && position < fragmentList.size() - 1) {
+            position++;
+            showCurrentFragment();
+        } else if (position == fragmentList.size() - 1) {
+            onWizardComplete();
+        }
     }
 
     public void back() {
-
+        if (fragmentList.size() > 0 && position > 0) {
+            position--;
+            showCurrentFragment();
+        }
     }
 
-    public Fragment getFragmentbyPosition() {
-        return null;
+    public void showCurrentFragment() {
+
+        if (position == 0) {
+            backButton.setEnabled(false);
+            backButton.setText("Indietro");
+            nextButton.setText("Avanti");
+        } else if (position == fragmentList.size() - 1) {
+            backButton.setEnabled(true);
+            backButton.setText("Indietro");
+            nextButton.setText("Invia");
+        } else {
+
+            backButton.setEnabled(true);
+            backButton.setText("Indietro");
+            nextButton.setText("Avanti");
+        }
+        showFragment(fragmentList.get(position));
+
     }
 
     public void onWizardComplete() {
 
     }
 
+    @Override
+    public void OnNext(int option) {
+        next();
+    }
 }

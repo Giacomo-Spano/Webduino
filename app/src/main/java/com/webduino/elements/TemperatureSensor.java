@@ -1,5 +1,7 @@
-package com.webduino;
+package com.webduino.elements;
 
+
+import com.webduino.elements.Sensor;
 
 import org.json.JSONObject;
 

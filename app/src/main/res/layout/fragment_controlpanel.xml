@@ -26,7 +26,7 @@
                 android:contentDescription="dddd" />
 
             <TextView
-                android:id="@+id/title"
+                android:id="@+id/titleEditText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/thumbnail"
@@ -40,7 +40,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/title"
+                android:layout_below="@+id/titleEditText"
                 android:maxLines="3"
                 android:padding="8dp"
                 android:text="descrizione"

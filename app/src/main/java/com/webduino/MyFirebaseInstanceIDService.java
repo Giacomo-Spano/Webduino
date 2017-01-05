@@ -8,9 +8,10 @@ import android.util.Log;
 
         import com.google.firebase.iid.FirebaseInstanceId;
         import com.google.firebase.iid.FirebaseInstanceIdService;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.webduino.elements.Actuator;
+import com.webduino.elements.Program;
+import com.webduino.elements.Sensor;
+import com.webduino.elements.requestDataTask;
 
 import java.util.List;
 
@@ -71,6 +72,16 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
 
             @Override
             public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
+
+            }
+
+            @Override
+            public void processFinishPrograms(List<Program> programs, boolean error, String errorMessage) {
+
+            }
+
+            @Override
+            public void processFinishPostProgram(boolean response, boolean error, String errorMessage) {
 
             }
         }, requestDataTask.REQUEST_REGISTERDEVICE).execute(token, model);

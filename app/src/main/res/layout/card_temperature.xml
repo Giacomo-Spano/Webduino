@@ -13,7 +13,7 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/title"
+            android:id="@+id/titleEditText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="soggiorno"
@@ -29,7 +29,7 @@
             android:text="Surname"
             android:gravity="center_vertical"
             android:textSize="30sp"
-            android:layout_below="@+id/title"
+            android:layout_below="@+id/titleEditText"
             android:layout_alignParentStart="false"
             android:layout_centerHorizontal="true" />
 

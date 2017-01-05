@@ -1,4 +1,4 @@
-package com.webduino;
+package com.webduino.fragment.adapters;
 
 import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
@@ -6,6 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.webduino.R;
+import com.webduino.fragment.cardinfo.CardInfo;
+import com.webduino.fragment.cardinfo.HeaterCardInfo;
+import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
 
 import java.util.List;
 
@@ -15,12 +20,11 @@ import java.util.List;
 
 public class SensorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<CardInfo> contactList;
+    private List<CardInfo> sensorList;
 
     OnListener mCallback;
     public interface OnListener {
         void onHeaterClick(int id);
-        //void onEnablePanelRefreshButtonRequest();
     }
     public void setListener(OnListener listener) {
         mCallback = listener;
@@ -29,30 +33,30 @@ public class SensorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int TYPE_TEMPERATURESENSOR = 1;
     private static final int TYPE_HEATER = 2;
 
-    public SensorAdapter(List<CardInfo> contactList) {
-        this.contactList = contactList;
+    public SensorAdapter(List<CardInfo> sensorList) {
+        this.sensorList = sensorList;
     }
 
     public void swap(List list){
-        if (contactList != null) {
-            contactList.clear();
-            contactList.addAll(list);
+        if (sensorList != null) {
+            sensorList.clear();
+            sensorList.addAll(list);
         }
         else {
-            contactList = list;
+            sensorList = list;
         }
         notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
-        return contactList.size();
+        return sensorList.size();
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
 
-        CardInfo ci = contactList.get(i);
+        CardInfo ci = sensorList.get(i);
 
         switch (viewHolder.getItemViewType()) {
 
@@ -87,9 +91,9 @@ public class SensorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public int getItemViewType(int position) {
 
-        if (contactList.get(position) instanceof HeaterCardInfo )
+        if (sensorList.get(position) instanceof HeaterCardInfo )
             return TYPE_HEATER;
-        else if (contactList.get(position) instanceof TemperatureSensorCardInfo )
+        else if (sensorList.get(position) instanceof TemperatureSensorCardInfo )
             return TYPE_TEMPERATURESENSOR;
 
         // here your custom logic to choose the view type
@@ -100,11 +104,9 @@ public class SensorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_TEMPERATURESENSOR) {
-            return (RecyclerView.ViewHolder) new TemperatureSensorViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.temperaturecard_layout, parent, false));
-        }
-
-        if (viewType == TYPE_HEATER) {
-            return (RecyclerView.ViewHolder) new HeaterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.heatercard_layout, parent, false));
+            return (RecyclerView.ViewHolder) new TemperatureSensorViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_temperature, parent, false));
+        } else if (viewType == TYPE_HEATER) {
+            return (RecyclerView.ViewHolder) new HeaterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_heater, parent, false));
         }
         return null;
     }
@@ -116,7 +118,7 @@ public class SensorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         public TemperatureSensorViewHolder(View v) {
             super(v);
-            title =  (TextView) v.findViewById(R.id.title);
+            title =  (TextView) v.findViewById(R.id.titleEditText);
             temperature = (TextView)  v.findViewById(R.id.temperature);
             target = (TextView) v.findViewById(R.id.target);
         }
@@ -126,13 +128,12 @@ public class SensorAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         protected TextView title;
         protected TextView status;
         protected TextView target;
-        //protected HeaterActuator heater;
         protected int id;
 
 
         public HeaterViewHolder(View v) {
             super(v);
-            title =  (TextView) v.findViewById(R.id.title);
+            title =  (TextView) v.findViewById(R.id.titleEditText);
             status = (TextView)  v.findViewById(R.id.status);
             target = (TextView) v.findViewById(R.id.target);
             v.setOnClickListener(new View.OnClickListener() {

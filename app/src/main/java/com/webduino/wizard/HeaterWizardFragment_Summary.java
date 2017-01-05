@@ -31,7 +31,7 @@ public class HeaterWizardFragment_Summary extends Fragment {
         }
 
         View v;
-        v = inflater.inflate(R.layout.heaterwizardfragmentsummary, container, false);
+        v = inflater.inflate(R.layout.wizard_fragment_heater_summary, container, false);
 
 
 

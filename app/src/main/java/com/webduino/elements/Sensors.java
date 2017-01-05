@@ -1,4 +1,6 @@
-package com.webduino;
+package com.webduino.elements;
+
+import com.webduino.elements.Sensor;
 
 import java.util.ArrayList;
 import java.util.List;

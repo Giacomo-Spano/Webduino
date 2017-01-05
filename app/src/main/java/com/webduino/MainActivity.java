@@ -23,21 +23,32 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.webduino.elements.Actuator;
+import com.webduino.elements.Actuators;
+import com.webduino.elements.HeaterActuator;
+import com.webduino.elements.Program;
+import com.webduino.elements.Programs;
+import com.webduino.elements.Sensor;
+import com.webduino.elements.Sensors;
+import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.HeaterFragment;
 import com.webduino.fragment.PanelFragment;
 import com.webduino.fragment.PrefsFragment;
+import com.webduino.fragment.ProgramFragment;
+import com.webduino.fragment.ProgramsListFragment;
 import com.webduino.fragment.SensorsFragment;
 
 
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, HeaterFragment.OnHeaterUpdatedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, HeaterFragment.OnHeaterUpdatedListener, ProgramFragment.OnProgramUpdatedListener {
 
     public static Activity activity;
 
     PanelFragment panelFragment;
     SensorsFragment sensorsFragment;
+    ProgramsListFragment programsFragment;
     PrefsFragment preferencesFragment;
 
 
@@ -73,6 +84,7 @@ public class MainActivity extends AppCompatActivity
 
         panelFragment = new PanelFragment();
         sensorsFragment = new SensorsFragment();
+        programsFragment = new ProgramsListFragment();
         preferencesFragment = new PrefsFragment();
 
         showFragment(sensorsFragment);
@@ -82,6 +94,7 @@ public class MainActivity extends AppCompatActivity
     private void refreshData() {
         getSensorData();
         getActuatorData();
+
     }
 
     @Override
@@ -127,10 +140,11 @@ public class MainActivity extends AppCompatActivity
         // Creating a fragment transaction
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_programs) {
             // Handle the camera action
-            ft.replace(R.id.content_frame, panelFragment);
-        } else if (id == R.id.nav_gallery) {
+            getProgramData();
+            ft.replace(R.id.content_frame, programsFragment);
+        } else if (id == R.id.nav_sensors) {
             // Handle the gallery action
             ft.replace(R.id.content_frame, sensorsFragment);
 
@@ -164,12 +178,14 @@ public class MainActivity extends AppCompatActivity
 
     public void getSensorData() {
         new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORS).execute();
-
     }
 
     public void getActuatorData() {
         new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_ACTUATORS).execute();
+    }
 
+    public void getProgramData() {
+        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_PROGRAMS).execute();
     }
 
     @NonNull
@@ -214,6 +230,24 @@ public class MainActivity extends AppCompatActivity
 
             }
 
+            @Override
+            public void processFinishPrograms(List<Program> programs, boolean error, String errorMessage) {
+                if (error)
+                    return;
+
+                Actuators.list.clear();
+                for (Program program : programs) {
+                    Programs.add(program);
+                }
+
+                programsFragment.update();
+            }
+
+            @Override
+            public void processFinishPostProgram(boolean response, boolean error, String errorMessage) {
+
+            }
+
         };
     }
 
@@ -221,5 +255,10 @@ public class MainActivity extends AppCompatActivity
     public void OnHeaterUpdated(HeaterActuator heaterActuator) {
         //sensorsFragment.updateActuator(heaterActuator);
         Actuators.update(heaterActuator);
+    }
+
+    @Override
+    public void OnProgramUpdated(Program program) {
+
     }
 }

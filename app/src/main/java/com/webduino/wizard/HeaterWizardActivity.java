@@ -1,25 +1,19 @@
 package com.webduino.wizard;
 
 import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
-import com.google.gson.Gson;
-import com.webduino.Actuator;
+import com.webduino.elements.Actuator;
 import com.webduino.AsyncRequestDataResponse;
-import com.webduino.HeaterActuator;
-import com.webduino.Sensor;
-import com.webduino.requestDataTask;
-import com.webduino.wizard.HeaterWizardFragment_Step1;
-import com.webduino.wizard.HeaterWizardFragment_Step2;
-import com.webduino.wizard.HeaterWizardFragment_Summary;
-import com.webduino.wizard.WizardActivity;
+import com.webduino.elements.Program;
+import com.webduino.elements.Sensor;
+import com.webduino.elements.requestDataTask;
 
 import java.util.List;
 
-import static com.webduino.HeaterActuator.Command_Manual_Off;
-import static com.webduino.HeaterActuator.Command_Manual_On;
+import static com.webduino.elements.HeaterActuator.Command_Manual_Off;
+import static com.webduino.elements.HeaterActuator.Command_Manual_Auto;
 
 /**
  * Created by Giacomo Spanò on 21/12/2016.
@@ -27,59 +21,39 @@ import static com.webduino.HeaterActuator.Command_Manual_On;
 
 public class HeaterWizardActivity extends WizardActivity {
 
-    private int actuatorId = 0;
-    private String command = "";
-
-    //public static Activity activity;
-
     HeaterWizardFragment_Step1 step1;
     HeaterWizardFragment_Step2 step2;
     HeaterWizardFragment_Summary summary;
+
+    private int actuatorId = 0;
+    private String command = "";
+
 
     private boolean heaterAlwaysOn;
     private boolean heaterOn30Minutes;
     private boolean heaterOnToDate;
     private double temperature;
     private int sensorId;
+    private int duration;
+    private boolean remoteSensor;
 
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //activity = this;
-
         Bundle bundle = getIntent().getExtras();
         actuatorId = bundle.getInt("actuatorid");
         command = bundle.getString("command");
 
         step1 = new HeaterWizardFragment_Step1();
+        addStep(step1);
         step2 = new HeaterWizardFragment_Step2();
+        addStep(step2);
         summary = new HeaterWizardFragment_Summary();
+        addStep(summary);
 
-        showFragment(getFragmentbyPosition());
-
-    }
-
-    @Override
-    public void back() {
-
-        if (position > 0)
-            position--;
-        showFragment(getFragmentbyPosition());
-
-    }
-
-    @Override
-    public void next() {
-
-        if (position == 2) {
-            onWizardComplete();
-        } else {
-            if (position < 2)
-                position++;
-            showFragment(getFragmentbyPosition());
-        }
+        showFirstFragment();
     }
 
     public int getActuatorId() {
@@ -91,38 +65,19 @@ public class HeaterWizardActivity extends WizardActivity {
     }
 
     @Override
-    public Fragment getFragmentbyPosition() {
-        switch (position) {
-            case 0:
-                backButton.setEnabled(false);
-                nextButton.setText("Indietro");
-                nextButton.setText("Avanti");
-                return step1;
-            case 1:
-                backButton.setEnabled(true);
-                nextButton.setText("Indietro");
-                nextButton.setText("Avanti");
-                return step2;
-            case 2:
-                backButton.setEnabled(true);
-                nextButton.setText("Indietro");
-                nextButton.setText("Invia");
-                return summary;
-        }
-        return null;
-    }
-
-    @Override
     public void onWizardComplete() {
 
         temperature = step2.getTemperature();
         sensorId = step2.getSensorId();
+        duration = step1.getDuration();
+        remoteSensor = step2.getRemoteSensor();
 
-        if (command.equals(Command_Manual_On)) {
-            new requestDataTask(this, requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, "start", 1, temperature, sensorId, true);
-        } else if (command.equals(Command_Manual_Off)) {
-            new requestDataTask(this, requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, "stop", 1, 0.1, 0, false);
-        }
+        new requestDataTask(this, requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, command, duration, temperature, sensorId, remoteSensor);
+    }
+
+    @Override
+    public void OnNext(int option) {
+        next();
     }
 
     @NonNull
@@ -149,21 +104,22 @@ public class HeaterWizardActivity extends WizardActivity {
 
                 if (!error /*&& actuator != null*/) {
 
-                    /*HeaterActuator heater = (HeaterActuator) actuator;
-
-                    Gson gson = new Gson();
-                    String strJson = gson.toJson(heater);
-
-                    Intent intentMessage=new Intent();
-                    intentMessage.putExtra("actuator",strJson);
-
-                    setResult(RESULT_OK,intentMessage);*/
                     setResult(RESULT_OK);
                     finish();     //Terminate the wizard
                 } else {
                     setResult(RESULT_CANCELED);
                     finish();     //Terminate the wizard
                 }
+            }
+
+            @Override
+            public void processFinishPrograms(List<Program> programs, boolean error, String errorMessage) {
+
+            }
+
+            @Override
+            public void processFinishPostProgram(boolean response, boolean error, String errorMessage) {
+
             }
         };
     }
