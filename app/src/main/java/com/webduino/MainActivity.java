@@ -32,6 +32,7 @@ import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.HeaterFragment;
+import com.webduino.fragment.NextProgramsFragment;
 import com.webduino.fragment.PanelFragment;
 import com.webduino.fragment.PrefsFragment;
 import com.webduino.fragment.ProgramFragment;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     PanelFragment panelFragment;
     SensorsFragment sensorsFragment;
     ProgramsListFragment programsFragment;
+    NextProgramsFragment nextProgramFragment;
     PrefsFragment preferencesFragment;
     private Menu menu;
 
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity
         panelFragment = new PanelFragment();
         sensorsFragment = new SensorsFragment();
         programsFragment = new ProgramsListFragment();
+        nextProgramFragment = new NextProgramsFragment();
         preferencesFragment = new PrefsFragment();
 
         showFragment(sensorsFragment);
@@ -173,6 +176,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_slideshow) {
 
+            ft.replace(R.id.content_frame, nextProgramFragment);
+
         } else if (id == R.id.nav_manage) {
 
             ft.replace(R.id.content_frame, preferencesFragment);
@@ -226,9 +231,13 @@ public class MainActivity extends AppCompatActivity
         enableMenuItem(R.id.action_delete_program,enable);
     }
 
-    @NonNull
+    /*@NonNull
     private AsyncRequestDataResponse getAsyncResponse() {
-        return new AsyncRequestDataResponse() {
+        return new AsyncRequestDataResponse() {*/
+    @NonNull
+    private WebduinoResponse getAsyncResponse() {
+        return new WebduinoResponse() {
+
 
             @Override
             public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
@@ -264,12 +273,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishPrograms(List<Program> programs, boolean error, String errorMessage) {
+            public void processFinishPrograms(List<Program> programs, int requestType, boolean error, String errorMessage) {
                 if (error)
                     return;
 
@@ -280,12 +284,6 @@ public class MainActivity extends AppCompatActivity
 
                 programsFragment.update();
             }
-
-            @Override
-            public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
-
-            }
-
         };
     }
 

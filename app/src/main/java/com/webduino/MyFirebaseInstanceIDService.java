@@ -5,12 +5,8 @@ package com.webduino;
  */
 import android.os.Build;
 import android.util.Log;
-
-        import com.google.firebase.iid.FirebaseInstanceId;
-        import com.google.firebase.iid.FirebaseInstanceIdService;
-import com.webduino.elements.Actuator;
-import com.webduino.elements.Program;
-import com.webduino.elements.Sensor;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdService;
 import com.webduino.elements.requestDataTask;
 
 import java.util.List;
@@ -53,37 +49,13 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
         //String tokenId = (String) params[0];
         String model = Build.MODEL;
 
-        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponse() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
 
             @Override
             public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
 
             }
 
-            @Override
-            public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishPrograms(List<Program> programs, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
-
-            }
         }, requestDataTask.REQUEST_REGISTERDEVICE).execute(token, model);
 
     }

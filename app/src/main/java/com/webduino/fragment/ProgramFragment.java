@@ -1,37 +1,26 @@
 package com.webduino.fragment;
 
-//import android.app.Fragment;
-
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.icu.text.DateFormat;
 import android.icu.text.SimpleDateFormat;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
-import com.webduino.AsyncRequestDataResponse;
 import com.webduino.MainActivity;
 import com.webduino.R;
-import com.webduino.elements.Actuator;
+import com.webduino.WebduinoResponse;
 import com.webduino.elements.Program;
 import com.webduino.elements.Programs;
-import com.webduino.elements.Sensor;
 import com.webduino.elements.TimeRange;
 import com.webduino.elements.requestDataTask;
 import com.webduino.wizard.ProgramWizardActivity;
-
-import java.util.List;
-
 import static android.app.Activity.RESULT_OK;
 
 /**
@@ -213,34 +202,8 @@ public class ProgramFragment extends Fragment implements View.OnClickListener {
     }
 
     @NonNull
-    private AsyncRequestDataResponse requestDataCallback() {
-        return new AsyncRequestDataResponse() {
-
-            @Override
-            public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
-
-
-            }
-
-            @Override
-            public void processFinishPrograms(List<Program> programs, boolean error, String errorMessage) {
-
-            }
+    private WebduinoResponse requestDataCallback() {
+        return new WebduinoResponse() {
 
             @Override
             public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {

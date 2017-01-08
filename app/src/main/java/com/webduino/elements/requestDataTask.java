@@ -44,15 +44,14 @@ public class requestDataTask extends
     public static final int REQUEST_ACTUATORS = 4;
     public static final int REQUEST_SHIELD = 5;
     public static final int REQUEST_PROGRAMS = 6;
-    public static final int POST_ACTUATOR_COMMAND = 7;
-    public static final int POST_PROGRAM = 8;
-    public static final int POST_DELETEPROGRAM = 9;
+    public static final int REQUEST_NEXTPROGRAMS = 7;
+    public static final int POST_ACTUATOR_COMMAND = 8;
+    public static final int POST_PROGRAM = 9;
+    public static final int POST_DELETEPROGRAM = 10;
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
     ProgressDialog ringProgressDialog;
-    //private ProgressDialog dialog;
-    //private Activity activity;
     private boolean error = false;
     private String errorMessage = "";
     int requestType;
@@ -84,7 +83,7 @@ public class requestDataTask extends
         requestDataTask.Result result = null;
 
         if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS || requestType == REQUEST_ACTUATORS
-                || requestType == REQUEST_PROGRAMS) {
+                || requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS) {
             result = performGetRequest(params);
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM) {
             result = performPostCall(params);
@@ -119,6 +118,10 @@ public class requestDataTask extends
             } else if (requestType == REQUEST_PROGRAMS) {
 
                 path = "/program?";
+
+            } else if (requestType == REQUEST_PROGRAMS) {
+
+                path = "/program?next=true";
 
             }
 
@@ -170,7 +173,7 @@ public class requestDataTask extends
                     }
 
                     result.actuators = list;
-                } else if (requestType == REQUEST_PROGRAMS) {
+                } else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS) {
 
                     List<Program> list = new ArrayList<Program>();
                     JSONArray jArray = new JSONArray(json);
@@ -180,7 +183,6 @@ public class requestDataTask extends
                         program.fromJson(jObject);
                         list.add(program);
                     }
-
                     result.programs = list;
                 }
 
@@ -238,7 +240,7 @@ public class requestDataTask extends
             message = "Aggiornamnento";
         else if (requestType == REQUEST_ACTUATORS)
             message = "Aggiornamnento";
-        else if (requestType == REQUEST_PROGRAMS)
+        else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS)
             message = "Aggiornamnento";
         else if (requestType == REQUEST_SHIELD)
             message = "Aggiornamnento";
@@ -250,7 +252,6 @@ public class requestDataTask extends
         ringProgressDialog.setMessage(message);
         ringProgressDialog.setTitle(title);
         ringProgressDialog.show();
-
     }
 
     @Override
@@ -297,11 +298,11 @@ public class requestDataTask extends
             delegate.processFinishSensors(result.sensors, error, errorMessage);
         } else if (requestType == REQUEST_ACTUATORS) {
             delegate.processFinishActuators(result.actuators, error, errorMessage);
-        } else if (requestType == REQUEST_PROGRAMS) {
-            delegate.processFinishPrograms(result.programs, error, errorMessage);
+        } else if (requestType == REQUEST_PROGRAMS|| requestType == REQUEST_NEXTPROGRAMS ) {
+            delegate.processFinishPrograms(result.programs, REQUEST_NEXTPROGRAMS, error, errorMessage);
         } else if (requestType == POST_ACTUATOR_COMMAND) {
             delegate.processFinishSendCommand(result.actuator, error, errorMessage);
-        } else if (requestType == POST_PROGRAM ) {
+        } else if (requestType == POST_PROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_PROGRAM, error, errorMessage);
         } if (requestType == POST_DELETEPROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);

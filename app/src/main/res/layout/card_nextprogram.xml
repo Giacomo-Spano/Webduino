@@ -1,0 +1,126 @@
+<android.support.v7.widget.CardView
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardCornerRadius="0dp"
+    android:layout_margin="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/titleEditText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Titolo"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:layout_centerHorizontal="true"
+            android:gravity="top"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="false" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <TextView
+                android:text="TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/startDateTextView"
+                android:layout_weight="1" />
+
+            <TextView
+                android:text="TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/endDateTextView"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true">
+
+            <CheckBox
+                android:text="L"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignTop="@+id/target"
+                android:layout_toStartOf="@+id/target"
+                android:id="@+id/moCheckBox"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:text="M"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/tuCheckBox"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:text="M"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/weCheckBox"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:text="G"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/thCheckBox"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:text="V"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignStart="@+id/titleEditText"
+                android:layout_marginStart="14dp"
+                android:id="@+id/frCheckBox"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:text="S"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/frCheckBox"
+                android:layout_toEndOf="@+id/frCheckBox"
+                android:id="@+id/saCheckBox"
+                android:layout_weight="1" />
+
+            <CheckBox
+                android:text="D"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/suCheckBox"
+                android:layout_weight="1" />
+
+
+        </LinearLayout>
+
+        <Space
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_weight="1" />
+
+        <com.webduino.controls.TimeView
+            android:layout_width="match_parent"
+            android:layout_height="155dp"
+            android:id="@+id/timeLineView" />
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

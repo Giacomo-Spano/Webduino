@@ -3,10 +3,8 @@ package com.webduino.wizard;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import com.webduino.WebduinoResponse;
 import com.webduino.elements.Actuator;
-import com.webduino.AsyncRequestDataResponse;
-import com.webduino.elements.Program;
-import com.webduino.elements.Sensor;
 import com.webduino.elements.requestDataTask;
 
 import java.util.List;
@@ -32,7 +30,6 @@ public class HeaterWizardActivity extends WizardActivity {
     private int sensorId;
     private int duration;
     private boolean remoteSensor;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -97,23 +94,8 @@ public class HeaterWizardActivity extends WizardActivity {
     }
 
     @NonNull
-    private AsyncRequestDataResponse requestDataCallback() {
-        return new AsyncRequestDataResponse() {
-
-            @Override
-            public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
-
-            }
+    private WebduinoResponse requestDataCallback() {
+        return new WebduinoResponse() {
 
             @Override
             public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
@@ -126,16 +108,6 @@ public class HeaterWizardActivity extends WizardActivity {
                     setResult(RESULT_CANCELED);
                     finish();     //Terminate the wizard
                 }
-            }
-
-            @Override
-            public void processFinishPrograms(List<Program> programs, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
-
             }
         };
     }

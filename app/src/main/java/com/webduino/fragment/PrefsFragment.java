@@ -9,15 +9,13 @@ import android.preference.PreferenceFragment;
 import android.support.v7.preference.PreferenceManager;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.webduino.WebduinoResponse;
 import com.webduino.elements.Actuator;
-import com.webduino.AsyncRequestDataResponse;
 import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.elements.Program;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.requestDataTask;
-
-//import android.preference.PreferenceFragment;
 
 import java.util.List;
 
@@ -74,11 +72,11 @@ public class PrefsFragment extends PreferenceFragment {
         //String tokenId = (String) params[0];
         String model = Build.MODEL;
 
-        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponse() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
 
             @Override
             public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
-
+                // queto viene chiamato in fase di registrazione device per notifiche google
             }
 
             @Override
@@ -97,7 +95,7 @@ public class PrefsFragment extends PreferenceFragment {
             }
 
             @Override
-            public void processFinishPrograms(List<Program> programs, boolean error, String errorMessage) {
+            public void processFinishPrograms(List<Program> programs, int requestType, boolean error, String errorMessage) {
 
             }
 

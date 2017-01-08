@@ -1,12 +1,6 @@
 package com.webduino.fragment;
 
-//import android.app.Fragment;
-
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -18,24 +12,24 @@ import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.elements.Program;
 import com.webduino.elements.Programs;
-import com.webduino.fragment.adapters.ProgramAdapter;
+import com.webduino.fragment.adapters.NextProgramAdapter;
 import com.webduino.fragment.cardinfo.CardInfo;
+import com.webduino.fragment.cardinfo.NextProgramCardInfo;
 import com.webduino.fragment.cardinfo.ProgramCardInfo;
 import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Created by Giacomo Spanò on 16/11/2016.
  */
 
-public class ProgramsListFragment extends Fragment implements ProgramAdapter.OnListener {
+public class NextProgramsFragment extends Fragment implements NextProgramAdapter.OnListener {
 
-    public static final int HEATERWIZARD_REQUEST = 1;  // The request code
+    //public static final int HEATERWIZARD_REQUEST = 1;  // The request code
 
     private List<CardInfo> list;
-    private ProgramAdapter programAdapter;
-    private ProgramFragment programFragment = null;
-    private int currentProgramId = -1;
+    private NextProgramAdapter nextProgramAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,7 +40,7 @@ public class ProgramsListFragment extends Fragment implements ProgramAdapter.OnL
         }
 
         View v;
-        v = inflater.inflate(R.layout.fragment_programlist, container, false);
+        v = inflater.inflate(R.layout.fragment_nextprograms, container, false);
 
         RecyclerView recList = (RecyclerView) v.findViewById(R.id.cardList);
         recList.setHasFixedSize(true);
@@ -57,33 +51,28 @@ public class ProgramsListFragment extends Fragment implements ProgramAdapter.OnL
         recList.setLayoutManager(gridLayoutManager);
 
 
-        programAdapter = new ProgramAdapter(createProgramList());
-        recList.setAdapter(programAdapter);
+        nextProgramAdapter = new NextProgramAdapter(createNextProgramList());
+        recList.setAdapter(nextProgramAdapter);
 
-        programAdapter.setListener(this);
+        nextProgramAdapter.setListener(this);
 
         return v;
     }
 
     public void update() {
 
-        list = createProgramList();
-        programAdapter.swap(list);
-
-        /*if (heaterFragment != null) {
-
-            heaterFragment.update();
-        }*/
+        list = createNextProgramList();
+        nextProgramAdapter.swap(list);
     }
 
-    public List<CardInfo> createProgramList() {
+    public List<CardInfo> createNextProgramList() {
 
         List<CardInfo> result = new ArrayList<CardInfo>();
 
         for (Program program : Programs.list) {
 
             try {
-                ProgramCardInfo ci = programCardInfoFromProgram((Program) program);
+                NextProgramCardInfo ci = nextProgramCardInfoFromProgram((Program) program);
                 result.add(ci);
             } catch (Exception e) {
 
@@ -94,22 +83,23 @@ public class ProgramsListFragment extends Fragment implements ProgramAdapter.OnL
     }
 
     @NonNull
-    private ProgramCardInfo programCardInfoFromProgram(Program program) {
+    private NextProgramCardInfo nextProgramCardInfoFromProgram(Program program) {
         //HeaterActuator heater = actuator;
-        ProgramCardInfo ci = new ProgramCardInfo();
-        ci.program = program;
+        NextProgramCardInfo ci = new NextProgramCardInfo();
+        ci.programName = program.name;
         return ci;
     }
 
     @Override
     public void onProgramClick(int id) {
 
-        currentProgramId = id;
 
-        showProgram(id);
+        // questo potrebbe servire
+        //showProgram(id);
     }
 
-    private void showProgram(int id) {
+    // questo potrebbe servire
+    /*private void showProgram(int id) {
         Bundle bundle = new Bundle();
         bundle.putInt("programid", id);
         programFragment = new ProgramFragment();
@@ -119,7 +109,7 @@ public class ProgramsListFragment extends Fragment implements ProgramAdapter.OnL
         ft.replace(R.id.content_frame, programFragment);
         ft.addToBackStack(null);
         ft.commit();
-    }
+    }*/
 
     @Override
     public void onResume() {
@@ -137,20 +127,8 @@ public class ProgramsListFragment extends Fragment implements ProgramAdapter.OnL
 
     public void enableMenuItem(boolean enable) {
         MainActivity ma = (MainActivity) getActivity();
-        ma.enableProgramListFragmentMenuItem(enable);
+        // mettere gli item giusti
+        //ma.enableProgramListFragmentMenuItem(enable);
     }
-
-
-    public void createProgram() {
-
-        showProgram(-1); //
-    }
-
-    public void deleteProgram() {
-
-        programFragment.deleteProgram();
-
-    }
-
 
 }
