@@ -2,9 +2,11 @@ package com.webduino.fragment;
 
 //import android.app.Fragment;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -13,9 +15,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.webduino.AsyncRequestDataResponse;
+import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.elements.Actuator;
 import com.webduino.elements.Program;
 import com.webduino.elements.Programs;
+import com.webduino.elements.Sensor;
+import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.ProgramAdapter;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.ProgramCardInfo;
@@ -37,6 +44,7 @@ public class ProgramsListFragment extends Fragment implements ProgramAdapter.OnL
     private List<CardInfo> list;
     private ProgramAdapter programAdapter;
     private ProgramFragment programFragment = null;
+    private int currentProgramId = -1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -105,10 +113,14 @@ public class ProgramsListFragment extends Fragment implements ProgramAdapter.OnL
     @Override
     public void onProgramClick(int id) {
 
-        Bundle bundle = new Bundle();
-        bundle.putString("programid", "" + id);
+        currentProgramId = id;
 
-        //hFragment = new HeaterFragment();
+        showProgram(id);
+    }
+
+    private void showProgram(int id) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("programid", id);
         programFragment = new ProgramFragment();
         programFragment.setArguments(bundle);
         FragmentManager fragmentManager = getFragmentManager();
@@ -117,4 +129,37 @@ public class ProgramsListFragment extends Fragment implements ProgramAdapter.OnL
         ft.addToBackStack(null);
         ft.commit();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        enableMenuItem(true);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        enableMenuItem(false);
+    }
+
+    public void enableMenuItem(boolean enable) {
+        MainActivity ma = (MainActivity) getActivity();
+        ma.enableProgramListFragmentMenuItem(enable);
+    }
+
+
+    public void createProgram() {
+
+        showProgram(-1); //
+    }
+
+    public void deleteProgram() {
+
+        programFragment.deleteProgram();
+
+    }
+
+
 }

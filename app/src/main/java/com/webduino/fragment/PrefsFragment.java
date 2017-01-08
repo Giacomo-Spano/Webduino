@@ -102,7 +102,7 @@ public class PrefsFragment extends PreferenceFragment {
             }
 
             @Override
-            public void processFinishPostProgram(boolean response, boolean error, String errorMessage) {
+            public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
 
             }
         }, requestDataTask.REQUEST_REGISTERDEVICE).execute(refreshedToken, model);

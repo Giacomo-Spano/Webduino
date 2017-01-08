@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -9,12 +9,12 @@
     android:paddingRight="16dp">
 
     <TextView
-        android:layout_width="match_parent"
+        android:text="Scegliere la temperatura"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView"
-        android:text="@string/sample_form_text2"
-        android:layout_marginTop="20dp"
-        android:textSize="20dp" />
+        android:id="@+id/titleTextView"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"/>
 
     <EditText
         android:layout_width="match_parent"
@@ -22,21 +22,25 @@
         android:inputType="numberDecimal"
         android:ems="10"
         android:id="@+id/temperatureEditText"
+        android:layout_below="@id/titleTextView"
         android:textSize="36sp"
         android:text="21.0" />
 
     <TextView
-        android:text="TextView"
-        android:layout_width="match_parent"
+        android:text="Scegliere il sensore"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/textView8"
-        android:textSize="36sp" />
+        android:id="@+id/sensorTitleTextView"
+        android:layout_below="@id/temperatureEditText"
+        android:textSize="18sp"
+        android:layout_marginTop="20dp"/>
 
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/sensorTitleTextView"
         android:id="@+id/radioGroup">
 
     </RadioGroup>
 
-</LinearLayout>
+</RelativeLayout>

@@ -18,7 +18,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Titolo time range"
-            android:inputType="datetime"
             android:gravity="top"
             android:layout_alignParentTop="true"
              />
@@ -56,6 +55,7 @@
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
                 android:ems="10"
+                android:focusable="false"
                 android:id="@+id/temperatureEditText"
                 android:layout_weight="0.26"
                 android:text="23.4" />

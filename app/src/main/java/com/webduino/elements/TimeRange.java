@@ -10,7 +10,7 @@ public class TimeRange {
     public String name;
     public Time endTime;
     public Time starTime;
-    public Double temperature;
+    public Double temperature = 0.0;
     public int sensorId = 0;
     public int programID;
     public int priority;

@@ -18,6 +18,7 @@ import java.util.List;
 
 public class ProgramWizardActivity extends WizardActivity {
 
+    private ProgramWizardFragment_Name nameStep;
     private ProgramWizardFragment_StepDate dateStep;
     private ProgramWizardFragment_StepTimeRange timeRangesStep;
     private ProgramWizardFragment_Days daysStep;
@@ -37,6 +38,9 @@ public class ProgramWizardActivity extends WizardActivity {
         if (program == null)
             program = new Program();
 
+        nameStep = new ProgramWizardFragment_Name();
+        nameStep.init(program.name);
+        addStep(nameStep);
         dateStep = new ProgramWizardFragment_StepDate();
         dateStep.init(program);
         addStep(dateStep);
@@ -60,6 +64,8 @@ public class ProgramWizardActivity extends WizardActivity {
 
     @Override
     public void onWizardComplete() {
+
+        program.name = nameStep.getName();
 
         program.active = dateStep.getEnabled();
         program.dateEnabled = dateStep.getDateEnabled();
@@ -117,7 +123,7 @@ public class ProgramWizardActivity extends WizardActivity {
             }
 
             @Override
-            public void processFinishPostProgram(boolean response, boolean error, String errorMessage) {
+            public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
                 if (!error /*&& actuator != null*/) {
 
                     setResult(RESULT_OK);

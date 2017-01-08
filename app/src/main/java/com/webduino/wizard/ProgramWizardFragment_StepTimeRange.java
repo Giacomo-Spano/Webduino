@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.webduino.DatePickerFragment;
+import com.webduino.fragment.DatePickerFragment;
 import com.webduino.R;
 import com.webduino.elements.TimeRange;
 import com.webduino.fragment.adapters.TimeRangeAdapter;

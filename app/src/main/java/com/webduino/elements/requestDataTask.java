@@ -46,6 +46,7 @@ public class requestDataTask extends
     public static final int REQUEST_PROGRAMS = 6;
     public static final int POST_ACTUATOR_COMMAND = 7;
     public static final int POST_PROGRAM = 8;
+    public static final int POST_DELETEPROGRAM = 9;
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -85,12 +86,11 @@ public class requestDataTask extends
         if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS || requestType == REQUEST_ACTUATORS
                 || requestType == REQUEST_PROGRAMS) {
             result = performGetRequest(params);
-        } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM) {
+        } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM) {
             result = performPostCall(params);
         }
 
         return result;
-
     }
 
     @NonNull
@@ -244,7 +244,7 @@ public class requestDataTask extends
             message = "Aggiornamnento";
         else if (requestType == POST_PROGRAM)
             message = "Salvataggio programma";
-        else if (requestType == POST_ACTUATOR_COMMAND)
+        else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_DELETEPROGRAM)
             message = "Comando inviato";
 
         ringProgressDialog.setMessage(message);
@@ -301,8 +301,10 @@ public class requestDataTask extends
             delegate.processFinishPrograms(result.programs, error, errorMessage);
         } else if (requestType == POST_ACTUATOR_COMMAND) {
             delegate.processFinishSendCommand(result.actuator, error, errorMessage);
-        } else if (requestType == POST_PROGRAM) {
-        delegate.processFinishPostProgram(result.response, error, errorMessage);
+        } else if (requestType == POST_PROGRAM ) {
+            delegate.processFinishPostProgram(result.response, POST_PROGRAM, error, errorMessage);
+        } if (requestType == POST_DELETEPROGRAM) {
+            delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);
         }
     }
 
@@ -375,6 +377,15 @@ public class requestDataTask extends
                 return result;
             }
             return null;
+        } else if (requestType == POST_DELETEPROGRAM) {
+            path = "/program?";
+            String serverUrl = getServerUrl();
+            String url = serverUrl + path;
+            int programId = (int) params[0];
+            url += "id=" + programId + "&" + "delete=true";
+            String response = postCall(url, "");
+            Result result = getResult(response);
+            return result;
         }
         return null;
     }
@@ -383,9 +394,14 @@ public class requestDataTask extends
         if (response != null) {
             try {
                 JSONObject json = new JSONObject(response);
-                if (json.has("answer") && json.getString("answer").equals("success")) {
+                if (json.has("answer")) {
                     Result res = new Result();
-                    res.response = true;
+                    String answer = json.getString("answer");
+                    if (answer.equals("success")) {
+                        res.response = true;
+                    } else if (answer.equals("deleted") && requestType == POST_DELETEPROGRAM) {
+                        res.response = true;
+                    }
                     return res;
                 }
             } catch (JSONException e) {

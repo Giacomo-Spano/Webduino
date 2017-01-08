@@ -29,20 +29,29 @@ public class Programs {
         return null;
     }
 
-    /*public static void update(Program program) {
+    public static int getMaxId() {
+        int id = 0;
+        for (Program program : list) {
+            if (program.id >= id)
+                id = program.id;
+        }
+        return id;
+    }
+
+    public static void delete(int programId) {
 
         int index = 0;
-        for (Program prgm: list) {
+        for (Program program: list) {
 
             try {
-                if (program.id == prgm.id) {
-                    list.set(index,program);
+                if (program.id == programId) {
+                    list.remove(index);
+                    return;
                 }
-                return;
             } catch (ClassCastException e) {
 
             }
             index++;
         }
-    }*/
+    }
 }

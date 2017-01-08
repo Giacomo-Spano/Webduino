@@ -34,6 +34,27 @@ public class Program {
     public List<TimeRange> timeRanges = new ArrayList<TimeRange>();
     public int priority;
 
+    public Program() {
+        name = "Nuovo programma";
+        active = true;
+        dateEnabled = false;
+        startDate = new Date();
+        endDate = new Date();
+        Sunday = false;
+        Monday = false;
+        Tuesday = false;
+        Wednesday = false;
+        Thursday = false;
+        Friday = false;
+        Saturday = false;
+        TimeRange tr = new TimeRange();
+        tr.starTime = Time.valueOf("00:00:00");
+        tr.endTime = Time.valueOf("23:59:00");
+        tr.temperature = 15.0;
+        tr.name = "fascia1";
+        timeRanges.add(tr);
+    }
+
     TimeRange getTimeRangeFromId(int id) {
 
         Iterator<TimeRange> iterator = timeRanges.iterator();

@@ -1,6 +1,5 @@
 package com.webduino.wizard;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
@@ -12,8 +11,9 @@ import com.webduino.elements.requestDataTask;
 
 import java.util.List;
 
-import static com.webduino.elements.HeaterActuator.Command_Manual_Off;
 import static com.webduino.elements.HeaterActuator.Command_Manual_Auto;
+import static com.webduino.elements.HeaterActuator.Command_Manual_End;
+import static com.webduino.elements.HeaterActuator.Command_Manual_Off;
 
 /**
  * Created by Giacomo Spanò on 21/12/2016.
@@ -21,17 +21,13 @@ import static com.webduino.elements.HeaterActuator.Command_Manual_Auto;
 
 public class HeaterWizardActivity extends WizardActivity {
 
-    HeaterWizardFragment_Step1 step1;
-    HeaterWizardFragment_Step2 step2;
-    HeaterWizardFragment_Summary summary;
+    HeaterWizardFragment_Time timeStep;
+    HeaterWizardFragment_Temperature temperatureStep;
+    HeaterWizardFragment_Summary summaryStep;
 
     private int actuatorId = 0;
     private String command = "";
 
-
-    private boolean heaterAlwaysOn;
-    private boolean heaterOn30Minutes;
-    private boolean heaterOnToDate;
     private double temperature;
     private int sensorId;
     private int duration;
@@ -46,31 +42,51 @@ public class HeaterWizardActivity extends WizardActivity {
         actuatorId = bundle.getInt("actuatorid");
         command = bundle.getString("command");
 
-        step1 = new HeaterWizardFragment_Step1();
-        addStep(step1);
-        step2 = new HeaterWizardFragment_Step2();
-        addStep(step2);
-        summary = new HeaterWizardFragment_Summary();
-        addStep(summary);
+        if (command.equals(Command_Manual_Auto)) {
 
+            timeStep = new HeaterWizardFragment_Time();
+            addStep(timeStep);
+            temperatureStep = new HeaterWizardFragment_Temperature();
+            addStep(temperatureStep);
+
+        } else if (command.equals(Command_Manual_Off)) {
+
+            timeStep = new HeaterWizardFragment_Time();
+            addStep(timeStep);
+
+        } else if (command.equals(Command_Manual_End)) {
+
+            summaryStep = new HeaterWizardFragment_Summary();
+            summaryStep.setTitle("Conferma ripristino programma automatico");
+            addStep(summaryStep);
+        }
         showFirstFragment();
-    }
-
-    public int getActuatorId() {
-        return actuatorId;
-    }
-
-    public String getCommand() {
-        return command;
     }
 
     @Override
     public void onWizardComplete() {
 
-        temperature = step2.getTemperature();
-        sensorId = step2.getSensorId();
-        duration = step1.getDuration();
-        remoteSensor = step2.getRemoteSensor();
+        if (command.equals(Command_Manual_Auto)) {
+
+            temperature = temperatureStep.getTemperature();
+            sensorId = temperatureStep.getSensorId();
+            duration = timeStep.getDuration();
+            remoteSensor = temperatureStep.getRemoteSensor();
+
+        } else if (command.equals(Command_Manual_Off)) {
+
+            temperature = 0;
+            sensorId = 0;
+            duration = timeStep.getDuration();
+            remoteSensor = false;
+
+        } else if (command.equals(Command_Manual_End)) {
+
+            temperature = 0;
+            sensorId = 0;
+            duration = 0;
+            remoteSensor = false;
+        }
 
         new requestDataTask(this, requestDataCallback(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, command, duration, temperature, sensorId, remoteSensor);
     }
@@ -118,7 +134,7 @@ public class HeaterWizardActivity extends WizardActivity {
             }
 
             @Override
-            public void processFinishPostProgram(boolean response, boolean error, String errorMessage) {
+            public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
 
             }
         };

@@ -12,12 +12,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.webduino.R;
-import com.webduino.controls.TimeView;
 import com.webduino.elements.TimeRange;
-import com.webduino.fragment.TimePickerDialogFragment;
+import com.webduino.fragment.NumberPickerFragment;
+import com.webduino.fragment.TimePickerFragment;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.TimeRangeCardInfo;
 import com.webduino.wizard.WizardActivity;
@@ -124,6 +123,20 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         protected Button addButton;
         protected Button deleteButton;
 
+        protected Handler numberHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                Bundle bundle = msg.getData();
+                if (bundle != null) {
+                    Double value = bundle.getDouble("value");
+                    String tag = bundle.getString("tag");
+                    if (tag.equals("temperature")) {
+                        timeRange.temperature = value;
+                        temperature.setText(value.toString());
+                    }
+                }
+            }
+        };
 
         public TimeRangeViewHolder(View v) {
             super(v);
@@ -173,6 +186,14 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 }
             });
 
+            temperature.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    showNumberPickerDialog(timeRange.temperature,1,100,0,"imposta temperatura", "temperature",numberHandler);
+                }
+            });
+
             addButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -199,12 +220,31 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             b.putString("message", message);
             b.putString("title", title);
 
-            TimePickerDialogFragment timePicker = new TimePickerDialogFragment(
+            TimePickerFragment timePicker = new TimePickerFragment(
                     mHandler);
             timePicker.setArguments(b);
             FragmentManager fm = WizardActivity.activity.getFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
             ft.add(timePicker, message/*"time_picker"*/);
+            ft.commit();
+        }
+
+        public void showNumberPickerDialog(double value, int decimals, double max, double min, String title, String tag, Handler mHandler) {
+
+            Bundle b = new Bundle();
+            b.putDouble("value", value);
+            b.putInt("decimals", decimals);
+            b.putDouble("max", max);
+            b.putDouble("min", min);
+            b.putString("title", title);
+            b.putString("tag", tag);
+
+            NumberPickerFragment numberPickerFragment = new NumberPickerFragment();
+            numberPickerFragment.setNumberHandler(numberHandler);
+            numberPickerFragment.setArguments(b);
+            FragmentManager fm = WizardActivity.activity.getFragmentManager();
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.add(numberPickerFragment, "numbr_picker");
             ft.commit();
         }
 

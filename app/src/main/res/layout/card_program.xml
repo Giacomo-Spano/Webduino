@@ -54,7 +54,7 @@
 
             <CheckBox
                 android:text="L"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_alignTop="@+id/target"
                 android:layout_toStartOf="@+id/target"
@@ -63,28 +63,28 @@
 
             <CheckBox
                 android:text="M"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/tuCheckBox"
                 android:layout_weight="1" />
 
             <CheckBox
                 android:text="M"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/weCheckBoxcheckBox7"
+                android:id="@+id/weCheckBox"
                 android:layout_weight="1" />
 
             <CheckBox
                 android:text="G"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/thCheckBox"
                 android:layout_weight="1" />
 
             <CheckBox
                 android:text="V"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignStart="@+id/titleEditText"
@@ -94,7 +94,7 @@
 
             <CheckBox
                 android:text="S"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/frCheckBox"
                 android:layout_toEndOf="@+id/frCheckBox"
@@ -103,7 +103,7 @@
 
             <CheckBox
                 android:text="D"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/suCheckBox"
                 android:layout_weight="1" />

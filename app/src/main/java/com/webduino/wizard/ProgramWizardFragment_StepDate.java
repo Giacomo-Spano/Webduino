@@ -1,27 +1,19 @@
 package com.webduino.wizard;
 
-//import android.app.Fragment;
-
 import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-
-import com.webduino.DatePickerFragment;
+import com.webduino.fragment.DatePickerFragment;
 import com.webduino.R;
 import com.webduino.elements.Program;
-
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-//import android.support.v4.app.Fragment;
-//import android.support.v4.app.Fragment;
 
 /**
  * Created by Giacomo Spanò on 16/11/2016.
@@ -34,7 +26,6 @@ public class ProgramWizardFragment_StepDate extends WizardFragment implements Ra
     public String name;
     protected Date startDateTime = new Date();
     protected Date endDateTime = new Date();
-
     private RadioButton alwaysCheckBox, neverCheckBox, dateRangeCheckBox;
     private EditText startDateEdit, endDateEdit;
 
@@ -55,7 +46,7 @@ public class ProgramWizardFragment_StepDate extends WizardFragment implements Ra
         WizardActivity activity = (WizardActivity) getActivity();
         listener = activity;
 
-        startDateEdit = (EditText) v.findViewById(R.id.startDateEditText);
+        startDateEdit = (EditText) v.findViewById(R.id.durationTimeEditText);
         startDateEdit.setOnClickListener(this);
         endDateEdit = (EditText) v.findViewById(R.id.endDateEditText);
         endDateEdit.setOnClickListener(this);
@@ -109,7 +100,6 @@ public class ProgramWizardFragment_StepDate extends WizardFragment implements Ra
                 endDateEdit.setEnabled(false);
                 break;
         }
-
     }
 
     public void update() {
@@ -129,7 +119,7 @@ public class ProgramWizardFragment_StepDate extends WizardFragment implements Ra
             endDateEdit.setEnabled(true);
 
         } else {
-            neverCheckBox.setChecked(false);
+            neverCheckBox.setChecked(true);
             startDateEdit.setEnabled(false);
             endDateEdit.setEnabled(false);
         }
@@ -139,7 +129,7 @@ public class ProgramWizardFragment_StepDate extends WizardFragment implements Ra
     public void onClick(View v) {
 
         DatePickerFragment dateFragment= new DatePickerFragment();
-        if (v.getId() == R.id.startDateEditText){
+        if (v.getId() == R.id.durationTimeEditText){
             dateFragment.setDate(startDateTime);
             dateFragment.setListener(new DatePickerFragment.DataPickerListener() {
                 @Override

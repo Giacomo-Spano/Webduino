@@ -9,7 +9,7 @@
     android:paddingRight="16dp">
 
     <TextView
-        android:text="Scegliere i giorni della settimana"
+        android:text="Scegliere i giorni della settimana in cui il programma sarà attivo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/titleTextView"

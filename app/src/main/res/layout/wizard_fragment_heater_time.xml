@@ -9,7 +9,7 @@
     android:paddingRight="16dp">
 
     <TextView
-        android:text="Scegliere le date in cui il programma sarà attivo"
+        android:text="Scegliere l'intervallo di tempo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/titleTextView"
@@ -19,8 +19,9 @@
     <RadioGroup
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/titleTextView"
-        android:id="@+id/radioGroup">
+        android:id="@+id/radioGroup"
+        android:layout_below="@+id/titleTextView"
+        android:layout_alignParentStart="true">
 
         <RadioButton
             android:text="Sempre"
@@ -31,27 +32,26 @@
             android:layout_weight="1" />
 
         <RadioButton
-            android:text="Intervallo di date"
+            android:text="Per un ingtervallo di tempo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/dateRangeRadioButton"
+            android:id="@+id/forDurationRadioButton"
             android:layout_marginTop="20dp"
             android:layout_weight="1" />
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="40dp">
 
             <TextView
-                android:text="Da:"
-                android:layout_width="0dp"
+                android:text="Durata:"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/fromTextView"
-                android:layout_weight="1"
                 android:textSize="18sp" />
 
             <EditText
@@ -60,52 +60,61 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
 
-                android:inputType="datetime"
-                tools:text="1/1/1970 20:30"
+                android:inputType="time"
+                tools:text="00:30"
                 android:focusable="false"
                 android:layout_weight="1" />
+
         </LinearLayout>
+
+        <RadioButton
+            android:text="Fino a"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/toTimeRadioButton"
+            android:layout_marginTop="20dp"
+            android:layout_weight="1" />
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginTop="20dp"
             android:layout_marginLeft="40dp">
 
             <TextView
-                android:text="A:"
-                android:layout_width="0dp"
+                android:text="Data e ora"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/toTextView"
-                android:layout_weight="1"
+                android:id="@+id/toTimeTextView"
                 android:textSize="18sp" />
 
             <EditText
-                android:id="@+id/endDateEditText"
+                android:id="@+id/toTimeEditText"
                 android:layout_width="163dp"
                 android:layout_height="wrap_content"
                 android:ems="10"
 
                 android:inputType="datetime"
-                tools:text="1/1/1970 20:30"
+                tools:text="1/1/2017 13:30"
                 android:focusable="false"
                 android:layout_weight="1" />
+
         </LinearLayout>
 
         <RadioButton
-            android:text="Mai"
+            android:text="Fino al prossimo programma"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/neverRadioButton"
+            android:id="@+id/toNextProgramRadioButton"
             android:layout_marginTop="20dp"
             android:layout_weight="1" />
-
-
     </RadioGroup>
 
-
+    <!--
+    <include layout="@layout/backnextbutton"/>
+    -->
 
 
 </RelativeLayout>

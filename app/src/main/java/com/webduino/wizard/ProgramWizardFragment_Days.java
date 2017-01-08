@@ -113,7 +113,7 @@ public class ProgramWizardFragment_Days extends Fragment {
     }
 
     public boolean getFriday() {
-        return friCheckBox.isAccessibilityFocused();
+        return friCheckBox.isChecked();
     }
 
     public boolean getSaturday() {

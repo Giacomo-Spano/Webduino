@@ -14,16 +14,16 @@ import com.webduino.R;
 
 
 @SuppressLint("ValidFragment")
-public class TimePickerDialogFragment extends DialogFragment{
+public class TimePickerFragment extends DialogFragment{
     Handler mHandler ;
     int mHour;
     int mMinute;
     String mMessage;
     String mTitle;
-
+    String tag;
     
     //@SuppressLint("ValidFragment")
-	public TimePickerDialogFragment(Handler h){
+	public TimePickerFragment(Handler h){
         mHandler = h;
     }
 
@@ -43,6 +43,7 @@ public class TimePickerDialogFragment extends DialogFragment{
         mMinute = b.getInt("minute");
         mTitle = b.getString("title");
         mMessage = b.getString("message");
+        tag = b.getString("tag");
 
         final TimeRangeTimePickerDialog tp = new TimeRangeTimePickerDialog(getActivity(), listener, mHour, mMinute,true);
         tp.setTitle("ora");
@@ -54,6 +55,7 @@ public class TimePickerDialogFragment extends DialogFragment{
                     Bundle b = new Bundle();
                     b.putInt("hour", tp.m_hourOfDay);
                     b.putInt("minute", tp.m_minute);
+                    b.putString("tag", tag);
                     Message m = new Message();
                     m.setData(b);
                     mHandler.sendMessage(m);

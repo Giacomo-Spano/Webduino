@@ -26,7 +26,7 @@ import java.util.List;
  * Created by Giacomo Spanò on 16/11/2016.
  */
 
-public class HeaterWizardFragment_Step2 extends Fragment implements CompoundButton.OnCheckedChangeListener {
+public class HeaterWizardFragment_Temperature extends Fragment implements CompoundButton.OnCheckedChangeListener {
 
     private double temperature = 22;
 
@@ -35,12 +35,9 @@ public class HeaterWizardFragment_Step2 extends Fragment implements CompoundButt
     }
 
     private int sensorId = 0;
-
     private EditText temperatureEditText;
     private RadioGroup radioGroup;
     private List<RadioButton> radioButtonList = new ArrayList<>();
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,7 +48,7 @@ public class HeaterWizardFragment_Step2 extends Fragment implements CompoundButt
         }
 
         View v;
-        v = inflater.inflate(R.layout.wizard_fragment_heater_step2, container, false);
+        v = inflater.inflate(R.layout.wizard_fragment_heater_temperature, container, false);
 
         temperatureEditText = (EditText) v.findViewById(R.id.temperatureEditText);
         radioGroup = (RadioGroup) v.findViewById(R.id.radioGroup);

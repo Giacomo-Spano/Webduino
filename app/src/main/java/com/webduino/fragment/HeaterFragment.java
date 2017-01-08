@@ -20,6 +20,10 @@ import com.webduino.MainActivity;
 import com.webduino.wizard.HeaterWizardActivity;
 import com.webduino.R;
 
+import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import static android.app.Activity.RESULT_OK;
 import static com.webduino.elements.HeaterActuator.Command_Manual_End;
 import static com.webduino.elements.HeaterActuator.Command_Manual_Off;
@@ -230,8 +234,21 @@ public class HeaterFragment extends Fragment {
         if (heater.getStatus().equals(HeaterActuator.StatusProgram) ||
                 heater.getStatus().equals(HeaterActuator.StatusManual) ||
                 heater.getStatus().equals(HeaterActuator.StatusManualOff)) {
-            program += " tempo rimanente " + heater.getRemainig();
-            program += "durata " + heater.getDuration();
+
+            int remainingMinutes = heater.getRemainig() / 60;
+            int hour = remainingMinutes / 60;
+            int minute = remainingMinutes % 60;
+            String str;
+            str = String.format("%2d:%2d",hour,minute);
+            program += "\ntempo rimanente " + str;
+            program += " ("+ heater.getRemainig() +")";
+
+            remainingMinutes = heater.getDuration() / 60;
+            hour = remainingMinutes /60;
+            minute = remainingMinutes % 60;
+            str = String.format("%2d:%2d",hour,minute);
+            program += "\ndurata " + str;
+            program += " (" + heater.getDuration() + ")";
         }
 
 

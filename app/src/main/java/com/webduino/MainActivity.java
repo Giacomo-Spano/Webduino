@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     SensorsFragment sensorsFragment;
     ProgramsListFragment programsFragment;
     PrefsFragment preferencesFragment;
+    private Menu menu;
 
 
     @Override
@@ -115,6 +116,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        this.menu = menu;
+
+        //menu.removeItem(R.id.action_create_program);
+
+        //MenuItem item = menu.findItem(R.id.action_create_program);
+        //item.setVisible(false);
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -123,6 +136,12 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_create_program) {
+            programsFragment.createProgram();
+            return true;
+        } else if (id == R.id.action_delete_program) {
+            programsFragment.deleteProgram();
             return true;
         }
 
@@ -144,9 +163,13 @@ public class MainActivity extends AppCompatActivity
             // Handle the camera action
             getProgramData();
             ft.replace(R.id.content_frame, programsFragment);
+            //enableMenuItem(R.id.action_create_program);
         } else if (id == R.id.nav_sensors) {
             // Handle the gallery action
             ft.replace(R.id.content_frame, sensorsFragment);
+
+            /*MenuItem actionitem = menu.findItem(R.id.action_create_program);
+            actionitem.setVisible(false);*/
 
         } else if (id == R.id.nav_slideshow) {
 
@@ -167,6 +190,12 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    public void enableMenuItem(int id, boolean enable) {
+        MenuItem actionitem = menu.findItem(id);
+        actionitem.setVisible(enable);
+    }
+
     private void showFragment(Fragment fragment) {
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -186,6 +215,15 @@ public class MainActivity extends AppCompatActivity
 
     public void getProgramData() {
         new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_PROGRAMS).execute();
+    }
+
+    public void enableProgramListFragmentMenuItem(boolean enable) {
+        enableMenuItem(R.id.action_create_program, enable);
+    }
+
+    public void enableProgramFragmentMenuItem(boolean enable) {
+        enableMenuItem(R.id.action_create_program, enable);
+        enableMenuItem(R.id.action_delete_program,enable);
     }
 
     @NonNull
@@ -235,7 +273,7 @@ public class MainActivity extends AppCompatActivity
                 if (error)
                     return;
 
-                Actuators.list.clear();
+                Programs.list.clear();
                 for (Program program : programs) {
                     Programs.add(program);
                 }
@@ -244,7 +282,7 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void processFinishPostProgram(boolean response, boolean error, String errorMessage) {
+            public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
 
             }
 
@@ -258,7 +296,16 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void OnProgramUpdated(Program program) {
+    public void OnProgramUpdated() {
+        getProgramData(); // questo serve a fare il refresh dei dati
+        showFragment(programsFragment);
+    }
 
+    @Override
+    public void OnProgramDeleted(int programId) {
+
+        getProgramData();
+        Programs.delete(programId);
+        showFragment(programsFragment);
     }
 }

@@ -9,11 +9,21 @@
     android:paddingRight="16dp">
 
     <TextView
-        android:text="Summary"
+        android:text="Scegliere il nome del programma"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/titleTextView"
         android:textSize="18sp"
         android:layout_marginTop="20dp"/>
 
+    <EditText
+        android:id="@+id/programNameEditText"
+        android:layout_width="163dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        tools:text="Nome programma"
+        android:focusable="true"
+        android:layout_weight="1"
+        android:layout_below="@id/titleTextView"
+        android:layout_marginTop="20dp"/>
 </RelativeLayout>

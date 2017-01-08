@@ -17,7 +17,7 @@ public interface AsyncRequestDataResponse {
     void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage);
     void processFinishPrograms(List<Program> programs, boolean error, String errorMessage);
 
-    void processFinishPostProgram(boolean response, boolean error, String errorMessage);
+    void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage);
     /*void processFinishAddFavorite(long spotId, boolean error, String errorMessage);
     void processFinishRemoveFavorite(long spotId, boolean error, String errorMessage);*/
 

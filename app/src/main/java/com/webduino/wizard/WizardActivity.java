@@ -86,14 +86,16 @@ public class WizardActivity extends AppCompatActivity implements WizardFragment.
         if (fragmentList.size() > 0 && position > 0) {
             position--;
             showCurrentFragment();
+        } else if (position == 0) {
+            onWizardCancel();
         }
     }
 
     public void showCurrentFragment() {
 
         if (position == 0) {
-            backButton.setEnabled(false);
-            backButton.setText("Indietro");
+            //backButton.setEnabled(false);
+            backButton.setText("Annulla");
             nextButton.setText("Avanti");
         } else if (position == fragmentList.size() - 1) {
             backButton.setEnabled(true);
@@ -111,6 +113,11 @@ public class WizardActivity extends AppCompatActivity implements WizardFragment.
 
     public void onWizardComplete() {
 
+    }
+
+    public void onWizardCancel() {
+        setResult(RESULT_CANCELED);
+        finish();     //Terminate the wizard
     }
 
     @Override

@@ -4,6 +4,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.webduino.R;
@@ -11,6 +13,7 @@ import com.webduino.controls.TimeView;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.ProgramCardInfo;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -80,7 +83,34 @@ public class ProgramAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 ProgramCardInfo pci = (ProgramCardInfo) ci;
 
                 programViewHolder.programId = pci.program.id;
-                programViewHolder.title.setText(pci.name);
+                programViewHolder.title.setText(pci.program.name + "(" + pci.program.id + ")");
+                if (!pci.program.active) {
+                    programViewHolder.startDate.setText("non attivo");
+                    programViewHolder.endDate.setText("");
+                } else if (pci.program.dateEnabled) {
+                    SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyy HH:mm");
+                    programViewHolder.startDate.setText(df.format(pci.program.startDate));
+                    programViewHolder.endDate.setText(df.format(pci.program.endDate));
+                } else {
+                    programViewHolder.startDate.setText("sempre attivo");
+                    programViewHolder.endDate.setText("");
+                }
+                programViewHolder.su.setChecked(pci.program.Sunday);
+                programViewHolder.mo.setChecked(pci.program.Monday);
+                programViewHolder.tu.setChecked(pci.program.Tuesday);
+                programViewHolder.we.setChecked(pci.program.Wednesday);
+                programViewHolder.th.setChecked(pci.program.Thursday);
+                programViewHolder.fr.setChecked(pci.program.Friday);
+                programViewHolder.sa.setChecked(pci.program.Saturday);
+                programViewHolder.su.setEnabled(false);
+                programViewHolder.mo.setEnabled(false);
+                programViewHolder.tu.setEnabled(false);
+                programViewHolder.we.setEnabled(false);
+                programViewHolder.th.setEnabled(false);
+                programViewHolder.fr.setEnabled(false);
+                programViewHolder.sa.setEnabled(false);
+
+
                 programViewHolder.timeLine.removeAll();
                 programViewHolder.timeLine.add(pci.program.timeRanges);
 
@@ -116,6 +146,8 @@ public class ProgramAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public class ProgramViewHolder extends RecyclerView.ViewHolder {
 
         protected TextView title;
+        protected TextView startDate, endDate;
+        protected CheckBox su, mo, tu, we, th, fr, sa;
         protected TimeView timeLine;
         protected int programId;
 
@@ -123,10 +155,17 @@ public class ProgramAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public ProgramViewHolder(View v) {
             super(v);
             title =  (TextView) v.findViewById(R.id.titleEditText);
-            //temperature = (TextView)  v.findViewById(R.id.temperature);
-            //target = (TextView) v.findViewById(R.id.target);
+            startDate = (TextView) v.findViewById(R.id.startDateTextView);
+            endDate = (TextView) v.findViewById(R.id.endDateTextView);
             timeLine = (TimeView) v.findViewById(R.id.timeLineView);
 
+            su = (CheckBox) v.findViewById((R.id.suCheckBox));
+            mo = (CheckBox) v.findViewById((R.id.moCheckBox));
+            tu = (CheckBox) v.findViewById((R.id.tuCheckBox));
+            we = (CheckBox) v.findViewById((R.id.weCheckBox));
+            th = (CheckBox) v.findViewById((R.id.thCheckBox));
+            fr = (CheckBox) v.findViewById((R.id.frCheckBox));
+            sa = (CheckBox) v.findViewById((R.id.saCheckBox));
 
             v.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
