@@ -32,12 +32,17 @@ public class WebduinoResponse implements AsyncRequestDataResponse {
     }
 
     @Override
-    public void processFinishPrograms(List<Program> programs, int requestType, boolean error, String errorMessage) {
+    public void processFinishPrograms(List<Object> programs, int requestType, boolean error, String errorMessage) {
 
     }
 
     @Override
     public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
+
+    }
+
+    @Override
+    public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
 
     }
 }

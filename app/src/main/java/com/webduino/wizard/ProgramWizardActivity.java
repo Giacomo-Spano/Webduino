@@ -8,7 +8,10 @@ import com.webduino.elements.Actuator;
 import com.webduino.elements.Program;
 import com.webduino.elements.Programs;
 import com.webduino.elements.Sensor;
+import com.webduino.elements.TimeRange;
 import com.webduino.elements.requestDataTask;
+
+import java.sql.Time;
 import java.util.List;
 
 /**
@@ -34,8 +37,18 @@ public class ProgramWizardActivity extends WizardActivity {
         Bundle bundle = getIntent().getExtras();
         programId = bundle.getInt("programid");
         program = Programs.getFromId(programId);
-        if (program == null)
+        if (program == null) {
             program = new Program();
+            program = new Program();
+            int newId = Programs.getMaxId();
+            program.id = newId+1;
+            TimeRange tr = new TimeRange();
+            tr.starTime = Time.valueOf("00:00:00");
+            tr.endTime = Time.valueOf("23:59:00");
+            tr.temperature = 15.0;
+            tr.name = "fascia1";
+            program.timeRanges.add(tr);
+        }
 
         nameStep = new ProgramWizardFragment_Name();
         nameStep.init(program.name);

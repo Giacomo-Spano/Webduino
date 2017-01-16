@@ -79,30 +79,6 @@ public class PrefsFragment extends PreferenceFragment {
                 // queto viene chiamato in fase di registrazione device per notifiche google
             }
 
-            @Override
-            public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishPrograms(List<Program> programs, int requestType, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
-
-            }
         }, requestDataTask.REQUEST_REGISTERDEVICE).execute(refreshedToken, model);
 
     }

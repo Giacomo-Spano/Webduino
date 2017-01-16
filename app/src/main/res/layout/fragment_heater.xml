@@ -105,6 +105,18 @@ tools:context=".MainActivity">
             android:layout_height="wrap_content"
             android:id="@+id/buttonPrograms" />
 
+        <Button
+            android:text="Programmazione"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonSchedule" />
+
+        <Button
+            android:text="Grafico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/buttonHistory" />
+
     </LinearLayout>
 
 </RelativeLayout>

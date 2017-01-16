@@ -20,4 +20,18 @@
         android:title="@string/action_deleteprogram"
         android:visible="false"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_get_location"
+        android:orderInCategory="100"
+        android:title="getlocation"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_add_geofence"
+        android:orderInCategory="100"
+        android:title="getlocation"
+        android:visible="true"
+        app:showAsAction="never" />
 </menu>

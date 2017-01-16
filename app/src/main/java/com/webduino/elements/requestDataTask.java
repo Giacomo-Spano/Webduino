@@ -13,6 +13,7 @@ import android.support.v7.preference.PreferenceManager;
 import com.webduino.AsyncRequestDataResponse;
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.chart.HistoryData;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,9 +28,12 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -48,6 +52,7 @@ public class requestDataTask extends
     public static final int POST_ACTUATOR_COMMAND = 8;
     public static final int POST_PROGRAM = 9;
     public static final int POST_DELETEPROGRAM = 10;
+    public static final int REQUEST_DATALOG = 11;
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -64,7 +69,8 @@ public class requestDataTask extends
         public List<Sensor> sensors;
         public List<Actuator> actuators;
         public List<Shield> shields;
-        public List<Program> programs;
+        public List<Object> programs;
+        public List<Object> objectList;
         public Actuator actuator;
         public boolean response;
     }
@@ -75,7 +81,8 @@ public class requestDataTask extends
         delegate = asyncResponse;//Assigning call back interfacethrough constructor
         requestType = type;
 
-        ringProgressDialog = new ProgressDialog(/*MainActivity.activity*/activity);
+        if (requestType != REQUEST_REGISTERDEVICE)
+            ringProgressDialog = new ProgressDialog(/*MainActivity.activity*/activity);
     }
 
     protected requestDataTask.Result doInBackground(Object... params) {
@@ -83,7 +90,7 @@ public class requestDataTask extends
         requestDataTask.Result result = null;
 
         if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS || requestType == REQUEST_ACTUATORS
-                || requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS) {
+                || requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS || requestType == REQUEST_DATALOG) {
             result = performGetRequest(params);
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM) {
             result = performPostCall(params);
@@ -119,10 +126,20 @@ public class requestDataTask extends
 
                 path = "/program?";
 
-            } else if (requestType == REQUEST_PROGRAMS) {
+            } else if (requestType == REQUEST_NEXTPROGRAMS) {
 
                 path = "/program?next=true";
 
+            } else if (requestType == REQUEST_DATALOG) {
+                path = "/datalog";
+                int actuatorId = (int) params[0];
+
+                Date date = new Date();
+                SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                path += "?enddate="+df.format(date);
+
+                path += "&elapsed=360";
+                path += "&id="+actuatorId;
             }
 
             String serverUrl = getServerUrl();
@@ -173,18 +190,42 @@ public class requestDataTask extends
                     }
 
                     result.actuators = list;
-                } else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS) {
+                } else if (requestType == REQUEST_PROGRAMS) {
 
-                    List<Program> list = new ArrayList<Program>();
+                    List<Object> list = new ArrayList<Object>();
                     JSONArray jArray = new JSONArray(json);
                     for (int i = 0; i < jArray.length(); i++) {
                         JSONObject jObject = jArray.getJSONObject(i);
-                        Program program = new Program();
-                        program.fromJson(jObject);
+                        Object program = new Program();
+                        ((Program) program).fromJson(jObject);
                         list.add(program);
                     }
                     result.programs = list;
+
+                } else if (requestType == REQUEST_NEXTPROGRAMS) {
+
+                    List<Object> list = new ArrayList<Object>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        Object nextProgram = new NextProgram();
+                        ((NextProgram) nextProgram).fromJson(jObject);
+                        list.add(nextProgram);
+                    }
+                    result.programs = list;
+                } else if (requestType == REQUEST_DATALOG) {
+
+                    List<Object> list = new ArrayList<Object>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        Object data = new HistoryData();
+                        ((HistoryData) data).fromJson(jObject);
+                        list.add(data);
+                    }
+                    result.objectList = list;
                 }
+
 
                 if (conn != null)
                     conn.disconnect();
@@ -235,7 +276,8 @@ public class requestDataTask extends
         String title = "Attendere prego";
         String message = "";
         if (requestType == REQUEST_REGISTERDEVICE)
-            message = "Richiesta registrazione inviata";
+            //message = "Richiesta registrazione inviata";
+            return;
         else if (requestType == REQUEST_SENSORS)
             message = "Aggiornamnento";
         else if (requestType == REQUEST_ACTUATORS)
@@ -248,6 +290,8 @@ public class requestDataTask extends
             message = "Salvataggio programma";
         else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_DELETEPROGRAM)
             message = "Comando inviato";
+        else if (requestType == REQUEST_DATALOG)
+            message = "Aggiornamnento";
 
         ringProgressDialog.setMessage(message);
         ringProgressDialog.setTitle(title);
@@ -290,23 +334,29 @@ public class requestDataTask extends
 
     private void processFinish(Result result) {
 
-        if (ringProgressDialog != null || ringProgressDialog.isShowing())
+
+        if (ringProgressDialog != null && ringProgressDialog.isShowing() && requestType != REQUEST_REGISTERDEVICE)
             ringProgressDialog.dismiss();
+
+
         if (requestType == REQUEST_REGISTERDEVICE) {
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
         } else if (requestType == REQUEST_SENSORS) {
             delegate.processFinishSensors(result.sensors, error, errorMessage);
         } else if (requestType == REQUEST_ACTUATORS) {
             delegate.processFinishActuators(result.actuators, error, errorMessage);
-        } else if (requestType == REQUEST_PROGRAMS|| requestType == REQUEST_NEXTPROGRAMS ) {
-            delegate.processFinishPrograms(result.programs, REQUEST_NEXTPROGRAMS, error, errorMessage);
+        } else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS) {
+            delegate.processFinishPrograms(result.programs, requestType, error, errorMessage);
         } else if (requestType == POST_ACTUATOR_COMMAND) {
             delegate.processFinishSendCommand(result.actuator, error, errorMessage);
         } else if (requestType == POST_PROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_PROGRAM, error, errorMessage);
-        } if (requestType == POST_DELETEPROGRAM) {
+        } else if (requestType == POST_DELETEPROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);
+        } else if (requestType == REQUEST_DATALOG) {
+            delegate.processFinishObjectList(result.objectList, REQUEST_DATALOG, error, errorMessage);
         }
+
     }
 
     private String convertStreamToString(InputStream is) {
@@ -453,7 +503,7 @@ public class requestDataTask extends
             } else {
                 response = null;
                 error = true;
-                errorMessage = conn.getResponseMessage() + " responseCode:" + responseCode ;
+                errorMessage = conn.getResponseMessage() + " responseCode:" + responseCode;
             }
         } catch (Exception e) {
             e.printStackTrace();

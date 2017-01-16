@@ -46,6 +46,8 @@ public class HeaterFragment extends Fragment {
     private Button buttonManualOn;
     private Button buttonAuto;
     private Button buttonPrograms;
+    private Button buttonSchedule;
+    private Button buttonHistory;
     private TextView textViewReleStatus;
     private TextView textViewStatus;
     private TextView textViewProgram;
@@ -131,12 +133,29 @@ public class HeaterFragment extends Fragment {
         buttonPrograms.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*Intent intent = new Intent(getActivity(), HeaterWizardActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putInt("actuatorid", id);
-                bundle.putString("command", Command_Manual_On);
-                intent.putExtras(bundle);
-                startActivityForResult(intent, HEATERWIZARD_MANUAL_ON);*/
+
+                MainActivity ma = (MainActivity) getActivity();
+                ma.showPrograms();
+            }
+        });
+
+        buttonSchedule = (Button) v.findViewById(R.id.buttonSchedule);
+        buttonSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                MainActivity ma = (MainActivity) getActivity();
+                ma.showSchedule();
+            }
+        });
+
+        buttonHistory = (Button) v.findViewById(R.id.buttonHistory);
+        buttonHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                MainActivity ma = (MainActivity) getActivity();
+                ma.showHistory(actuatorId);
             }
         });
 

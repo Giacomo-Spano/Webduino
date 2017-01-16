@@ -47,12 +47,6 @@ public class Program {
         Thursday = false;
         Friday = false;
         Saturday = false;
-        TimeRange tr = new TimeRange();
-        tr.starTime = Time.valueOf("00:00:00");
-        tr.endTime = Time.valueOf("23:59:00");
-        tr.temperature = 15.0;
-        tr.name = "fascia1";
-        timeRanges.add(tr);
     }
 
     TimeRange getTimeRangeFromId(int id) {
@@ -132,15 +126,15 @@ public class Program {
                 if (!JSONrange.isNull(("endtime")))
                     tr.endTime = Time.valueOf(JSONrange.getString("endtime") + ":00");
                 tr.starTime = lastTime;
-                lastTime = tr.endTime;
+
                 if (!JSONrange.isNull(("temperature")))
                     tr.temperature = JSONrange.getDouble("temperature");
                 if (!JSONrange.isNull(("sensorid")))
                     tr.sensorId = JSONrange.getInt("sensorid");
                 if (!JSONrange.isNull(("priority")))
                     tr.priority = JSONrange.getInt("priority");
-
                 timeRanges.add(tr);
+                lastTime = tr.endTime;
             }
 
         } catch (JSONException e) {

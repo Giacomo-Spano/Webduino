@@ -21,7 +21,7 @@
     </string-array>
     <string-array name="entryvalues_server_url_preference">
         <item>http://giacomohome.ddns.net:8080/webduino</item>
-        <item>http://192.168.1.7:8080/webduino</item>
+        <item>http://192.168.1.3:8080/webduino</item>
         <item>http://192.168.1.8:8080/webduino</item>
         <item>http://giacomohome.ddns.net:80/webduino</item>
     </string-array>
@@ -32,4 +32,8 @@
     <string name="hint_lastname">hint_lastname</string>
     <string name="sample_form_text2">sample_form_text2</string>
     <string name="sample_form_checkbox">sample_form_checkbox</string>
+    <string name="geofence_not_available">geofence_not_available</string>
+    <string name="geofence_too_many_geofences">geofence_too_many_geofences</string>
+    <string name="geofence_too_many_pending_intents">geofence_too_many_pending_intents</string>
+    <string name="unknown_geofence_error">unknown_geofence_error</string>
 </resources>

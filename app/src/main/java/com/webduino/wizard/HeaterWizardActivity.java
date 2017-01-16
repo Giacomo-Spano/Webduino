@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 
 import com.webduino.WebduinoResponse;
 import com.webduino.elements.Actuator;
+import com.webduino.elements.Actuators;
+import com.webduino.elements.HeaterActuator;
 import com.webduino.elements.requestDataTask;
 
 import java.util.List;
@@ -39,11 +41,24 @@ public class HeaterWizardActivity extends WizardActivity {
         actuatorId = bundle.getInt("actuatorid");
         command = bundle.getString("command");
 
+        HeaterActuator heater = (HeaterActuator) Actuators.getFromId(actuatorId);
+        if (heater != null) {
+            if (heater.getLocalsensor()) {
+                sensorId = 0;
+                remoteSensor = false;
+            } else {
+                remoteSensor = true;
+                sensorId = heater.getSensorId();
+            }
+            temperature = 22;
+        }
+
         if (command.equals(Command_Manual_Auto)) {
 
             timeStep = new HeaterWizardFragment_Time();
             addStep(timeStep);
             temperatureStep = new HeaterWizardFragment_Temperature();
+            temperatureStep.init(temperature,remoteSensor,sensorId);
             addStep(temperatureStep);
 
         } else if (command.equals(Command_Manual_Off)) {

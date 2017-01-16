@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +23,7 @@ import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.TimeRangeCardInfo;
 import com.webduino.wizard.WizardActivity;
 
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -38,6 +41,7 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         void onTimeRangeClick(int id);
         void onAddTimeRangeBelow(int id);
         void onDeleteTimeRange(int id);
+        void onChangeTimeRange(TimeRange timeRange);
     }
 
     public void setListener(OnListener listener) {
@@ -81,10 +85,8 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 TimeRangeCardInfo pci = (TimeRangeCardInfo) ci;
 
                 timeRangeViewHolder.timeRange = pci.timeRange;
-                timeRangeViewHolder.title.setText(pci.name);
-
+                //timeRangeViewHolder.title.setText(pci.name);
                 timeRangeViewHolder.update();
-
                 break;
         }
     }
@@ -165,8 +167,10 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 Calendar cal = Calendar.getInstance();
                                 cal.set(Calendar.HOUR_OF_DAY, hours);
                                 cal.set(Calendar.MINUTE, minutes);
-                                SimpleDateFormat df = new SimpleDateFormat("hh:mm");
+                                SimpleDateFormat df = new SimpleDateFormat("HH:mm");
                                 endTime.setText(df.format(cal.getTime()));
+                                timeRange.endTime = Time.valueOf(df.format(cal.getTime())+":00");
+                                mCallback.onChangeTimeRange(timeRange);
                             }
                         }
             };
@@ -176,15 +180,40 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 public void onClick(View v) {
                     int minutes = 0;
                     int hours = 0;
+                    int minMinute, minHour;
                     if (timeRange != null) {
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(timeRange.endTime);
                         minutes = cal.get(Calendar.MINUTE);
                         hours = cal.get(Calendar.HOUR);
+
+                        cal.setTime(timeRange.starTime);
+                        minMinute = cal.get(Calendar.MINUTE);
+                        minHour = cal.get(Calendar.HOUR);
+
+                        showTimePickerDialog(hours,minutes,"titolo", "messaggio", handler,24,0,minHour,minMinute);
                     }
-                    showTimePickerDialog(hours,minutes,"titolo", "messaggio", handler);
+
                 }
             });
+
+            title.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        timeRange.name = s.toString();
+                    }
+                });
+
 
             temperature.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -212,20 +241,16 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         }
 
-        public void showTimePickerDialog(int mHour, int mMinute, String title, String message, Handler mHandler) {
+        public void showTimePickerDialog(int mHour, int mMinute, String title, String message, Handler mHandler, int maxHour, int maxMinute, int minHour, int minMinute) {
 
-            Bundle b = new Bundle();
-            b.putInt("hour", mHour);
-            b.putInt("minute", mMinute);
-            b.putString("message", message);
-            b.putString("title", title);
-
-            TimePickerFragment timePicker = new TimePickerFragment(
-                    mHandler);
-            timePicker.setArguments(b);
+            TimePickerFragment timePicker = new TimePickerFragment(mHandler);
+            timePicker.setCurrentTime(mHour,mMinute);
+            timePicker.setMessage(title,message);
+            timePicker.setMin(minHour,minMinute);
+            timePicker.setMax(maxHour,maxMinute);
             FragmentManager fm = WizardActivity.activity.getFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
-            ft.add(timePicker, message/*"time_picker"*/);
+            ft.add(timePicker, message);
             ft.commit();
         }
 
@@ -240,7 +265,7 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             b.putString("tag", tag);
 
             NumberPickerFragment numberPickerFragment = new NumberPickerFragment();
-            numberPickerFragment.setNumberHandler(numberHandler);
+            numberPickerFragment.setNumberHandler(mHandler/*numberHandler*/);
             numberPickerFragment.setArguments(b);
             FragmentManager fm = WizardActivity.activity.getFragmentManager();
             FragmentTransaction ft = fm.beginTransaction();
@@ -251,8 +276,6 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         public void update() {
 
             if (timeRange != null) {
-                title.setText(timeRange.name);
-
                 SimpleDateFormat df = new SimpleDateFormat("HH:mm");
                 title.setText(timeRange.name);
                 endTime.setText(df.format(timeRange.endTime));

@@ -82,8 +82,14 @@ public class NextProgramAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 NextProgramViewHolder nextProgramViewHolder = (NextProgramViewHolder) viewHolder;
                 NextProgramCardInfo pci = (NextProgramCardInfo) ci;
 
-                nextProgramViewHolder.programId = pci.programId;
-                nextProgramViewHolder.title.setText(pci.programName + "(" + pci.programName + ")");
+                nextProgramViewHolder.programId = pci.nextProgram.id;
+                nextProgramViewHolder.title.setText(pci.nextProgram.name + "." + pci.nextProgram.timeRangeName + "(" + pci.nextProgram.id + "." + pci.nextProgram.timeRangeId + ")");
+                SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+                if (pci.nextProgram.startDate != null)
+                    nextProgramViewHolder.startDate.setText(df.format(pci.nextProgram.startDate));
+                if (pci.nextProgram.endDate != null)
+                    nextProgramViewHolder.endDate.setText(df.format(pci.nextProgram.endDate));
+                nextProgramViewHolder.temperature.setText("" + pci.nextProgram.temperature + "°C");
 
                 break;
         }
@@ -114,7 +120,7 @@ public class NextProgramAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
     public class NextProgramViewHolder extends RecyclerView.ViewHolder {
 
-        protected TextView title;
+        protected TextView title, temperature;
         protected TextView startDate, endDate;
         protected int programId;
 
@@ -122,8 +128,10 @@ public class NextProgramAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         public NextProgramViewHolder(View v) {
             super(v);
             title =  (TextView) v.findViewById(R.id.titleEditText);
+            temperature =  (TextView) v.findViewById(R.id.temperatureTextView);
             startDate = (TextView) v.findViewById(R.id.startDateTextView);
             endDate = (TextView) v.findViewById(R.id.endDateTextView);
+
 
             v.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {

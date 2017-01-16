@@ -152,7 +152,7 @@ public class HeaterWizardFragment_Time extends WizardFragment implements RadioGr
                 Calendar cal = Calendar.getInstance();
                 cal.set(Calendar.HOUR_OF_DAY, hours);
                 cal.set(Calendar.MINUTE, minutes);
-                SimpleDateFormat df = new SimpleDateFormat("hh:mm");
+                SimpleDateFormat df = new SimpleDateFormat("HH:mm");
                 String tag = bundle.getString("tag");
                 if (tag.equals("duration"))
                     durationEditText.setText(df.format(cal.getTime()));
@@ -172,7 +172,7 @@ public class HeaterWizardFragment_Time extends WizardFragment implements RadioGr
 
         if (view.getId() == R.id.durationTimeEditText){
 
-            showTimePickerDialog(duration / 60, duration % 60,"Durata", "Impostare l'ora di fine", "duration", handler);
+            showTimePickerDialog(duration / 60, duration % 60,"Durata", "Impostare l'ora di fine", "duration", handler,6,0,0,0);
 
         } else if(view.getId() == R.id.toTimeEditText){
 
@@ -181,18 +181,15 @@ public class HeaterWizardFragment_Time extends WizardFragment implements RadioGr
         }
     }
 
-    public void showTimePickerDialog(int mHour, int mMinute, String title, String message, String tag, Handler mHandler) {
+    public void showTimePickerDialog(int mHour, int mMinute, String title, String message, String tag, Handler mHandler, int maxHour, int maxMinute, int minHour, int minMinute) {
 
-        Bundle b = new Bundle();
-        b.putInt("hour", mHour);
-        b.putInt("minute", mMinute);
-        b.putString("message", message);
-        b.putString("title", title);
-        b.putString("tag", tag);
 
-        TimePickerFragment timePicker = new TimePickerFragment(
-                mHandler);
-        timePicker.setArguments(b);
+        TimePickerFragment timePicker = new TimePickerFragment(mHandler);
+        timePicker.setCurrentTime(mHour,mMinute);
+        timePicker.setMessage(title,message);
+        timePicker.setMin(minHour,minMinute);
+        timePicker.setMax(maxHour,maxMinute);
+        timePicker.setTag(tag);
         FragmentManager fm = WizardActivity.activity.getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
         ft.add(timePicker, message);

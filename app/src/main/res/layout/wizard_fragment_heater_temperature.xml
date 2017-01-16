@@ -20,6 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"
+        android:focusable="false"
         android:ems="10"
         android:id="@+id/temperatureEditText"
         android:layout_below="@id/titleTextView"
@@ -42,5 +43,6 @@
         android:id="@+id/radioGroup">
 
     </RadioGroup>
+
 
 </RelativeLayout>

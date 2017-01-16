@@ -15,6 +15,7 @@ public interface AsyncRequestDataResponse {
     void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage);
     void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage);
     void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage);
-    void processFinishPrograms(List<Program> programs, int requestType, boolean error, String errorMessage);
+    void processFinishPrograms(List<Object> programs, int requestType, boolean error, String errorMessage);
     void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage);
+    void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage);
 }

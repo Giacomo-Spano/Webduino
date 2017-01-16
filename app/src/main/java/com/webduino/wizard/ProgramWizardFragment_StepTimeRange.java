@@ -136,6 +136,35 @@ public class ProgramWizardFragment_StepTimeRange extends Fragment implements Tim
         }
     }
 
+    @Override
+    public void onChangeTimeRange(TimeRange timeRange) {
+        int index = 0;
+        for (TimeRange tr : timeRanges) {
+            if (tr.ID == timeRange.ID) {
+
+                if (index >= timeRanges.size()-1) {
+                    // se è lultimo non fare nulla
+                } else {
+
+                    TimeRange next = timeRanges.get(index + 1);
+                    next.starTime = timeRange.endTime;
+
+                    /*for (int i = index + 1; i < timeRanges.size()-1; i++) {
+                        TimeRange next = timeRanges.get(i);
+                        if (next.starTime.getTime() < timeRange.endTime.getTime())
+                            next.starTime = timeRange.endTime;
+
+                        if (next.endTime.getTime() < timeRange.endTime.getTime())
+                            next.starTime = timeRange.endTime;
+                    }*/
+                }
+                update();
+                return;
+            }
+            index++;
+        }
+    }
+
     public int getMaxId() {
         int id = 0;
         for (TimeRange tr : timeRanges) {
@@ -156,7 +185,7 @@ public class ProgramWizardFragment_StepTimeRange extends Fragment implements Tim
                     return;
                 }
 
-                if (index < timeRanges.size()-1) {
+                if (index > timeRanges.size()-1) {
                     timeRanges.get(index+1).starTime = timeRanges.get(index).starTime;
                     return;
                 }

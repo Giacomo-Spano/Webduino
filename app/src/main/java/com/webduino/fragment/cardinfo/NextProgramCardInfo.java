@@ -1,5 +1,6 @@
 package com.webduino.fragment.cardinfo;
 
+import com.webduino.elements.NextProgram;
 import com.webduino.elements.Program;
 import com.webduino.elements.TimeRange;
 
@@ -8,7 +9,8 @@ import com.webduino.elements.TimeRange;
  */
 
 public class NextProgramCardInfo extends CardInfo {
-    public int programId;
-    public String programName;
-    public TimeRange timerange;
+    //public int programId;
+    //public String programName;
+    //public TimeRange timerange;
+    public NextProgram nextProgram;
 }

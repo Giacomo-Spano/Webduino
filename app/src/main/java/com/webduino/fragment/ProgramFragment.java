@@ -21,6 +21,9 @@ import com.webduino.elements.Programs;
 import com.webduino.elements.TimeRange;
 import com.webduino.elements.requestDataTask;
 import com.webduino.wizard.ProgramWizardActivity;
+
+import java.sql.Time;
+
 import static android.app.Activity.RESULT_OK;
 
 /**
@@ -79,10 +82,16 @@ public class ProgramFragment extends Fragment implements View.OnClickListener {
             program = Programs.getFromId(id);
             update();
         } else {
-            program = new Program();
+            /*program = new Program();
             int newId = Programs.getMaxId();
             program.id = newId+1;
-            update();
+            TimeRange tr = new TimeRange();
+            tr.starTime = Time.valueOf("00:00:00");
+            tr.endTime = Time.valueOf("23:59:00");
+            tr.temperature = 15.0;
+            tr.name = "fascia1";
+            program.timeRanges.add(tr);
+            update();*/
             startProgramWizard();
         }
 
@@ -136,8 +145,9 @@ public class ProgramFragment extends Fragment implements View.OnClickListener {
 
         SimpleDateFormat df = new SimpleDateFormat("HH:mm:00");
         for (TimeRange timeRange : program.timeRanges) {
-            str += "\ninizio:" + df.format(timeRange.starTime);
-            str += " fine:" + df.format(timeRange.endTime);
+            str += "\n DALLE " + df.format(timeRange.starTime);
+            str += " ALLE " + df.format(timeRange.endTime);
+            str += " - " + timeRange.name;
             str += " " + timeRange.temperature + "°C";
         }
 

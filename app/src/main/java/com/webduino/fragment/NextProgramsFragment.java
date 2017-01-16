@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.elements.NextProgram;
+import com.webduino.elements.NextPrograms;
 import com.webduino.elements.Program;
 import com.webduino.elements.Programs;
 import com.webduino.fragment.adapters.NextProgramAdapter;
@@ -69,10 +71,10 @@ public class NextProgramsFragment extends Fragment implements NextProgramAdapter
 
         List<CardInfo> result = new ArrayList<CardInfo>();
 
-        for (Program program : Programs.list) {
+        for (NextProgram nextProgram : NextPrograms.list) {
 
             try {
-                NextProgramCardInfo ci = nextProgramCardInfoFromProgram((Program) program);
+                NextProgramCardInfo ci = nextProgramCardInfoFromProgram(nextProgram);
                 result.add(ci);
             } catch (Exception e) {
 
@@ -83,10 +85,9 @@ public class NextProgramsFragment extends Fragment implements NextProgramAdapter
     }
 
     @NonNull
-    private NextProgramCardInfo nextProgramCardInfoFromProgram(Program program) {
-        //HeaterActuator heater = actuator;
+    private NextProgramCardInfo nextProgramCardInfoFromProgram(NextProgram nextProgram) {
         NextProgramCardInfo ci = new NextProgramCardInfo();
-        ci.programName = program.name;
+        ci.nextProgram = nextProgram;
         return ci;
     }
 
