@@ -133,6 +133,7 @@ public class requestDataTask extends
             } else if (requestType == REQUEST_DATALOG) {
                 path = "/datalog";
                 int actuatorId = (int) params[0];
+                String type = (String) params[1];
 
                 Date date = new Date();
                 SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -140,6 +141,7 @@ public class requestDataTask extends
 
                 path += "&elapsed=360";
                 path += "&id="+actuatorId;
+                path += "&type="+type;
             }
 
             String serverUrl = getServerUrl();

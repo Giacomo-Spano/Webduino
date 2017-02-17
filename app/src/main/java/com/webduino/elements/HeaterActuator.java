@@ -7,13 +7,16 @@ import org.json.JSONObject;
  */
 public class HeaterActuator extends Actuator {
 
-    /*public static final String Command_Program_Off = "programoff";
-    public static final String Command_Program_On = "programon";
-    public static final String Command_Send_Temperature = "sendtemperature";
-    public static final String Command_Manual_Auto = "manual";
-    public static final String Command_Manual_End = "endmanual";
-    public static final String Command_Manual_Off = "manualoff";*/
+    public static final String Command_Program_ReleOff = "programoff"; // "programoff";
+    public static final String Command_Program_ReleOn = "programon"; // "programon";
+    public static final String Command_Send_Disabled = "disabled"; // "sendtemperature";
+    public static final String Command_Send_Enabled = "enabled"; // "sendtemperature";
+    public static final String Command_Manual_Off = "manualoff"; // "manualoff";
+    public static final String Command_Manual_Auto = "manual"; // "manual";
+    public static final String Command_Manual_End = "manualend"; // "endmanual";
+    public static final String Command_Send_Temperature = "sendtemperature"; // "sendtemperature";
 
+    /*
     public static final String Command_Program_ReleOff = "0"; // "programoff";
     public static final String Command_Program_ReleOn = "1"; // "programon";
     public static final String Command_Send_Disabled = "2"; // "sendtemperature";
@@ -22,6 +25,7 @@ public class HeaterActuator extends Actuator {
     public static final String Command_Manual_Auto = "5"; // "manual";
     public static final String Command_Manual_End = "6"; // "endmanual";
     public static final String Command_Send_Temperature = "7"; // "sendtemperature";
+    */
 
     public static final String StatusIdle = "idle";
     public static final String StatusProgram = "program";

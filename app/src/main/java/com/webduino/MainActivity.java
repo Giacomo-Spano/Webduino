@@ -481,7 +481,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void getDataLog(int actuatorId) {
-        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_DATALOG).execute(actuatorId);
+
+        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_DATALOG).execute(actuatorId,"heater");
+
+        for (Sensor sensor : Sensors.list) {
+            new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_DATALOG).execute(sensor.getId(),"temperature");
+        }
+
     }
 
     public void enableProgramListFragmentMenuItem(boolean enable) {
