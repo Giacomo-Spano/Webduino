@@ -6,5 +6,6 @@ package com.webduino.fragment.cardinfo;
 
 public class TemperatureSensorCardInfo extends CardInfo {
     public double temperature = 0.0;
-    public double target = 0.0;
+    //public double target = 0.0;
+    public boolean online = false;
 }

@@ -12,7 +12,7 @@ public class Sensor {
 
     protected int id;
     protected int shieldid;
-    protected String onlinestatus;
+    protected boolean online;
     protected String subaddress;
     protected String name;
     protected Date lastUpdate;
@@ -25,6 +25,10 @@ public class Sensor {
         return name;
     }
 
+    public boolean getOnLine() {
+        return online;
+    }
+
     void fromJson(JSONObject json) {
 
         try {
@@ -33,8 +37,8 @@ public class Sensor {
                 id = json.getInt("id");
             if (json.has("shieldid"))
                 shieldid = json.getInt("shieldid");
-            if (json.has("onlinestatus"))
-                onlinestatus = json.getString("onlinestatus");
+            if (json.has("online"))
+                online = json.getBoolean("online");
             if (json.has("subaddress"))
                 subaddress = json.getString("subaddress");
             if (json.has("name"))

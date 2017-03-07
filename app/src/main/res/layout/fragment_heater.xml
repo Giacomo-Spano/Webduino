@@ -3,6 +3,10 @@
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
+android:paddingLeft="@dimen/activity_horizontal_margin"
+android:paddingRight="@dimen/activity_horizontal_margin"
+android:paddingTop="@dimen/activity_vertical_margin"
+android:paddingBottom="@dimen/activity_vertical_margin"
 tools:context=".MainActivity">
 
     <LinearLayout
@@ -56,12 +60,12 @@ tools:context=".MainActivity">
         </RelativeLayout>
 
         <TextView
-                android:text="Rele status"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/textViewReleStatus"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentStart="true" />
+            android:text="Rele status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/textViewReleStatus"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true" />
 
         <TextView
             android:text="Program"
@@ -80,43 +84,12 @@ tools:context=".MainActivity">
             android:layout_alignParentStart="true" />
 
 
-        <Button
-            android:text="Fuori casa"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonLeave" />
-
-        <Button
-            android:text="Accendi"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonManualOn"
-             />
-
-        <Button
-            android:text="Automatico"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonAuto" />
-
-        <Button
-            android:text="Programmi"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonPrograms" />
-
-        <Button
-            android:text="Programmazione"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonSchedule" />
-
-        <Button
-            android:text="Grafico"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/buttonHistory" />
-
     </LinearLayout>
 
+
+    <android.support.v7.widget.RecyclerView
+    android:id="@+id/cardList"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
 </RelativeLayout>

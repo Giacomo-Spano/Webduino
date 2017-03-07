@@ -56,8 +56,8 @@
                 android:text="L"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/target"
-                android:layout_toStartOf="@+id/target"
+                android:layout_alignTop="@+id/label"
+                android:layout_toStartOf="@+id/label"
                 android:id="@+id/moCheckBox"
                 android:layout_weight="1" />
 

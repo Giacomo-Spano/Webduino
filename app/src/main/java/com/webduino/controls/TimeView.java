@@ -173,21 +173,16 @@ public class TimeView extends TextView {
 
         for (int i = 0; i < num; i++) {
 
-
-
             int x0 = xStart + (int) (len*(i));
             int x1 = xStart + (int) (len*(i+1));
 
             RectF rect = new RectF(x0, topmargin + radius - lineHeight / 2, x1, topmargin + radius + lineHeight / 2);
             paint.setStyle(Paint.Style.FILL);
 
-
             int color = getColor(i);
-
 
             paint.setColor(color);
             canvas.drawRect(rect, paint);
-
 
         }
     }
@@ -202,8 +197,6 @@ public class TimeView extends TextView {
         if (temperature > tmax) temperature = tmax;
 
         double i = (temperature - tmin) * max / (tmax - tmin);
-
-
 
         int r;
         int b;
@@ -225,7 +218,6 @@ public class TimeView extends TextView {
         }
         return Color.rgb(r,g,b);
     }
-
 
     private void drawTemperature(Canvas canvas, int x0, int x, String text, int temperature) {
 

@@ -5,9 +5,11 @@ package com.webduino.fragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.graphics.Color;
 import android.os.Bundle;
 //import android.support.v4.app.Fragment;
 import android.support.annotation.NonNull;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
@@ -21,7 +23,8 @@ import com.webduino.elements.Sensor;
 import com.webduino.R;
 import com.webduino.elements.Sensors;
 import com.webduino.elements.TemperatureSensor;
-import com.webduino.fragment.adapters.SensorAdapter;
+import com.webduino.fragment.adapters.CardAdapter;
+import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.HeaterCardInfo;
 import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
@@ -34,12 +37,12 @@ import java.util.List;
  * Created by Giacomo Spanò on 16/11/2016.
  */
 
-public class SensorsFragment extends Fragment implements SensorAdapter.OnListener {
+public class SensorsFragment extends Fragment implements CardAdapter.OnListener {
 
     public static final int HEATERWIZARD_REQUEST = 1;  // The request code
 
     private List<CardInfo> list;
-    private SensorAdapter sensorAdapter;
+    private CardAdapter cardAdapter;
     private HeaterFragment heaterFragment = null;
 
     @Override
@@ -55,17 +58,14 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
 
         RecyclerView recList = (RecyclerView) v.findViewById(R.id.cardList);
         recList.setHasFixedSize(true);
-
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
         StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         // Attach the layout manager to the recycler view
         recList.setLayoutManager(gridLayoutManager);
 
-
-        sensorAdapter = new SensorAdapter(createSensorList());
-        recList.setAdapter(sensorAdapter);
-
-        sensorAdapter.setListener(this);
+        cardAdapter = new CardAdapter(createSensorList());
+        recList.setAdapter(cardAdapter);
+        cardAdapter.setListener(this);
 
         return v;
     }
@@ -73,7 +73,7 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
     public void update() {
 
         list = createSensorList();
-        sensorAdapter.swap(list);
+        cardAdapter.swap(list);
 
         if (heaterFragment != null) {
 
@@ -90,7 +90,7 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
                 if (hci.actuatorId == actuator.getId()) {
                     hci.copyFrom((HeaterActuator) actuator);
                 }
-                sensorAdapter.swap(list);
+                cardAdapter.swap(list);
                 return;
             } catch (ClassCastException e) {
 
@@ -103,11 +103,11 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
     public List<CardInfo> createSensorList() {
 
         List<CardInfo> result = new ArrayList<CardInfo>();
-
         for (Actuator actuator : Actuators.list) {
-
             try {
                 HeaterCardInfo ci = heaterCardInfoFromActuator((HeaterActuator) actuator);
+
+
                 result.add(ci);
             } catch (Exception e) {
 
@@ -115,18 +115,32 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
         }
 
         for (Sensor sensor : Sensors.list) {
-
             try {
                 TemperatureSensor ts = (TemperatureSensor) sensor;
-
-
                 TemperatureSensorCardInfo ci = new TemperatureSensorCardInfo();
+                ci.id = ts.getId();
                 ci.name = ts.getName();
+                ci.online = ts.getOnLine();
                 ci.temperature = ts.getTemperature();
-                ci.target = 0.0;
+
+                if (ts.getOnLine()) {
+                    ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
+                    //int temperatureColor = Color.GREEN;
+                    int temperatureColor = CardInfo.getTemperatureColor(ci.temperature);
+                    ci.setImageColor(temperatureColor);
+                    ci.setLabelBackgroundColor(Color.GRAY);
+                    ci.setLabelColor(Color.WHITE);
+                    ci.setTitleColor(Color.GRAY);
+
+                    ci.setEnabled(true);
+                } else {
+                    ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
+                    ci.setEnabled(false);
+                }
+
+
                 result.add(ci);
             } catch (Exception e) {
-
             }
         }
         return result;
@@ -138,25 +152,73 @@ public class SensorsFragment extends Fragment implements SensorAdapter.OnListene
         HeaterCardInfo ci = new HeaterCardInfo();
         ci.name = heater.getName();
         ci.actuatorId = heater.getId();
-        ci.status = heater.getStatus();
-        ci.target = heater.getTarget();
         ci.releStatus = heater.getReleStatus();
+
+        ci.status = heater.getStatus();
+        if (ci.status.equals("program") ) {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.auto, null);
+            ci.target = heater.getTarget();
+            ci.sensorName = heater.getSensorIdName();
+            ci.sensorTemperature = heater.getRemoteTemperature();
+        } else if (ci.status.equals("idle") ) {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
+            ci.hideTarget = true;
+        } else if (ci.status.equals("manualoff") ) {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.briefcase, null);
+            ci.hideTarget = true;
+        } else if (ci.status.equals("manual") ) {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.power, null);
+            ci.target = heater.getTarget();
+            ci.sensorName = heater.getSensorIdName();
+            ci.sensorTemperature = heater.getRemoteTemperature();
+        } else if (ci.status.equals("idle") ) {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
+            ci.hideTarget = true;
+        } else {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
+            ci.hideTarget = true;
+        }
+        //ci.target = heater.getTarget();
+
+
+        if (actuator.getOnLine()) {
+            //int temperatureColor = Color.GREEN;
+            //ci.setColor(temperatureColor);
+            if (actuator.getReleStatus()) {
+                ci.setLabelBackgroundColor(Color.GREEN);
+                ci.setImageColor(Color.GREEN/*temperatureColor*/);
+            } else {
+                ci.setLabelBackgroundColor(Color.RED);
+                ci.setImageColor(Color.RED/*temperatureColor*/);
+            }
+            ci.setLabelColor(Color.WHITE);
+            ci.setTitleColor(Color.GRAY);
+            ci.setEnabled(true);
+        } else {
+            //ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
+            ci.setEnabled(false);
+        }
+
+
         return ci;
     }
 
     @Override
-    public void onHeaterClick(int id) {
+    public void onClick(int position, CardInfo cardInfo) {
 
-        Bundle bundle = new Bundle();
-        bundle.putString("actuatorid", "" + id);
+        if (cardInfo instanceof HeaterCardInfo) {
 
-        /*HeaterFragment */
-        heaterFragment = new HeaterFragment();
-        heaterFragment.setArguments(bundle);
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction ft = fragmentManager.beginTransaction();
-        ft.replace(R.id.content_frame, heaterFragment);
-        ft.addToBackStack(null);
-        ft.commit();
+            HeaterCardInfo heaterCerdInfo = (HeaterCardInfo) cardInfo;
+            Bundle bundle = new Bundle();
+            bundle.putString("actuatorid", "" + heaterCerdInfo.actuatorId);
+
+            heaterFragment = new HeaterFragment();
+            heaterFragment.setArguments(bundle);
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            ft.replace(R.id.content_frame, heaterFragment);
+            ft.addToBackStack(null);
+            ft.commit();
+        }
     }
 }

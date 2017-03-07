@@ -8,10 +8,14 @@ import com.webduino.elements.HeaterActuator;
 
 public class HeaterCardInfo extends CardInfo {
     public int actuatorId;
-    public String status = "Acceso";
+
+    public String status = "---";
     public double target = 0.0;
+    public boolean hideTarget = false;
     public boolean releStatus;
     public HeaterActuator heater;
+    public double sensorTemperature = 0.0;
+    public String sensorName;
 
     public void copyFrom(HeaterActuator actuator) {
         status = actuator.getStatus();
