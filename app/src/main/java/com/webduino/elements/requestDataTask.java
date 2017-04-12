@@ -171,10 +171,16 @@ public class requestDataTask extends
                     JSONArray jArray = new JSONArray(json);
                     for (int i = 0; i < jArray.length(); i++) {
                         JSONObject jObject = jArray.getJSONObject(i);
-                        if (jObject.has("type") && jObject.getString("type").equals("temperature")) {
-                            TemperatureSensor sensor = new TemperatureSensor();
-                            sensor.fromJson(jObject);
-                            list.add(sensor);
+                        if (jObject.has("type") ) {
+                            if (jObject.getString("type").equals("temperature")) {
+                                TemperatureSensor sensor = new TemperatureSensor();
+                                sensor.fromJson(jObject);
+                                list.add(sensor);
+                            } else if (jObject.getString("type").equals("doorsensor")) {
+                                DoorSensor sensor = new DoorSensor();
+                                sensor.fromJson(jObject);
+                                list.add(sensor);
+                            }
                         }
                     }
                     result.sensors = list;

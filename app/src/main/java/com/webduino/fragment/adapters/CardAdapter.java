@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.webduino.R;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
+import com.webduino.fragment.cardinfo.DoorSensorCardInfo;
 import com.webduino.fragment.cardinfo.HeaterCardInfo;
 import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
 
@@ -40,6 +41,7 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_TEMPERATURESENSOR = 1;
     private static final int TYPE_HEATER = 2;
     private static final int TYPE_ACTIONBUTTON = 3;
+    private static final int TYPE_DOORSENSOR = 4;
 
     public CardAdapter(List<CardInfo> cardInfoList) {
         this.cardInfoList = cardInfoList;
@@ -83,16 +85,6 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         return -1;
     }
-
-    /*@Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, List<Object> payloads) {
-
-        if (holder instanceof ActionButtonViewHolder) {
-            super.onBindViewHolder(holder,position, payloads);
-        } else {
-            super.onBindViewHolder(holder,position, payloads);
-        }
-    }*/
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
@@ -155,6 +147,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return TYPE_HEATER;
         else if (cardInfoList.get(position) instanceof TemperatureSensorCardInfo)
             return TYPE_TEMPERATURESENSOR;
+        else if (cardInfoList.get(position) instanceof DoorSensorCardInfo)
+            return TYPE_DOORSENSOR;
         else if (cardInfoList.get(position) instanceof ActionButtonCardInfo)
             return TYPE_ACTIONBUTTON;
 
@@ -167,6 +161,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_TEMPERATURESENSOR) {
             return (RecyclerView.ViewHolder) new TemperatureSensorViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_temperature, parent, false));
+        } else if (viewType == TYPE_DOORSENSOR) {
+            return (RecyclerView.ViewHolder) new DoorSensorViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
         } else if (viewType == TYPE_HEATER) {
             return (RecyclerView.ViewHolder) new HeaterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_heater, parent, false));
         } else if (viewType == TYPE_ACTIONBUTTON) {
@@ -249,6 +245,27 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 temperatureTextView.setTextColor(disabledColor);
             }
             temperatureTextView.setText(""+temperature+"°C");
+        }
+    }
+
+    public class DoorSensorViewHolder extends CardViewHolder {
+        protected TextView openStatusTextView;
+        protected double temperature;
+
+        public DoorSensorViewHolder(View v) {
+            super(v);
+            title = (TextView) v.findViewById(R.id.titleEditText);
+            openStatusTextView = (TextView) v.findViewById(R.id.openstatus);
+        }
+
+        public void updateCard(CardInfo ci) {
+            super.updateCard(ci);
+            if (ci.getEnabled()) {
+                openStatusTextView.setTextColor(ci.titleColor);
+            } else {
+                openStatusTextView.setTextColor(disabledColor);
+            }
+            openStatusTextView.setText(""+temperature+"°C");
         }
     }
 

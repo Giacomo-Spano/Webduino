@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 
 import com.webduino.elements.Actuator;
 import com.webduino.elements.Actuators;
+import com.webduino.elements.DoorSensor;
 import com.webduino.elements.HeaterActuator;
 import com.webduino.elements.Sensor;
 import com.webduino.R;
@@ -26,6 +27,7 @@ import com.webduino.elements.TemperatureSensor;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
+import com.webduino.fragment.cardinfo.DoorSensorCardInfo;
 import com.webduino.fragment.cardinfo.HeaterCardInfo;
 import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
 
@@ -116,30 +118,54 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
 
         for (Sensor sensor : Sensors.list) {
             try {
-                TemperatureSensor ts = (TemperatureSensor) sensor;
-                TemperatureSensorCardInfo ci = new TemperatureSensorCardInfo();
-                ci.id = ts.getId();
-                ci.name = ts.getName();
-                ci.online = ts.getOnLine();
-                ci.temperature = ts.getTemperature();
 
-                if (ts.getOnLine()) {
-                    ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
-                    //int temperatureColor = Color.GREEN;
-                    int temperatureColor = CardInfo.getTemperatureColor(ci.temperature);
-                    ci.setImageColor(temperatureColor);
-                    ci.setLabelBackgroundColor(Color.GRAY);
-                    ci.setLabelColor(Color.WHITE);
-                    ci.setTitleColor(Color.GRAY);
+                //Sensor ts = (TemperatureSensor) sensor;
+                if (sensor instanceof TemperatureSensor) {
+                    TemperatureSensor ts = (TemperatureSensor) sensor;
+                    TemperatureSensorCardInfo ci = new TemperatureSensorCardInfo();
+                    ci.id = ts.getId();
+                    ci.name = ts.getName();
+                    ci.online = ts.getOnLine();
+                    ci.temperature = ts.getTemperature();
+                    if (ts.getOnLine()) {
+                        ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
+                        int temperatureColor = CardInfo.getTemperatureColor(ci.temperature);
+                        ci.setImageColor(temperatureColor);
+                        ci.setLabelBackgroundColor(Color.GRAY);
+                        ci.setLabelColor(Color.WHITE);
+                        ci.setTitleColor(Color.GRAY);
 
-                    ci.setEnabled(true);
-                } else {
-                    ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
-                    ci.setEnabled(false);
+                        ci.setEnabled(true);
+                    } else {
+                        ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
+                        ci.setEnabled(false);
+                    }
+                    result.add(ci);
+                } else if (sensor instanceof DoorSensor) {
+                    DoorSensor doorSensor = (DoorSensor) sensor;
+                    DoorSensorCardInfo ci = new DoorSensorCardInfo();
+                    ci.id = doorSensor.getId();
+                    ci.name = doorSensor.getName();
+                    ci.online = doorSensor.getOnLine();
+                    ci.openStatus = doorSensor.getOpenStatus();
+                    if (doorSensor.getOnLine()) {
+                        ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
+                        int temperatureColor = CardInfo.getTemperatureColor(ci.temperature);
+                        ci.setImageColor(temperatureColor);
+                        ci.setLabelBackgroundColor(Color.GRAY);
+                        ci.setLabelColor(Color.WHITE);
+                        ci.setTitleColor(Color.GRAY);
+
+                        ci.setEnabled(true);
+                    } else {
+                        ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
+                        ci.setEnabled(false);
+                    }
+                    result.add(ci);
                 }
 
 
-                result.add(ci);
+
             } catch (Exception e) {
             }
         }

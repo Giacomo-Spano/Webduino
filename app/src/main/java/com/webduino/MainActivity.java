@@ -484,9 +484,9 @@ public class MainActivity extends AppCompatActivity
 
         new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_DATALOG).execute(actuatorId,"heater");
 
-        for (Sensor sensor : Sensors.list) {
+        /*for (Sensor sensor : Sensors.list) {
             new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_DATALOG).execute(sensor.getId(),"temperature");
-        }
+        }*/
 
     }
 
