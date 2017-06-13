@@ -55,7 +55,8 @@ public class HeaterActuator extends Actuator {
     protected String activeTimeRangeIdName;
     protected String sensorIdName;
 
-    public HeaterActuator() {
+    public HeaterActuator(JSONObject json) {
+        super(json);
     }
 
     public double getTarget() {

@@ -65,7 +65,7 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
         // Attach the layout manager to the recycler view
         recList.setLayoutManager(gridLayoutManager);
 
-        cardAdapter = new CardAdapter(createSensorList());
+        cardAdapter = new CardAdapter(this,createSensorList());
         recList.setAdapter(cardAdapter);
         cardAdapter.setListener(this);
 
@@ -105,68 +105,19 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
     public List<CardInfo> createSensorList() {
 
         List<CardInfo> result = new ArrayList<CardInfo>();
-        for (Actuator actuator : Actuators.list) {
-            try {
-                HeaterCardInfo ci = heaterCardInfoFromActuator((HeaterActuator) actuator);
-
-
-                result.add(ci);
-            } catch (Exception e) {
-
-            }
-        }
 
         for (Sensor sensor : Sensors.list) {
+
             try {
+                CardInfo ci = sensor.getCardInfo(this);
+                result.add(ci);
 
-                //Sensor ts = (TemperatureSensor) sensor;
-                if (sensor instanceof TemperatureSensor) {
-                    TemperatureSensor ts = (TemperatureSensor) sensor;
-                    TemperatureSensorCardInfo ci = new TemperatureSensorCardInfo();
-                    ci.id = ts.getId();
-                    ci.name = ts.getName();
-                    ci.online = ts.getOnLine();
-                    ci.temperature = ts.getTemperature();
-                    if (ts.getOnLine()) {
-                        ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
-                        int temperatureColor = CardInfo.getTemperatureColor(ci.temperature);
-                        ci.setImageColor(temperatureColor);
-                        ci.setLabelBackgroundColor(Color.GRAY);
-                        ci.setLabelColor(Color.WHITE);
-                        ci.setTitleColor(Color.GRAY);
-
-                        ci.setEnabled(true);
-                    } else {
-                        ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
-                        ci.setEnabled(false);
-                    }
-                    result.add(ci);
-                } else if (sensor instanceof DoorSensor) {
-                    DoorSensor doorSensor = (DoorSensor) sensor;
-                    DoorSensorCardInfo ci = new DoorSensorCardInfo();
-                    ci.id = doorSensor.getId();
-                    ci.name = doorSensor.getName();
-                    ci.online = doorSensor.getOnLine();
-                    ci.openStatus = doorSensor.getOpenStatus();
-                    if (doorSensor.getOnLine()) {
-                        ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
-                        int temperatureColor = CardInfo.getTemperatureColor(ci.temperature);
-                        ci.setImageColor(temperatureColor);
-                        ci.setLabelBackgroundColor(Color.GRAY);
-                        ci.setLabelColor(Color.WHITE);
-                        ci.setTitleColor(Color.GRAY);
-
-                        ci.setEnabled(true);
-                    } else {
-                        ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.temperature, null);
-                        ci.setEnabled(false);
-                    }
-                    result.add(ci);
+                for (Sensor child : sensor.childsensors) {
+                    CardInfo ci2 = child.getCardInfo(this);
+                    result.add(ci2);
                 }
-
-
-
             } catch (Exception e) {
+
             }
         }
         return result;
@@ -181,23 +132,23 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
         ci.releStatus = heater.getReleStatus();
 
         ci.status = heater.getStatus();
-        if (ci.status.equals("program") ) {
+        if (ci.status.equals("program")) {
             ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.auto, null);
             ci.target = heater.getTarget();
             ci.sensorName = heater.getSensorIdName();
             ci.sensorTemperature = heater.getRemoteTemperature();
-        } else if (ci.status.equals("idle") ) {
+        } else if (ci.status.equals("idle")) {
             ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
             ci.hideTarget = true;
-        } else if (ci.status.equals("manualoff") ) {
+        } else if (ci.status.equals("manualoff")) {
             ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.briefcase, null);
             ci.hideTarget = true;
-        } else if (ci.status.equals("manual") ) {
+        } else if (ci.status.equals("manual")) {
             ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.power, null);
             ci.target = heater.getTarget();
             ci.sensorName = heater.getSensorIdName();
             ci.sensorTemperature = heater.getRemoteTemperature();
-        } else if (ci.status.equals("idle") ) {
+        } else if (ci.status.equals("idle")) {
             ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
             ci.hideTarget = true;
         } else {

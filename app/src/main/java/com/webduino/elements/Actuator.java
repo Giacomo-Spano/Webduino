@@ -12,7 +12,8 @@ public class Actuator extends Sensor {
 
     private String status;
 
-    public Actuator() {
+    public Actuator(JSONObject json) {
+        super(json);
     }
 
     public String getStatus() {

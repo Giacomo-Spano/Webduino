@@ -150,7 +150,7 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         // Attach the layout manager to the recycler view
         recList.setLayoutManager(gridLayoutManager);
 
-        cardAdapter = new CardAdapter(createActionButtonList());
+        cardAdapter = new CardAdapter(this,createActionButtonList());
         recList.setAdapter(cardAdapter);
         cardAdapter.setListener(this);
 
@@ -210,7 +210,7 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
                 // The Intent's data Uri identifies which contact was selected.
                 // fetch the message String
                 MainActivity a = (MainActivity) getActivity();
-                a.getActuatorData();
+                //a.getActuatorData();
 
 
                 /*if (data != null) {

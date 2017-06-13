@@ -13,6 +13,7 @@ import android.support.v7.preference.PreferenceManager;
 import com.webduino.AsyncRequestDataResponse;
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.SensorFactory;
 import com.webduino.chart.HistoryData;
 
 import org.json.JSONArray;
@@ -45,7 +46,7 @@ public class requestDataTask extends
 
     public static final int REQUEST_REGISTERDEVICE = 1;
     public static final int REQUEST_SENSORS = 3;
-    public static final int REQUEST_ACTUATORS = 4;
+    //public static final int REQUEST_ACTUATORS = 4;
     public static final int REQUEST_SHIELD = 5;
     public static final int REQUEST_PROGRAMS = 6;
     public static final int REQUEST_NEXTPROGRAMS = 7;
@@ -89,7 +90,7 @@ public class requestDataTask extends
 
         requestDataTask.Result result = null;
 
-        if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS || requestType == REQUEST_ACTUATORS
+        if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS
                 || requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS || requestType == REQUEST_DATALOG) {
             result = performGetRequest(params);
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM) {
@@ -117,10 +118,6 @@ public class requestDataTask extends
             } else if (requestType == REQUEST_SENSORS) {
 
                 path = "/sensor?";
-
-            } else if (requestType == REQUEST_ACTUATORS) {
-
-                path = "/actuator?";
 
             } else if (requestType == REQUEST_PROGRAMS) {
 
@@ -171,34 +168,15 @@ public class requestDataTask extends
                     JSONArray jArray = new JSONArray(json);
                     for (int i = 0; i < jArray.length(); i++) {
                         JSONObject jObject = jArray.getJSONObject(i);
-                        if (jObject.has("type") ) {
-                            if (jObject.getString("type").equals("temperature")) {
-                                TemperatureSensor sensor = new TemperatureSensor();
-                                sensor.fromJson(jObject);
-                                list.add(sensor);
-                            } else if (jObject.getString("type").equals("doorsensor")) {
-                                DoorSensor sensor = new DoorSensor();
-                                sensor.fromJson(jObject);
-                                list.add(sensor);
-                            }
-                        }
+
+
+                        SensorFactory factory = new SensorFactory();
+                        Sensor sensor = factory.createSensor(jObject);
+                        if (sensor != null)
+                            list.add(sensor);
                     }
                     result.sensors = list;
-                } else if (requestType == REQUEST_ACTUATORS) {
-
-                    List<Actuator> list = new ArrayList<Actuator>();
-                    JSONArray jArray = new JSONArray(json);
-                    for (int i = 0; i < jArray.length(); i++) {
-                        JSONObject jObject = jArray.getJSONObject(i);
-                        if (jObject.has("type") && jObject.getString("type").equals("heater")) {
-                            HeaterActuator heater = new HeaterActuator();
-                            heater.fromJson(jObject);
-                            list.add(heater);
-                        }
-                    }
-
-                    result.actuators = list;
-                } else if (requestType == REQUEST_PROGRAMS) {
+                }  else if (requestType == REQUEST_PROGRAMS) {
 
                     List<Object> list = new ArrayList<Object>();
                     JSONArray jArray = new JSONArray(json);
@@ -288,8 +266,6 @@ public class requestDataTask extends
             return;
         else if (requestType == REQUEST_SENSORS)
             message = "Aggiornamnento";
-        else if (requestType == REQUEST_ACTUATORS)
-            message = "Aggiornamnento";
         else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS)
             message = "Aggiornamnento";
         else if (requestType == REQUEST_SHIELD)
@@ -351,8 +327,6 @@ public class requestDataTask extends
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
         } else if (requestType == REQUEST_SENSORS) {
             delegate.processFinishSensors(result.sensors, error, errorMessage);
-        } else if (requestType == REQUEST_ACTUATORS) {
-            delegate.processFinishActuators(result.actuators, error, errorMessage);
         } else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS) {
             delegate.processFinishPrograms(result.programs, requestType, error, errorMessage);
         } else if (requestType == POST_ACTUATOR_COMMAND) {

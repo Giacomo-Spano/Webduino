@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onReceive(Context context, Intent intent) {
             //MainActivity mainActivity = ((MainActivity) context.getApplicationContext());
-            getActuatorData();
+            //getActuatorData();
             //mainActivity.etReceivedBroadcast.append("broadcast: "+intent.getAction()+"\n");
             }
     }
@@ -324,7 +324,7 @@ public class MainActivity extends AppCompatActivity
 
     private void refreshData() {
         getSensorData();
-        getActuatorData();
+        //getActuatorData();
 
     }
 
@@ -466,10 +466,6 @@ public class MainActivity extends AppCompatActivity
 
     public void getSensorData() {
         new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORS).execute();
-    }
-
-    public void getActuatorData() {
-        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_ACTUATORS).execute();
     }
 
     public void getProgramData() {

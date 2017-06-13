@@ -5,5 +5,6 @@ package com.webduino.fragment.cardinfo;
  */
 
 public class SensorCardInfo extends CardInfo {
-    public boolean online = false;
+
+
 }

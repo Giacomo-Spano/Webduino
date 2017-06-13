@@ -4,32 +4,29 @@ package com.webduino.elements;
 import android.app.Fragment;
 
 import com.webduino.fragment.cardinfo.DoorSensorCardInfo;
+import com.webduino.fragment.cardinfo.OnewireCardInfo;
 import com.webduino.fragment.cardinfo.SensorCardInfo;
 
 import org.json.JSONObject;
 
-public class DoorSensor extends Sensor {
+public class OnewireSensor extends Sensor {
 
-    private boolean open;
+    private boolean statusOpen;
 
-    public DoorSensor(JSONObject json) {
+    public OnewireSensor(JSONObject json) {
         super(json);
     }
 
     public SensorCardInfo getCardInfo(Fragment context) {
 
-        DoorSensorCardInfo cardInfo = new DoorSensorCardInfo();
+        OnewireCardInfo cardInfo = new OnewireCardInfo();
         super.getCardInfo(context, cardInfo);
 
-        cardInfo.openStatus = getOpenStatus();
+        //cardInfo.openStatus = getOpenStatus();
 
         return cardInfo;
     }
 
-
-    public boolean getOpenStatus() {
-        return open;
-    }
 
     @Override
     void fromJson(JSONObject json) {
@@ -37,8 +34,8 @@ public class DoorSensor extends Sensor {
         super.fromJson(json);
 
         try {
-            if (json.has("status"))
-                open = json.getBoolean("status");
+            /*if (json.has("open"))
+                statusOpen = json.getBoolean("open");*/
 
         } catch (Exception e) {
             // TODO Auto-generated catch block

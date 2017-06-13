@@ -1,9 +1,18 @@
 package com.webduino.elements;
 
+import android.app.Fragment;
+import android.content.Context;
+
+import com.webduino.fragment.cardinfo.CardInfo;
+import com.webduino.fragment.cardinfo.SensorCardInfo;
+import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
+
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Giacomo Spanò on 20/11/2016.
@@ -16,6 +25,30 @@ public class Sensor {
     protected String subaddress;
     protected String name;
     protected Date lastUpdate;
+
+    public List<Sensor> childsensors = new ArrayList<>();
+
+    //protected SensorCardInfo cardInfo;
+
+    public Sensor(JSONObject json) {
+        fromJson(json);
+    }
+
+    public CardInfo getCardInfo(Fragment context) {
+        return getCardInfo(context,null);
+    }
+
+     public CardInfo getCardInfo(Fragment context, CardInfo cardInfo) {
+
+        if (cardInfo == null)
+            cardInfo = new SensorCardInfo();
+        cardInfo.id = getId();
+        cardInfo.name = getName();
+        cardInfo.online = getOnLine();
+        cardInfo.setEnabled(true);
+
+        return cardInfo;
+    }
 
     public int getId() {
         return id;

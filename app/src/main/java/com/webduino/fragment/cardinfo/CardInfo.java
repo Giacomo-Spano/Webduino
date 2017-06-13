@@ -10,18 +10,31 @@ import com.webduino.R;
  */
 
 public class CardInfo {
+
+    public static final int TYPE_SENSOR = 0;
+    public static final int TYPE_TEMPERATURESENSOR = 1;
+    public static final int TYPE_DOORSENSOR = 2;
+    public static final int TYPE_ONEWIRESENSOR = 3;
+    public static final int TYPE_HEATER = 4;
+    public static final int TYPE_ACTIONBUTTON = 5;
+
     public String label;
     public String name;
     public String title;
     public int id;
     public Drawable imageDrawable;
 
+    public boolean online = false;
+    private boolean enabled;
+
     public int labelColor;
     public int labelBackgroundColor;
     public int titleColor;
     public int imageColor;
 
-    private boolean enabled;
+    public int getSensorType() {
+        return TYPE_SENSOR;
+    }
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
