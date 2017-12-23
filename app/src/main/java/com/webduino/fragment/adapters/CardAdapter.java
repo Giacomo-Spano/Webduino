@@ -19,6 +19,7 @@ import com.webduino.R;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.DoorSensorCardInfo;
+import com.webduino.fragment.cardinfo.HeaterCardInfo;
 import com.webduino.fragment.cardinfo.OnewireCardInfo;
 import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
 
@@ -179,6 +180,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return (RecyclerView.ViewHolder) new OnewireViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
         } else if (viewType == CardInfo.TYPE_SENSOR) {
             return (RecyclerView.ViewHolder) new CardViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
+        } else if (viewType == CardInfo.TYPE_HEATER) {
+            return (RecyclerView.ViewHolder) new HeaterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_heater, parent, false));
         }
 
         /*if (viewType == CardInfo.TYPE_TEMPERATURESENSOR) {
@@ -393,6 +396,61 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         protected TextView sensorTextView;
         protected TextView temperatureTextView;
 
+        public Drawable getIcon(CardInfo ci) {
+            HeaterCardInfo hci = (HeaterCardInfo) ci;
+            if (hci.status.equals("keeptemperature")) {
+                return ci.imageDrawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.auto, null);
+            }
+
+            return ResourcesCompat.getDrawable(context.getResources(), R.drawable.heater, null);
+            //return ResourcesCompat.getDrawable(context.getResources(), R.drawable.temperature, null);
+        }
+
+        public String getStatusText(CardInfo ci) {
+            HeaterCardInfo hci = (HeaterCardInfo) ci;
+            if (hci.status.equals("keeptemperature")) {
+                return "keep " + hci.target + "°C";
+            } else if (hci.status.equals("manual")) {
+                return "manual " + hci.target + "°C";
+            } else if (hci.status.equals("manualoff")) {
+                return "manualoff ";
+            }
+            return hci.status;
+        }
+
+        public int getStatusColor(CardInfo ci) {
+            if (((HeaterCardInfo) ci).releStatus)
+                return Color.GREEN;
+            else
+                return Color.RED;
+        }
+
+
+        /*if (ci.status.equals("keeptemperature")) {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.auto, null);
+            ci.target = heater.getTarget();
+            ci.sensorName = heater.getSensorIdName();
+            ci.sensorTemperature = heater.getRemoteTemperature();
+        } else if (ci.status.equals("idle")) {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
+            ci.hideTarget = true;
+        } else if (ci.status.equals("manualoff")) {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.briefcase, null);
+            ci.hideTarget = true;
+        } else if (ci.status.equals("manual")) {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.power, null);
+            ci.target = heater.getTarget();
+            ci.sensorName = heater.getSensorIdName();
+            ci.sensorTemperature = heater.getRemoteTemperature();
+        } else if (ci.status.equals("idle")) {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
+            ci.hideTarget = true;
+        } else {
+            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
+            ci.hideTarget = true;
+        }*/
+
+
 
         public HeaterViewHolder(View v) {
             super(v);
@@ -419,6 +477,10 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             targetTextView.setVisibility(visibility);
             sensorTextView.setVisibility(visibility);
             temperatureTextView.setVisibility(visibility);
+
+            HeaterCardInfo hci = (HeaterCardInfo) ci;
+            sensorTextView.setText(hci.zone);
+            temperatureTextView.setText(hci.temperature + " °C");
 
         }
 

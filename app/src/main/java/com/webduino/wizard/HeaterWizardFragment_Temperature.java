@@ -20,6 +20,8 @@ import com.webduino.R;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
 import com.webduino.fragment.NumberPickerFragment;
+import com.webduino.zones.Zone;
+import com.webduino.zones.Zones;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,11 +38,10 @@ public class HeaterWizardFragment_Temperature extends Fragment implements Compou
 
 
     private double temperature = 0;
-    private boolean remoteSensor;
-    private int sensorId = 0;
+    //private boolean remoteSensor;
+    private int zoneId = 0;
     private EditText temperatureEditText;
     private RadioGroup radioGroup;
-    //private List<RadioButton> radioButtonList = new ArrayList<>();
     private HashMap<Integer,RadioButton> hashMap = new HashMap();
 
     protected Handler numberHandler = new Handler() {
@@ -52,7 +53,6 @@ public class HeaterWizardFragment_Temperature extends Fragment implements Compou
                 String tag = bundle.getString("tag");
                 if (tag.equals("temperature")) {
                     temperature = value;
-                    //temperatureEditText.setText(value.toString());
                     update();
                 }
             }
@@ -81,24 +81,15 @@ public class HeaterWizardFragment_Temperature extends Fragment implements Compou
 
         radioGroup = (RadioGroup) v.findViewById(R.id.radioGroup);
 
-        // get and add local sensor radio button
-        //RadioButton rbn = (RadioButton) v.findViewById(R.id.radioButton);
         int id = R.id.radioGroup + 1000;
-        RadioButton rbn = new RadioButton(getActivity());
-        rbn.setText("local");
-        rbn.setTag(0);
-        rbn.setId(id);
-        hashMap.put(0,rbn);
-        rbn.setOnCheckedChangeListener(this);
-        radioGroup.addView(rbn);
-        for (Sensor sensor: Sensors.list) {
-            rbn = new RadioButton(getActivity());
+        for (Zone zone: Zones.list) {
+            RadioButton rbn = new RadioButton(getActivity());
             rbn.setId(++id);
-            rbn.setText(sensor.getName());
-            rbn.setTag(sensor.getId());
+            rbn.setText(zone.getName());
+            rbn.setTag(zone.getId());
             rbn.setOnCheckedChangeListener(this);
             radioGroup.addView(rbn);
-            hashMap.put(sensor.getId(),rbn);
+            hashMap.put(zone.getId(),rbn);
         }
         update();
         return v;
@@ -108,38 +99,38 @@ public class HeaterWizardFragment_Temperature extends Fragment implements Compou
 
         if (temperatureEditText != null)
             temperatureEditText.setText("" + temperature);
-        if (!remoteSensor) {
+        /*if (!remoteSensor) {
             RadioButton rb = hashMap.get(0);
             if (rb != null)
             rb.setChecked(true);
-        } else {
-            RadioButton rb = hashMap.get(sensorId);
+        } else {*/
+            RadioButton rb = hashMap.get(zoneId);
             if (rb != null)
                 rb.setChecked(true);
-        }
+        //}
     }
 
-    public void init(double temperature, boolean remote, int sensorId) {
+    public void init(double temperature, /*boolean remote, */int zoneId) {
         this.temperature = temperature;
-        this.remoteSensor = remote;
-        this.sensorId = sensorId;
+        //this.remoteSensor = remote;
+        this.zoneId = zoneId;
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        sensorId = (int) buttonView.getTag();
+        zoneId = (int) buttonView.getTag();
     }
 
     public double getTemperature() {
         return temperature;
     }
 
-    public boolean getRemoteSensor() {
+    /*public boolean getRemoteSensor() {
         return remoteSensor;
-    }
+    }*/
 
-    public int getSensorId() {
-        return sensorId;
+    public int getZoneId() {
+        return zoneId;
     }
 
     public void showNumberPickerDialog(double value, int decimals, double max, double min, String title, String tag, Handler mHandler) {

@@ -21,5 +21,12 @@ public class Sensors {
         list.get(index);
     }
 
-
+    public static Sensor getFromId(int id) {
+        for(Sensor sensor : list) {
+            if (sensor.id == id) {
+                return sensor;
+            }
+        }
+        return null;
+    }
 }

@@ -35,14 +35,15 @@ public class Sensor {
     }
 
     public CardInfo getCardInfo(Fragment context) {
-        return getCardInfo(context,null);
+        return getCardInfo(context, null);
     }
 
-     public CardInfo getCardInfo(Fragment context, CardInfo cardInfo) {
+    public CardInfo getCardInfo(Fragment context, CardInfo cardInfo) {
 
         if (cardInfo == null)
             cardInfo = new SensorCardInfo();
         cardInfo.id = getId();
+        cardInfo.shieldid = getShieldId();
         cardInfo.name = getName();
         cardInfo.online = getOnLine();
         cardInfo.setEnabled(true);
@@ -52,6 +53,10 @@ public class Sensor {
 
     public int getId() {
         return id;
+    }
+
+    public int getShieldId() {
+        return shieldid;
     }
 
     public String getName() {

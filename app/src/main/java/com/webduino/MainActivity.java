@@ -1,10 +1,5 @@
 package com.webduino;
 
-//import android.app.FragmentManager;
-//import android.app.FragmentTransaction;
-
-;
-//import android.app.FragmentTransaction;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -15,17 +10,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.test.mock.MockPackageManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -64,6 +53,10 @@ import com.webduino.fragment.PrefsFragment;
 import com.webduino.fragment.ProgramFragment;
 import com.webduino.fragment.ProgramsListFragment;
 import com.webduino.fragment.SensorsFragment;
+import com.webduino.scenarios.Scenario;
+import com.webduino.scenarios.Scenarios;
+import com.webduino.zones.Zone;
+import com.webduino.zones.Zones;
 
 import android.Manifest;
 import android.widget.Button;
@@ -73,11 +66,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import static com.webduino.elements.HeaterActuator.Command_Manual_Auto;
-import static com.webduino.elements.HeaterActuator.Command_Manual_End;
-import static com.webduino.elements.HeaterActuator.Command_Manual_Off;
+import static com.webduino.elements.HeaterActuator.Command_Off;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, HeaterFragment.OnHeaterUpdatedListener, ProgramFragment.OnProgramUpdatedListener,
@@ -256,12 +247,12 @@ public class MainActivity extends AppCompatActivity
 
     private void SendManualOff(int actuatorId) {
 
-        String command = Command_Manual_Off;
+        String command = Command_Off;
         double temperature = 0;
-        int sensorId = 0;
+        int zoneId = 0;
         int duration = 30;
         boolean remoteSensor = false;
-        new requestDataTask(this, getAsyncResponse(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, command, duration, temperature, sensorId, remoteSensor);
+        new requestDataTask(this, getAsyncResponse(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, command, duration, temperature, zoneId/*, remoteSensor*/);
     }
 
 
@@ -324,7 +315,7 @@ public class MainActivity extends AppCompatActivity
 
     private void refreshData() {
         getSensorData();
-        //getActuatorData();
+        getZoneData();
 
     }
 
@@ -468,6 +459,14 @@ public class MainActivity extends AppCompatActivity
         new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORS).execute();
     }
 
+    public void getZoneData() {
+        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_ZONES).execute();
+    }
+
+    public void getScenarioData() {
+        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SCENARIOS).execute();
+    }
+
     public void getProgramData() {
         new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_PROGRAMS).execute();
     }
@@ -516,6 +515,30 @@ public class MainActivity extends AppCompatActivity
                     Sensors.add(sensor);
                 }
                 sensorsFragment.update();
+            }
+
+            @Override
+            public void processFinishZones(List<Zone> zones, boolean error, String errorMessage) {
+
+                if (error)
+                    return;
+                Zones.list.clear();
+                for (Zone zone : zones) {
+                    Zones.add(zone);
+                }
+                //sensorsFragment.update();
+            }
+
+            @Override
+            public void processFinishScenarios(List<Scenario> scenarios, boolean error, String errorMessage) {
+
+                if (error)
+                    return;
+                Scenarios.list.clear();
+                for (Scenario scenario : scenarios) {
+                    Scenarios.add(scenario);
+                }
+                //sensorsFragment.update();
             }
 
             @Override

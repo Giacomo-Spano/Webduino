@@ -14,6 +14,15 @@ public class DoorSensor extends Sensor {
 
     public DoorSensor(JSONObject json) {
         super(json);
+
+        try {
+            if (json.has("openstatus"))
+                open = json.getBoolean("openstatus");
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     public SensorCardInfo getCardInfo(Fragment context) {

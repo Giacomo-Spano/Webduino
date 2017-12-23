@@ -1,8 +1,9 @@
 package com.webduino;
 
 import com.webduino.elements.Actuator;
-import com.webduino.elements.Program;
 import com.webduino.elements.Sensor;
+import com.webduino.scenarios.Scenario;
+import com.webduino.zones.Zone;
 
 import java.util.List;
 
@@ -22,12 +23,22 @@ public class WebduinoResponse implements AsyncRequestDataResponse {
     }
 
     @Override
+    public void processFinishZones(List<Zone> sensors, boolean error, String errorMessage) {
+
+    }
+
+    @Override
+    public void processFinishScenarios(List<Scenario> sensors, boolean error, String errorMessage) {
+
+    }
+
+    @Override
     public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
 
     }
 
     @Override
-    public void processFinishSendCommand(Actuator actuator, boolean error, String errorMessage) {
+    public void processFinishSendCommand(String response, boolean error, String errorMessage) {
 
     }
 

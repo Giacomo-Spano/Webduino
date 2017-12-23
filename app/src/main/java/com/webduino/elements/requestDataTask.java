@@ -13,8 +13,11 @@ import android.support.v7.preference.PreferenceManager;
 import com.webduino.AsyncRequestDataResponse;
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.scenarios.Scenario;
 import com.webduino.SensorFactory;
+import com.webduino.ZoneFactory;
 import com.webduino.chart.HistoryData;
+import com.webduino.zones.Zone;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -32,9 +35,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -54,6 +55,8 @@ public class requestDataTask extends
     public static final int POST_PROGRAM = 9;
     public static final int POST_DELETEPROGRAM = 10;
     public static final int REQUEST_DATALOG = 11;
+    public static final int REQUEST_ZONES = 12;
+    public static final int REQUEST_SCENARIOS = 13;
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -72,7 +75,10 @@ public class requestDataTask extends
         public List<Shield> shields;
         public List<Object> programs;
         public List<Object> objectList;
+        public List<Zone> zones;
+        public List<Scenario> scenarios;
         public Actuator actuator;
+        public String resultString;
         public boolean response;
     }
 
@@ -91,10 +97,19 @@ public class requestDataTask extends
         requestDataTask.Result result = null;
 
         if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS
-                || requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS || requestType == REQUEST_DATALOG) {
+                || requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS
+                || requestType == REQUEST_ZONES || requestType ==REQUEST_SCENARIOS
+                || requestType == REQUEST_DATALOG) {
             result = performGetRequest(params);
+            return result;
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM) {
-            result = performPostCall(params);
+            try {
+                result = performPostCall(params);
+                return result;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
         }
 
         return result;
@@ -118,6 +133,14 @@ public class requestDataTask extends
             } else if (requestType == REQUEST_SENSORS) {
 
                 path = "/sensor?";
+
+            } else if (requestType == REQUEST_ZONES) {
+
+                path = "/system?requestcommand=zones";
+
+            } else if (requestType == REQUEST_SCENARIOS) {
+
+                path = "/system?requestcommand=scenarios";
 
             } else if (requestType == REQUEST_PROGRAMS) {
 
@@ -166,16 +189,26 @@ public class requestDataTask extends
 
                     List<Sensor> list = new ArrayList<Sensor>();
                     JSONArray jArray = new JSONArray(json);
+                    SensorFactory factory = new SensorFactory();
                     for (int i = 0; i < jArray.length(); i++) {
                         JSONObject jObject = jArray.getJSONObject(i);
-
-
-                        SensorFactory factory = new SensorFactory();
                         Sensor sensor = factory.createSensor(jObject);
                         if (sensor != null)
                             list.add(sensor);
                     }
                     result.sensors = list;
+                }  else if (requestType == REQUEST_ZONES) {
+
+                    List<Zone> list = new ArrayList<Zone>();
+                    JSONArray jArray = new JSONArray(json);
+                    ZoneFactory factory = new ZoneFactory();
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        Zone zone = factory.createZone(jObject);
+                        if (zone != null)
+                            list.add(zone);
+                    }
+                    result.zones = list;
                 }  else if (requestType == REQUEST_PROGRAMS) {
 
                     List<Object> list = new ArrayList<Object>();
@@ -266,6 +299,10 @@ public class requestDataTask extends
             return;
         else if (requestType == REQUEST_SENSORS)
             message = "Aggiornamnento";
+        else if (requestType == REQUEST_ZONES)
+            message = "Aggiornamnento";
+        else if (requestType == REQUEST_SCENARIOS)
+            message = "Aggiornamnento";
         else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS)
             message = "Aggiornamnento";
         else if (requestType == REQUEST_SHIELD)
@@ -327,10 +364,14 @@ public class requestDataTask extends
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
         } else if (requestType == REQUEST_SENSORS) {
             delegate.processFinishSensors(result.sensors, error, errorMessage);
+        } else if (requestType == REQUEST_ZONES) {
+            delegate.processFinishZones(result.zones, error, errorMessage);
+        } else if (requestType == REQUEST_SCENARIOS) {
+            delegate.processFinishScenarios(result.scenarios, error, errorMessage);
         } else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS) {
             delegate.processFinishPrograms(result.programs, requestType, error, errorMessage);
         } else if (requestType == POST_ACTUATOR_COMMAND) {
-            delegate.processFinishSendCommand(result.actuator, error, errorMessage);
+            delegate.processFinishSendCommand(result.resultString, error, errorMessage);
         } else if (requestType == POST_PROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_PROGRAM, error, errorMessage);
         } else if (requestType == POST_DELETEPROGRAM) {
@@ -368,59 +409,45 @@ public class requestDataTask extends
     }
 
 
-    protected Result performPostCall(Object[] params) {
+    protected Result performPostCall(Object[] params) throws Exception {
 
         String path = "";
         if (requestType == POST_ACTUATOR_COMMAND) {
-            path = "/actuator?";
+            path = "/shield?";
             String serverUrl = getServerUrl();
             String url = serverUrl + path;
 
-            int actuatorId = (int) params[0];
-            String command = (String) params[1];
-            int duration = (int) params[2];
-            double target = (double) params[3];
-            int sensorId = (int) params[4];
-            boolean remote = (boolean) params[5];
+            int shieldId = (int) params[0];
+            int actuatorId = (int) params[1];
+            String command = (String) params[2];
+            int duration = (int) params[3] * 60;
+            double target = (double) params[4];
+            int zoneId = (int) params[5];
+            //boolean remote = (boolean) params[5];
             JSONObject json = new JSONObject();
             try {
+                json.put("shieldid", "" + shieldId);
                 json.put("actuatorid", "" + actuatorId);
                 json.put("command", command);
                 json.put("duration", "" + duration);
                 json.put("target", "" + target);
-                json.put("sensorid", "" + sensorId);
-                json.put("remote", "" + remote);
-                String response = postCall(url, json.toString());
-                Result result = getResult(response);
+                json.put("zone", "" + zoneId);
+                //json.put("remote", "" + remote);
+                Result result = new Result();
+                result.resultString = postCall(url, json.toString());
                 return result;
 
             } catch (JSONException e) {
                 e.printStackTrace();
-                return null;
+                throw e;
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
             }
 
-        } else if (requestType == POST_PROGRAM) {
-            path = "/program?";
-            String serverUrl = getServerUrl();
-            String url = serverUrl + path;
-            Program program = (Program) params[0];
-            if (program != null && program.getJson() != null) {
-                String response = postCall(url, program.getJson().toString());
-                Result result = getResult(response);
-                return result;
-            }
-            return null;
-        } else if (requestType == POST_DELETEPROGRAM) {
-            path = "/program?";
-            String serverUrl = getServerUrl();
-            String url = serverUrl + path;
-            int programId = (int) params[0];
-            url += "id=" + programId + "&" + "delete=true";
-            String response = postCall(url, "");
-            Result result = getResult(response);
-            return result;
         }
-        return null;
+
+        throw new Exception("invalid command");
     }
 
     public Result getResult(String response) {
@@ -446,7 +473,7 @@ public class requestDataTask extends
     }
 
     public String postCall(String requestURL, String json
-                           /*HashMap<String, String> postDataParams*/) {
+                           /*HashMap<String, String> postDataParams*/) throws Exception {
 
         URL url;
         String response = "";
@@ -462,12 +489,6 @@ public class requestDataTask extends
             conn.setDoOutput(true);
             conn.setRequestProperty("Content-Type", "application/json");
 
-            /*JSONObject root = new JSONObject();
-            for (HashMap.Entry<String, String> entry : postDataParams.entrySet()) {
-                root.put(entry.getKey(), entry.getValue());
-            }*/
-            //String json = root.toString();
-
             byte[] outputBytes = json.getBytes("UTF-8");
             OutputStream os = conn.getOutputStream();
             os.write(outputBytes);
@@ -482,18 +503,15 @@ public class requestDataTask extends
                 while ((line = br.readLine()) != null) {
                     response += line;
                 }
+                return response;
             } else {
-                response = null;
-                error = true;
-                errorMessage = conn.getResponseMessage() + " responseCode:" + responseCode;
+
+                errorMessage = conn.getResponseMessage() + " responseCode: " + responseCode;
+                throw new Exception(errorMessage);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            errorMessage = e.toString();
-            error = true;
-            return null;
+            throw e;
         }
-
-        return response;
     }
 }

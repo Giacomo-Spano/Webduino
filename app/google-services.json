@@ -15,13 +15,21 @@
       },
       "oauth_client": [
         {
-          "client_id": "967167304447-f0m84ke6gnhnfp4e31hdib0prgchcmvt.apps.googleusercontent.com",
+          "client_id": "967167304447-5vdlnoa7b1sf0eeasp5bs1uglvq5ov5p.apps.googleusercontent.com",
           "client_type": 3
+        },
+        {
+          "client_id": "967167304447-vae52ft52k00uj8kgnrhj0b6u6luod4b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.webduino",
+            "certificate_hash": "6e75bb026b077e3aeaa97f50c7b26795051cbc41"
+          }
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCW72PP267OmbTjifxUyp52fm2li0o-Xcs"
+          "current_key": "AIzaSyC84kyLAXVr5RU1QeKJFunEk_jwP-Y-q1M"
         }
       ],
       "services": {
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "967167304447-5vdlnoa7b1sf0eeasp5bs1uglvq5ov5p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

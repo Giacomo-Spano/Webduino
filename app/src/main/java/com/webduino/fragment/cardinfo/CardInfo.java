@@ -15,13 +15,15 @@ public class CardInfo {
     public static final int TYPE_TEMPERATURESENSOR = 1;
     public static final int TYPE_DOORSENSOR = 2;
     public static final int TYPE_ONEWIRESENSOR = 3;
-    public static final int TYPE_HEATER = 4;
+    //public static final int TYPE_HEATER = 4;
     public static final int TYPE_ACTIONBUTTON = 5;
+    public static final int TYPE_HEATER = 6;
 
     public String label;
     public String name;
     public String title;
     public int id;
+    public int shieldid;
     public Drawable imageDrawable;
 
     public boolean online = false;

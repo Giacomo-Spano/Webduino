@@ -16,20 +16,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.webduino.elements.Actuator;
-import com.webduino.elements.Actuators;
-import com.webduino.elements.DoorSensor;
 import com.webduino.elements.HeaterActuator;
 import com.webduino.elements.Sensor;
 import com.webduino.R;
 import com.webduino.elements.Sensors;
-import com.webduino.elements.TemperatureSensor;
 import com.webduino.fragment.adapters.CardAdapter;
-import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
+import com.webduino.fragment.adapters.HeaterListFragment;
 import com.webduino.fragment.cardinfo.CardInfo;
-import com.webduino.fragment.cardinfo.DoorSensorCardInfo;
 import com.webduino.fragment.cardinfo.HeaterCardInfo;
-import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +39,8 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
 
     private List<CardInfo> list;
     private CardAdapter cardAdapter;
-    private HeaterFragment heaterFragment = null;
+    //private HeaterFragment heaterFragment = null;
+    private HeaterListFragment heaterFragment = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,11 +74,11 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
 
         if (heaterFragment != null) {
 
-            heaterFragment.update();
+            heaterFragment.refreshData();
         }
     }
 
-    public void updateActuator(Actuator actuator) {
+    /*public void updateActuator(Actuator actuator) {
 
         for (CardInfo ci : list) {
 
@@ -100,7 +95,7 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
         }
 
 
-    }
+    }*/
 
     public List<CardInfo> createSensorList() {
 
@@ -112,10 +107,10 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
                 CardInfo ci = sensor.getCardInfo(this);
                 result.add(ci);
 
-                for (Sensor child : sensor.childsensors) {
+                /*for (Sensor child : sensor.childsensors) {
                     CardInfo ci2 = child.getCardInfo(this);
                     result.add(ci2);
-                }
+                }*/
             } catch (Exception e) {
 
             }
@@ -128,11 +123,12 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
         HeaterActuator heater = actuator;
         HeaterCardInfo ci = new HeaterCardInfo();
         ci.name = heater.getName();
-        ci.actuatorId = heater.getId();
+        ci.id = heater.getId();
+        ci.shieldid = heater.getShieldId();
         ci.releStatus = heater.getReleStatus();
 
         ci.status = heater.getStatus();
-        if (ci.status.equals("program")) {
+        if (ci.status.equals("keeptemperature")) {
             ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.auto, null);
             ci.target = heater.getTarget();
             ci.sensorName = heater.getSensorIdName();
@@ -187,9 +183,13 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
 
             HeaterCardInfo heaterCerdInfo = (HeaterCardInfo) cardInfo;
             Bundle bundle = new Bundle();
-            bundle.putString("actuatorid", "" + heaterCerdInfo.actuatorId);
+            bundle.putString("id", "" + heaterCerdInfo.id);
+            bundle.putString("shieldid", "" + heaterCerdInfo.shieldid);
 
-            heaterFragment = new HeaterFragment();
+            //heaterFragment = new HeaterFragment();
+            heaterFragment = new HeaterListFragment();
+
+
             heaterFragment.setArguments(bundle);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();

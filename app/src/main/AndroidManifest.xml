@@ -52,6 +52,9 @@
         </service>
         <!-- [END firebase_iid_service] -->
 
+
+
+
         <service android:name=".GeofenceTransitionsIntentService" />
 
 

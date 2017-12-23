@@ -1,5 +1,12 @@
 package com.webduino.elements;
 
+import android.app.Fragment;
+
+//import com.webduino.fragment.cardinfo.HeaterCardInfo;
+import com.webduino.fragment.cardinfo.HeaterCardInfo;
+import com.webduino.fragment.cardinfo.SensorCardInfo;
+import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
+
 import org.json.JSONObject;
 
 /**
@@ -11,9 +18,10 @@ public class HeaterActuator extends Actuator {
     public static final String Command_Program_ReleOn = "programon"; // "programon";
     public static final String Command_Send_Disabled = "disabled"; // "sendtemperature";
     public static final String Command_Send_Enabled = "enabled"; // "sendtemperature";
-    public static final String Command_Manual_Off = "manualoff"; // "manualoff";
-    public static final String Command_Manual_Auto = "manual"; // "manual";
-    public static final String Command_Manual_End = "manualend"; // "endmanual";
+    public static final String Command_Manual = "manual"; // "manualoff
+    //public static final String Command_Manual_Off = "manualoff"; // "manualoff";
+    //public static final String Command_Auto = "auto"; // "manual";
+    public static final String Command_Off = "off"; // "endmanual";
     public static final String Command_Send_Temperature = "sendtemperature"; // "sendtemperature";
 
     /*
@@ -41,22 +49,43 @@ public class HeaterActuator extends Actuator {
 
 
     protected double remoteTemperature;
-    protected int duration;
-    protected int remaining;
+    protected int scenarioId = 0;
+
+    //protected int duration;
+    //protected int remaining;
     protected boolean localSensor;
     protected boolean releStatus;
     protected double avTemperature;
     protected double temperature;
+    protected String lastTemperatureUpdate;
+    protected String lastCommandDate;
+    protected String endDate;
+    protected String duration;
+    protected String remaining;
     protected double targetTemperature;
     protected int activeProgramId;
     protected int activeTimeRangeId;
-    protected int sensorId;
+    protected int zoneId;
     protected String activeProgramIdName;
     protected String activeTimeRangeIdName;
     protected String sensorIdName;
 
     public HeaterActuator(JSONObject json) {
         super(json);
+    }
+
+    public SensorCardInfo getCardInfo(Fragment context) {
+
+        HeaterCardInfo cardInfo = new HeaterCardInfo();
+        super.getCardInfo(context, cardInfo);
+
+        cardInfo.status = getStatus();
+        cardInfo.releStatus = getReleStatus();
+        cardInfo.temperature = getRemoteTemperature();
+        cardInfo.target = getTarget();
+        cardInfo.zone = "zona " + zoneId;
+
+        return cardInfo;
     }
 
     public double getTarget() {
@@ -71,8 +100,8 @@ public class HeaterActuator extends Actuator {
         return activeTimeRangeId;
     }
 
-    public int getSensorId() {
-        return sensorId;
+    public int getZoneId() {
+        return zoneId;
     }
 
     public String getActiveProgramIdName() {
@@ -91,6 +120,18 @@ public class HeaterActuator extends Actuator {
         return remoteTemperature;
     }
 
+    public String getLastTemperatureUpdate() {
+        return lastTemperatureUpdate;
+    }
+
+    public String getLastCommandDate() {
+        return lastCommandDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
     public boolean getLocalsensor() {
         return localSensor;
     }
@@ -99,11 +140,11 @@ public class HeaterActuator extends Actuator {
         return releStatus;
     }
 
-    public int getDuration() {
+    public String getDuration() {
         return duration;
     }
 
-    public int getRemainig() {
+    public String getRemainig() {
         return remaining;
     }
 
@@ -118,26 +159,24 @@ public class HeaterActuator extends Actuator {
                 targetTemperature = json.getDouble("target");
             if (json.has("relestatus"))
                 releStatus = json.getBoolean("relestatus");
-            if (json.has("program"))
-                activeProgramId = json.getInt("program");
-            if (json.has("programname"))
-                activeProgramIdName = json.getString("programname");
-            if (json.has("timerange"))
-                activeTimeRangeId = json.getInt("timerange");
-            if (json.has("timerangename"))
-                activeTimeRangeIdName = json.getString("timerangename");
-            if (json.has("sensorID"))
-                sensorId = json.getInt("sensorID");
-            if (json.has("sensorIDname"))
-                sensorIdName = json.getString("sensorIDname");
-            if (json.has("remotetemperature"))
-                remoteTemperature = json.getDouble("remotetemperature");
-            if (json.has("localsensor"))
-                localSensor = json.getBoolean("localsensor");
+            if (json.has("scenario"))
+                scenarioId = json.getInt("scenario");
+            if (json.has("zone"))
+                zoneId = json.getInt("zone");
+            if (json.has("lasttemperatureupdate"))
+                lastTemperatureUpdate = json.getString("lasttemperatureupdate");
+            if (json.has("lastcommanddate"))
+                lastCommandDate = json.getString("lastcommanddate");
+            if (json.has("enddate"))
+                endDate = json.getString("enddate");
+            if (json.has("temperature"))
+                remoteTemperature = json.getDouble("temperature");
+            /*if (json.has("localsensor"))
+                localSensor = json.getBoolean("localsensor");*/
             if (json.has("remaining"))
-                remaining = json.getInt("remaining");
+                remaining = json.getString("remaining");
             if (json.has("duration"))
-                duration = json.getInt("duration");
+                duration = json.getString("duration");
 
 
         } catch (Exception e) {
@@ -145,4 +184,6 @@ public class HeaterActuator extends Actuator {
             e.printStackTrace();
         }
     }
+
+
 }

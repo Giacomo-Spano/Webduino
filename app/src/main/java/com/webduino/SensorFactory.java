@@ -29,7 +29,7 @@ public class SensorFactory {
             type = json.getString("type");
 
             Sensor sensor;
-            if (type.equals("temperature")) {
+            if (type.equals("temperaturesensor")) {
                 sensor = (Sensor) new TemperatureSensor(json);
             } /*else if (type.equals("onewiresensor")) {
                 sensor = (Sensor) new OnewireSensor(json);
@@ -47,6 +47,8 @@ public class SensorFactory {
                 sensor = (Sensor) new PIRSensor(json);
             } else if (type.equals("pressuresensor")) {
                 sensor = (Sensor) new PressureSensor(json);
+            } else if (type.equals("heatersensor")) {
+                sensor = (Sensor) new HeaterActuator(json);
             } else {
                 return null;
             }
