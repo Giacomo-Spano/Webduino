@@ -421,15 +421,27 @@ public class requestDataTask extends
             int actuatorId = (int) params[1];
             String command = (String) params[2];
             int duration = (int) params[3] * 60;
-            double target = (double) params[4];
-            int zoneId = (int) params[5];
+            Date endtime = (Date) params[4];;
+            boolean nexttimerange = (boolean) params[5];;
+            double target = (double) params[6];
+            int zoneId = (int) params[7];
             //boolean remote = (boolean) params[5];
             JSONObject json = new JSONObject();
             try {
                 json.put("shieldid", "" + shieldId);
                 json.put("actuatorid", "" + actuatorId);
                 json.put("command", command);
-                json.put("duration", "" + duration);
+
+                if(nexttimerange) {
+                    json.put("nexttimerange", nexttimerange);
+                } else if (endtime != null && !endtime.equals("")) {
+                    SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                    json.put("endtime", df.format(endtime));
+                } else {
+                    json.put("duration", "" + duration);
+                }
+
+
                 json.put("target", "" + target);
                 json.put("zone", "" + zoneId);
                 //json.put("remote", "" + remote);

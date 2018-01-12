@@ -8,6 +8,9 @@ import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.os.Bundle;
 //import android.support.v4.app.Fragment;
+
+
+
 import android.support.annotation.NonNull;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
@@ -21,7 +24,6 @@ import com.webduino.elements.Sensor;
 import com.webduino.R;
 import com.webduino.elements.Sensors;
 import com.webduino.fragment.adapters.CardAdapter;
-import com.webduino.fragment.adapters.HeaterListFragment;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.HeaterCardInfo;
 
@@ -39,8 +41,9 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
 
     private List<CardInfo> list;
     private CardAdapter cardAdapter;
-    //private HeaterFragment heaterFragment = null;
-    private HeaterListFragment heaterFragment = null;
+    //private ____HeaterFragment heaterFragment = null;
+    private HeaterFragment heaterFragment = null;
+    //private SensorFragment heaterFragment = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,6 +80,9 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
             heaterFragment.refreshData();
         }
     }
+
+
+
 
     /*public void updateActuator(Actuator actuator) {
 
@@ -186,14 +192,14 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
             bundle.putString("id", "" + heaterCerdInfo.id);
             bundle.putString("shieldid", "" + heaterCerdInfo.shieldid);
 
-            //heaterFragment = new HeaterFragment();
-            heaterFragment = new HeaterListFragment();
+            //heaterFragment = new ____HeaterFragment();
+            heaterFragment = new HeaterFragment();
 
 
             heaterFragment.setArguments(bundle);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
-            ft.replace(R.id.content_frame, heaterFragment);
+            ft.replace(R.id.content_frame, (Fragment )heaterFragment);
             ft.addToBackStack(null);
             ft.commit();
         }

@@ -19,26 +19,96 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:gravity="top"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/cardList">
 
         <TextView
             android:id="@+id/zoneTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:gravity="bottom"
             android:text="zone 22°C"
             android:textAlignment="textEnd"
             android:textSize="24sp" />
 
-        <TextView
-            android:id="@+id/targetTextView"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="TextView"
-            android:textAlignment="center"
-            android:textSize="100sp"
-            tools:text="24 °C" />
+            android:layout_weight="3"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/decreaseButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:src="@drawable/prova"
+                android:text="-"
+                android:textAlignment="center"
+                android:textSize="30sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/targetTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:layout_weight="8.58"
+                    android:gravity="center_vertical"
+                    android:text="TextView"
+                    android:textAlignment="center"
+                    android:textSize="70sp"
+                    tools:text="24°C" />
+
+            </LinearLayout>
+
+            <ImageButton
+                android:id="@+id/increaseButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:gravity="center_vertical"
+                android:src="@drawable/prova"
+                android:text="+"
+                android:textAlignment="center"
+                android:textSize="30sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/okButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OK" />
+
+            <Button
+                android:id="@+id/cancelButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="CANCEL" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/statusTextView"
@@ -46,7 +116,8 @@
             android:layout_height="wrap_content"
             android:text="Keep  Temperature -ACCESO"
             android:textAlignment="textStart"
-            android:textSize="24sp" />
+            android:textSize="24sp"
+            android:layout_weight="1" />
     </LinearLayout>
 
 </RelativeLayout>

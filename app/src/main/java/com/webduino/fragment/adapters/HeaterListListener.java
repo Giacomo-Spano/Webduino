@@ -12,7 +12,6 @@ import com.webduino.R;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 
 
 import static com.webduino.R.layout.meteoitemrowlayout;
@@ -20,22 +19,22 @@ import static com.webduino.R.layout.meteoitemrowlayout;
 /**
  * Created by giacomo on 19/07/2015.
  */
-public interface MeteoItemListListener {
+public interface HeaterListListener {
 
     public void onClickCheckBox(int position, boolean selected);
 
     public void onClick(long spotId);
 
-    class MeteoItemListArrayAdapter extends ArrayAdapter<HeaterListItem> {
+    class HeaterListArrayAdapter extends ArrayAdapter<HeaterListItem> {
 
         private LayoutInflater mInflater;
 
         ArrayList<HeaterListItem> dataList = new ArrayList<>();
 
         private final Context context;
-        MeteoItemListListener mListener;
+        HeaterListListener mListener;
 
-        public MeteoItemListArrayAdapter(Context context, ArrayList<HeaterListItem> list, MeteoItemListListener listener) {
+        public HeaterListArrayAdapter(Context context, ArrayList<HeaterListItem> list, HeaterListListener listener) {
 
             super(context, meteoitemrowlayout, list);
 

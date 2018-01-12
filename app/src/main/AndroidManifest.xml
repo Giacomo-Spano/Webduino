@@ -36,6 +36,14 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden"></activity>
 
+        <activity
+            android:name=".HeaterActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
+
+
+        </activity>
+
 
         <!-- [START firebase_service] -->
         <service android:name=".MyFirebaseMessagingService">

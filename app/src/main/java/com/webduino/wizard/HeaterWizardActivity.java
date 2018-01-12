@@ -15,6 +15,7 @@ import com.webduino.elements.requestDataTask;
 import com.webduino.scenarios.Scenario;
 import com.webduino.zones.Zone;
 
+import java.util.Date;
 import java.util.List;
 
 //import static com.webduino.elements.HeaterActuator.Command_Auto;
@@ -87,23 +88,27 @@ public class HeaterWizardActivity extends WizardActivity implements AsyncRequest
     @Override
     public void onWizardComplete() {
 
+        String endtime = "";//new Date();//null;//new LocalTime();
+        boolean nexttimerange = false;
         if (command.equals(Command_Manual)) {
 
             temperature = temperatureStep.getTemperature();
             zoneId = temperatureStep.getZoneId();
             duration = timeStep.getDuration();
             //remoteSensor = temperatureStep.getRemoteSensor();
+            endtime = null;//new Date();//null;//new LocalTime();
+            nexttimerange = false;
 
         } else if (command.equals(Command_Off)) {
 
             temperature = 0;
             zoneId = 0;
             duration = 0;
-            //remoteSensor = false;
-
+            endtime = null;//new Date();//null;//new LocalTime();
+            nexttimerange = false;
         }
 
-        new requestDataTask(this, this, requestDataTask.POST_ACTUATOR_COMMAND).execute(shieldid, actuatorId, command, duration, temperature, zoneId/*, remoteSensor*/);
+        new requestDataTask(this, this, requestDataTask.POST_ACTUATOR_COMMAND).execute(shieldid, actuatorId, command, duration, endtime, nexttimerange, temperature, zoneId);
     }
 
     @Override

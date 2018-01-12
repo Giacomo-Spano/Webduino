@@ -1,94 +1,75 @@
 package com.webduino.fragment;
 
-//import android.app.Fragment;
 
 import android.app.Fragment;
+import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+
+
+
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.webduino.elements.Actuators;
-import com.webduino.elements.HeaterActuator;
+import com.webduino.HeaterActivity;
 import com.webduino.MainActivity;
+import com.webduino.R;
+import com.webduino.WebduinoResponse;
+import com.webduino.elements.Actuator;
+import com.webduino.elements.HeaterActuator;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
+import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
+import com.webduino.fragment.adapters.HeaterListItem;
+import com.webduino.fragment.adapters.HeaterListListener;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
+import com.webduino.scenarios.Scenario;
 import com.webduino.wizard.HeaterWizardActivity;
-import com.webduino.R;
+import com.webduino.zones.Zone;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
-//import static com.webduino.elements.HeaterActuator.Command_Auto;
 import static com.webduino.elements.HeaterActuator.Command_Manual;
 import static com.webduino.elements.HeaterActuator.Command_Off;
-//import static com.webduino.elements.HeaterActuator.Command_Manual_Auto;
-
-//import android.support.v4.app.Fragment;
-//import android.support.v4.app.Fragment;
-
-/**
- * Created by Giacomo Spanò on 16/11/2016.
- */
 
 public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
+
+    private int actuatorId;
+    private int shieldId;
+
+    public boolean adaptercreated = false;
+
+    ArrayList<HeaterListItem> list = new ArrayList<>();
+
+    protected final int BUTTON_MANUALOFF = 1;
+    protected final int BUTTON_MANUAL = 2;
+    protected final int BUTTON_AUTO = 3;
+    protected final int BUTTON_DETAILS = 4;
 
     public static final int HEATERWIZARD_MANUAL_OFF = 1;  // The request code
     public static final int HEATERWIZARD_MANUAL_ON = 2;  // The request code
     public static final int HEATERWIZARD_MANUAL_END = 3;  // The request code
 
-    protected final int BUTTON_MANUALOFF = 1;
-    protected final int BUTTON_MANUAL = 2;
-    protected final int BUTTON_AUTO = 3;
-    protected final int BUTTON_PROGRAM = 4;
-    protected final int BUTTON_SCHEDULE = 5;
-    protected final int BUTTON_LOG = 6;
-
-    private TextView textViewReleStatus;
-    private TextView textViewStatus;
-    private TextView textViewProgram;
-    private TextView textViewTarget;
-
-    private int actuatorId;
-    private int shieldId;
     private CardAdapter cardAdapter;
-
-    @Override
-    public void onClick(int position, CardInfo cardInfo) {
-
-        switch (cardInfo.id) {
-            case BUTTON_MANUALOFF:
-                buttonLeaveAction();
-                break;
-            case BUTTON_MANUAL:
-                buttonManualOnAction();
-                break;
-            case BUTTON_AUTO:
-                buttonAutoAction();
-                break;
-            case BUTTON_PROGRAM:
-                buttonProgramsAction();
-                break;
-            case BUTTON_SCHEDULE:
-                buttonScheduleAction();
-                break;
-            case BUTTON_LOG:
-                buttonLogAction();
-                break;
-        }
-    }
+    private TextView targetTextView, zoneTextView, statusTextView;
+    Button okButton, cancelButton;
+    private double target = 0.0;
 
     // Container Activity must implement this interface
     public interface OnHeaterUpdatedListener {
@@ -107,6 +88,39 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         }
     }
 
+
+    @Override
+    public void onClick(int position, CardInfo cardInfo) {
+
+        switch (cardInfo.id) {
+            case BUTTON_MANUALOFF:
+                buttonLeaveAction();
+                break;
+            case BUTTON_MANUAL:
+                buttonManualOnAction();
+                break;
+            case BUTTON_AUTO:
+                buttonAutoAction();
+                break;
+            case BUTTON_DETAILS:
+                buttonDetailsAction();
+                break;
+        }
+    }
+
+
+    HeaterListListener listener;
+
+    public void setListener(HeaterListListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        refreshData();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -114,42 +128,65 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         if (savedInstanceState != null) {
 
         }
-
-        String strtext = getArguments().getString("shieldid");
-        shieldId = Integer.valueOf(strtext);
-        strtext = getArguments().getString("id");
-        actuatorId = Integer.valueOf(strtext);
-
-        View v;
-        v = inflater.inflate(R.layout.fragment_heater, container, false);
-
-        textViewStatus = (TextView) v.findViewById(R.id.textViewStatus);
-        textViewReleStatus = (TextView) v.findViewById(R.id.textViewReleStatus);
-        textViewTarget = (TextView) v.findViewById(R.id.textViewTarget);
-        textViewProgram = (TextView) v.findViewById(R.id.textViewProgram);
-
-        /*final Scene scene = Scene.getSceneForLayout(container,
-                R.layout.fragment_transition_scene_1, getActivity());
-        Button goButton = (Button)v.findViewById(R.id.goButton);
-        goButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //TransitionManager.go(scene);
-                View parent = (View)buttonOn30Minutes.getParent();
-                int parentHeight = parent.getHeight();
-
-                float height = buttonOn30Minutes.getHeight();
-
-
-
-
-                int width = buttonOn30Minutes.getWidth();
-                //buttonOn30Minutes.animate().translationX(-width/2);
-                buttonOn30Minutes.animate().translationY(parentHeight);
-            }
-        });*/
-
+        View v = inflater.inflate(R.layout.fragment_heater, container, false);
         RecyclerView recList = (RecyclerView) v.findViewById(R.id.cardList);
+        targetTextView = (TextView) v.findViewById(R.id.targetTextView);
+        zoneTextView = (TextView) v.findViewById(R.id.zoneTextView);
+        statusTextView = (TextView) v.findViewById(R.id.statusTextView);
+
+        okButton = (Button) v.findViewById(R.id.okButton);
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cancelButton.setVisibility(View.INVISIBLE);
+                okButton.setVisibility(View.INVISIBLE);
+            }
+        });
+        cancelButton = (Button) v.findViewById(R.id.cancelButton);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                HeaterActuator heater = (HeaterActuator) Sensors.getFromId(actuatorId);
+                String command = Command_Manual;
+                double temperature = getTarget();
+                int zoneId = heater.getZoneId();
+                int duration = 0;
+                Date endtime = new Date();//null;//new LocalTime();
+                boolean nexttimerange = true;
+                new requestDataTask(getActivity(), getAsyncResponse(), requestDataTask.POST_ACTUATOR_COMMAND).execute(shieldId, actuatorId, command, duration, endtime, nexttimerange, temperature, zoneId);
+
+
+
+                cancelButton.setVisibility(View.INVISIBLE);
+                okButton.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        ImageButton increaseButton = (ImageButton) v.findViewById(R.id.increaseButton);
+        increaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                double current = (int)((getTarget()+0.2) * 100 + 0.5) / 100.0;
+                setTarget(current);
+                cancelButton.setVisibility(View.VISIBLE);
+                okButton.setVisibility(View.VISIBLE);
+            }
+        });
+        ImageButton decreaseButton = (ImageButton) v.findViewById(R.id.decreaseButton);
+        decreaseButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                double current = (int)((getTarget()-0.2) * 100 + 0.5) / 100.0;
+                setTarget(current);
+                cancelButton.setVisibility(View.VISIBLE);
+                okButton.setVisibility(View.VISIBLE);
+            }
+        });
+
+
+
+
         recList.setHasFixedSize(true);
         // First param is number of columns and second param is orientation i.e Vertical or Horizontal
         StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
@@ -160,13 +197,261 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         recList.setAdapter(cardAdapter);
         cardAdapter.setListener(this);
 
-        update();
+        refreshData();
         return v;
+    }
+
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+
+        String strtext = getArguments().getString("shieldid");
+        shieldId = Integer.valueOf(strtext);
+        strtext = getArguments().getString("id");
+        actuatorId = Integer.valueOf(strtext);
+
+        //refreshData();
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // Do something that differs the Activity's menu here
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    public void createAdapter() {
+        adaptercreated = true;
+    }
+
+    public void destroyAdapter() {
+        adaptercreated = false;
+    }
+
+
+    private WebduinoResponse getAsyncResponse() {
+        return new WebduinoResponse() {
+
+            @Override
+            public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
+            }
+
+            @Override
+            public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
+            }
+
+            @Override
+            public void processFinishZones(List<Zone> zones, boolean error, String errorMessage) {
+            }
+
+            @Override
+            public void processFinishScenarios(List<Scenario> scenarios, boolean error, String errorMessage) {
+            }
+
+            @Override
+            public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
+            }
+
+            @Override
+            public void processFinishPrograms(List<Object> programs, int requestType, boolean error, String errorMessage) {
+            }
+
+            @Override
+            public void processFinishObjectList(List<Object> objectList, int requestType, boolean error, String errorMessage) {
+            }
+
+        };
+    }
+
+    public void refreshData() {
+
+        HeaterActuator heater = (HeaterActuator) Sensors.getFromId(actuatorId);
+        target = heater.getTarget();
+
+        if (heater == null)
+            return;
+
+        String status = "";
+        if ( heater.getReleStatus()) {
+            status = "Acceso";
+            targetTextView.setTextColor(Color.GREEN);
+        } else {
+            status = "Spanto";
+            targetTextView.setTextColor(Color.RED);
+        }
+        statusTextView.setText(heater.getStatus() + " - " + status);
+
+        setTarget(target);
+
+
+        zoneTextView.setText("zona " + heater.getZoneId() + " " + heater.getRemoteTemperature() +" °C");
+
+        /*list = new ArrayList<>();
+        int count = 0;
+
+        // Heater
+        HeaterListItem mi = new HeaterListItem();
+        mi.type = 0;
+        mi.description = "Stato";
+        list.add(mi);
+        // id
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Id";
+        mi.value = "" + heater.getId();
+        list.add(mi);
+        // shieldid
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "ShieldId";
+        mi.value = "" + heater.getShieldId();
+        list.add(mi);
+        // name
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Nome";
+        mi.value = "" + heater.getName();
+        list.add(mi);
+        // stato
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Stato";
+        mi.value = "" + heater.getStatus();
+        list.add(mi);
+        // relestatus
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Relè";
+        if (heater.getReleStatus())
+            mi.value = "ACCESO";
+        else
+            mi.value = "SPENTO";
+        list.add(mi);
+        // temperature
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Temperatura";
+        mi.value = "" + heater.getRemoteTemperature() + "°C " + heater.getLastTemperatureUpdate();
+        list.add(mi);
+        // zone
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Zona";
+        mi.value = "" + heater.getZoneId();
+        list.add(mi);
+        // target
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Target";
+        mi.value = "" + heater.getTarget() + "°C";
+        list.add(mi);
+        // last command
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Ultimo comando";
+        mi.value = heater.getLastCommandDate();
+        list.add(mi);
+
+        // Heater
+        mi = new HeaterListItem();
+        mi.type = 0;
+        mi.description = "Programma";
+        list.add(mi);
+        // action
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Action";
+        mi.value = "";
+        list.add(mi);
+        // action
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Fine programma";
+        mi.value = heater.getEndDate();
+        list.add(mi);
+        // action
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Durata";
+        mi.value = heater.getDuration();
+        list.add(mi);
+        // action
+        mi = new HeaterListItem();
+        mi.type = 1;
+        mi.description = "Tempo rimanente";
+        mi.value = heater.getRemainig();
+        list.add(mi);*/
+
+        /*HeaterListListener.HeaterListArrayAdapter adapter = new HeaterListListener.HeaterListArrayAdapter(getActivity(), list, new HeaterListListener() {
+            @Override
+            public void onClickCheckBox(int position, boolean selected) {
+
+            }
+            @Override
+            public void onClick(long spotId) {
+
+            }
+        });
+        setListAdapter(adapter);*/
+
+
+        // update action buttons
+        if(heater.getStatus().equals(HeaterActuator.StatusManualOff)) {
+            enableCard(BUTTON_MANUALOFF, true);
+            enableCard(BUTTON_MANUAL, false);
+            enableCard(BUTTON_AUTO, false);
+        } else if (heater.getStatus().equals(HeaterActuator.StatusManual)) {
+            enableCard(BUTTON_MANUALOFF, false);
+            enableCard(BUTTON_MANUAL, true);
+            enableCard(BUTTON_AUTO, false);
+        } else {
+            enableCard(BUTTON_MANUALOFF, false);
+            enableCard(BUTTON_MANUAL, false);
+            enableCard(BUTTON_AUTO, true);
+        }
+        enableCard(BUTTON_DETAILS, true);
+        cardAdapter.notifyDataSetChanged();
+
+    }
+
+    private void setTarget(double target) {
+        this.target = target;
+        targetTextView.setText(""+this.target+"°C");
+    }
+
+    private double getTarget() {
+        return target;
+    }
+
+    private void enableCard(int button, boolean enabled) {
+        CardInfo card;
+        int position;
+        card = cardAdapter.getCardInfoFromId(button);
+        if (card != null) {
+            card.setEnabled(enabled);
+            position = cardAdapter.getPositionFromId(button);
+            cardAdapter.setCardInfo(position, card);
+        }
     }
 
     private void buttonLogAction() {
         MainActivity ma = (MainActivity) getActivity();
         ma.showHistory(actuatorId);
+    }
+
+    private void buttonDetailsAction() {
+        Intent intent = new Intent(getActivity(), HeaterActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putInt("actuatorid", actuatorId);
+        bundle.putInt("shieldid", shieldId);
+        bundle.putString("command", Command_Off);
+        intent.putExtras(bundle);
+        startActivityForResult(intent, HEATERWIZARD_MANUAL_END);
     }
 
     private void buttonScheduleAction() {
@@ -243,88 +528,6 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         }
     }
 
-    public void update() {
-
-        HeaterActuator heater = (HeaterActuator) Sensors.getFromId(actuatorId);
-
-        if (heater == null)
-            return;
-
-        textViewStatus.setText(heater.getStatus());
-        textViewTarget.setText("" + heater.getTarget());
-        if (heater.getReleStatus())
-            textViewReleStatus.setText("ACCESO");
-        else
-            textViewReleStatus.setText("SPENTO");
-        String program = "";
-        if (heater.getStatus().equals(HeaterActuator.StatusProgram)) {
-            program += "program [" + heater.getActiveProgramId() + "." + heater.getActiveTimeRangeId() + "] ";
-            program += heater.getActiveProgramIdName() + "." + heater.getActiveTimeRangeIdName();
-            program += " target " + heater.getTarget() + "°C";
-            if (heater.getLocalsensor()) {
-                program += " local sensor ";
-            } else {
-                program += " sensore [" + heater.getZoneId() + "]" + heater.getSensorIdName() + "(" + heater.getRemoteTemperature() + ")";
-            }
-        } else if (heater.getStatus().equals(HeaterActuator.StatusManual)) {
-            program += "manual [" + heater.getActiveProgramId() + heater.getActiveTimeRangeId() + "] ";
-        } else if (heater.getStatus().equals(HeaterActuator.StatusIdle)) {
-            program += "idle";
-        }
-
-
-        if (heater.getStatus().equals(HeaterActuator.StatusProgram) ||
-                heater.getStatus().equals(HeaterActuator.StatusManual) ||
-                heater.getStatus().equals(HeaterActuator.StatusManualOff)) {
-
-            /*int remainingMinutes = heater.getRemainig() / 60;
-            int hour = remainingMinutes / 60;
-            int minute = remainingMinutes % 60;
-            String str;
-            str = String.format("%2d:%2d", hour, minute);
-            program += "\ntempo rimanente " + str;
-            program += " (" + heater.getRemainig() + ")";
-
-            remainingMinutes = heater.getDuration() / 60;
-            hour = remainingMinutes / 60;
-            minute = remainingMinutes % 60;
-            str = String.format("%2d:%2d", hour, minute);
-            program += "\ndurata " + str;
-            program += " (" + heater.getDuration() + ")";*/
-        }
-
-
-        textViewProgram.setText(program);
-
-        // update action buttons
-        if(heater.getStatus().equals(HeaterActuator.StatusManualOff)) {
-            enableCard(BUTTON_MANUALOFF, true);
-            enableCard(BUTTON_MANUAL, false);
-            enableCard(BUTTON_AUTO, false);
-        } else if (heater.getStatus().equals(HeaterActuator.StatusManual)) {
-            enableCard(BUTTON_MANUALOFF, false);
-            enableCard(BUTTON_MANUAL, true);
-            enableCard(BUTTON_AUTO, false);
-        } else {
-            enableCard(BUTTON_MANUALOFF, false);
-            enableCard(BUTTON_MANUAL, false);
-            enableCard(BUTTON_AUTO, true);
-        }
-        enableCard(BUTTON_SCHEDULE, true);
-        enableCard(BUTTON_PROGRAM, true);
-        enableCard(BUTTON_LOG, true);
-        cardAdapter.notifyDataSetChanged();
-
-    }
-
-    private void enableCard(int button, boolean enabled) {
-        CardInfo card;
-        int position;
-        card = cardAdapter.getCardInfoFromId(button);
-        card.setEnabled(enabled);
-        position = cardAdapter.getPositionFromId(button);
-        cardAdapter.setCardInfo(position,card);
-    }
 
     public List<CardInfo> createActionButtonList() {
 
@@ -333,8 +536,8 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         try {
             ActionButtonCardInfo manualOff = new ActionButtonCardInfo();
             manualOff.id = BUTTON_MANUALOFF;
-            manualOff.name = "Vacanza";
-            manualOff.label = "In vacanza";
+            manualOff.name = "Off";
+            manualOff.label = "Manual Off";
             manualOff.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.briefcase, null);
             manualOff.setColor(Color.BLUE);
             /*manualOff.labelBackgroundColor = Color.BLUE;
@@ -360,29 +563,13 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
             auto.setColor(Color.BLUE);
             result.add(auto);
 
-            ActionButtonCardInfo programs = new ActionButtonCardInfo();
-            programs.id = BUTTON_PROGRAM;
-            programs.name = "Calendario";
-            programs.label = "";
-            programs.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.calendar, null);
-            programs.setColor(Color.BLUE);
-            result.add(programs);
-
-            ActionButtonCardInfo schedule = new ActionButtonCardInfo();
-            schedule.id = BUTTON_SCHEDULE;
-            schedule.name = "Programmi";
-            schedule.label = " ";
-            schedule.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.schedule, null);
-            schedule.setColor(Color.BLUE);
-            result.add(schedule);
-
-            ActionButtonCardInfo log = new ActionButtonCardInfo();
-            log.id = BUTTON_LOG;
-            log.name = "Grafico";
-            log.label = " ";
-            log.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.graph, null);
-            log.setColor(Color.BLUE);
-            result.add(log);
+            ActionButtonCardInfo details = new ActionButtonCardInfo();
+            details.id = BUTTON_DETAILS;
+            details.name = "Dettagli";
+            details.label = " ";
+            details.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.graph, null);
+            details.setColor(Color.BLUE);
+            result.add(details);
 
         } catch (Exception e) {
 

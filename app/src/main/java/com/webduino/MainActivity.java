@@ -45,7 +45,6 @@ import com.webduino.elements.Programs;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
 import com.webduino.elements.requestDataTask;
-import com.webduino.fragment.HeaterFragment;
 import com.webduino.fragment.HistoryFragment;
 import com.webduino.fragment.NextProgramsFragment;
 import com.webduino.fragment.PanelFragment;
@@ -53,6 +52,7 @@ import com.webduino.fragment.PrefsFragment;
 import com.webduino.fragment.ProgramFragment;
 import com.webduino.fragment.ProgramsListFragment;
 import com.webduino.fragment.SensorsFragment;
+import com.webduino.fragment.HeaterFragment;
 import com.webduino.scenarios.Scenario;
 import com.webduino.scenarios.Scenarios;
 import com.webduino.zones.Zone;
@@ -71,9 +71,10 @@ import static com.webduino.elements.HeaterActuator.Command_Off;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, HeaterFragment.OnHeaterUpdatedListener, ProgramFragment.OnProgramUpdatedListener,
+        implements NavigationView.OnNavigationItemSelectedListener, ProgramFragment.OnProgramUpdatedListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
+        HeaterFragment.OnHeaterUpdatedListener,
         ResultCallback<Status> {
 
     static final public int notificationId_ChangeStatus = 1;
@@ -177,7 +178,7 @@ public class MainActivity extends AppCompatActivity
 
         if (action != null && action.equals("manual_off")) {
             int actuatorId = getIntent().getIntExtra("actuatorId", 0);
-            SendManualOff(actuatorId);
+            //SendManualOff(actuatorId);
         }
 
         setContentView(R.layout.activity_main);
@@ -245,15 +246,15 @@ public class MainActivity extends AppCompatActivity
         intentFilter = new IntentFilter("com.webduino.USER_ACTION");
     }
 
-    private void SendManualOff(int actuatorId) {
+    /*private void SendManualOff(int actuatorId) {
 
         String command = Command_Off;
         double temperature = 0;
         int zoneId = 0;
         int duration = 30;
         boolean remoteSensor = false;
-        new requestDataTask(this, getAsyncResponse(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, command, duration, temperature, zoneId/*, remoteSensor*/);
-    }
+        new requestDataTask(this, getAsyncResponse(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, command, duration, temperature, zoneId);
+    }*/
 
 
     // geofence
