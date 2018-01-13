@@ -54,9 +54,11 @@ public class requestDataTask extends
     public static final int POST_ACTUATOR_COMMAND = 8;
     public static final int POST_PROGRAM = 9;
     public static final int POST_DELETEPROGRAM = 10;
-    public static final int REQUEST_DATALOG = 11;
+    public static final int REQUEST_SENSORDATALOG = 11;
     public static final int REQUEST_ZONES = 12;
     public static final int REQUEST_SCENARIOS = 13;
+    public static final int REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS = 14;
+    public static final int REQUEST_COMMANDDATALOG = 15;
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -80,6 +82,7 @@ public class requestDataTask extends
         public Actuator actuator;
         public String resultString;
         public boolean response;
+        public Object resultObject;
     }
 
     public requestDataTask(Activity activity, AsyncRequestDataResponse asyncResponse, int type) {
@@ -99,7 +102,8 @@ public class requestDataTask extends
         if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS
                 || requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS
                 || requestType == REQUEST_ZONES || requestType ==REQUEST_SCENARIOS
-                || requestType == REQUEST_DATALOG) {
+                || requestType == REQUEST_SENSORDATALOG
+                || requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS) {
             result = performGetRequest(params);
             return result;
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM) {
@@ -108,6 +112,9 @@ public class requestDataTask extends
                 return result;
             } catch (Exception e) {
                 e.printStackTrace();
+                result = new Result();
+                result.response = false;
+                result.resultString = e.toString();
                 return null;
             }
         }
@@ -150,7 +157,7 @@ public class requestDataTask extends
 
                 path = "/program?next=true";
 
-            } else if (requestType == REQUEST_DATALOG) {
+            } else if (requestType == REQUEST_SENSORDATALOG) {
                 path = "/datalog";
                 int actuatorId = (int) params[0];
                 String type = (String) params[1];
@@ -162,6 +169,10 @@ public class requestDataTask extends
                 path += "&elapsed=360";
                 path += "&id="+actuatorId;
                 path += "&type="+type;
+            } else if (requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS) {
+                path = "/system?requestcommand=nextprograms";
+                int actuatorId = (int) params[0];
+                path += "&id=" + actuatorId;
             }
 
             String serverUrl = getServerUrl();
@@ -221,18 +232,18 @@ public class requestDataTask extends
                     }
                     result.programs = list;
 
-                } else if (requestType == REQUEST_NEXTPROGRAMS) {
+                } else if (requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS) {
 
                     List<Object> list = new ArrayList<Object>();
                     JSONArray jArray = new JSONArray(json);
                     for (int i = 0; i < jArray.length(); i++) {
                         JSONObject jObject = jArray.getJSONObject(i);
-                        Object nextProgram = new NextProgram();
-                        ((NextProgram) nextProgram).fromJson(jObject);
-                        list.add(nextProgram);
+                        Object nextaction = new NextProgramTimeRangeAction();
+                        ((NextProgramTimeRangeAction) nextaction).fromJson(jObject);
+                        list.add(nextaction);
                     }
-                    result.programs = list;
-                } else if (requestType == REQUEST_DATALOG) {
+                    result.resultObject = list;
+                } else if (requestType == REQUEST_SENSORDATALOG) {
 
                     List<Object> list = new ArrayList<Object>();
                     JSONArray jArray = new JSONArray(json);
@@ -242,7 +253,18 @@ public class requestDataTask extends
                         ((HistoryData) data).fromJson(jObject);
                         list.add(data);
                     }
-                    result.objectList = list;
+                    result.resultObject = list;
+                } else if (requestType == REQUEST_COMMANDDATALOG) {
+
+                    List<Object> list = new ArrayList<Object>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        Object data = new HistoryData();
+                        ((HistoryData) data).fromJson(jObject);
+                        list.add(data);
+                    }
+                    result.resultObject = list;
                 }
 
 
@@ -311,7 +333,7 @@ public class requestDataTask extends
             message = "Salvataggio programma";
         else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_DELETEPROGRAM)
             message = "Comando inviato";
-        else if (requestType == REQUEST_DATALOG)
+        else if (requestType == REQUEST_SENSORDATALOG)
             message = "Aggiornamnento";
 
         ringProgressDialog.setMessage(message);
@@ -376,8 +398,10 @@ public class requestDataTask extends
             delegate.processFinishPostProgram(result.response, POST_PROGRAM, error, errorMessage);
         } else if (requestType == POST_DELETEPROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);
-        } else if (requestType == REQUEST_DATALOG) {
-            delegate.processFinishObjectList(result.objectList, REQUEST_DATALOG, error, errorMessage);
+        } else if (requestType == REQUEST_SENSORDATALOG) {
+            delegate.processFinishObjectList(result.objectList, REQUEST_SENSORDATALOG, error, errorMessage);
+        } else {
+            delegate.processFinish(result.resultObject, requestType, error, errorMessage);
         }
 
     }
@@ -484,8 +508,7 @@ public class requestDataTask extends
         return null;
     }
 
-    public String postCall(String requestURL, String json
-                           /*HashMap<String, String> postDataParams*/) throws Exception {
+    public String postCall(String requestURL, String json) throws Exception {
 
         URL url;
         String response = "";

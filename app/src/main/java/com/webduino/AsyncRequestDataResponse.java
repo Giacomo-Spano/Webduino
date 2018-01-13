@@ -12,6 +12,8 @@ import java.util.List;
  */
 public interface AsyncRequestDataResponse {
 
+    void processFinish(Object result, int requestType, boolean error, String errorMessage);
+
     void processFinishRegister(long shieldId, boolean error, String errorMessage);
     void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage);
     void processFinishZones(List<Zone> sensors, boolean error, String errorMessage);

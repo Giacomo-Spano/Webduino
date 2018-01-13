@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimary">
+
+    <TextView
+        android:id="@+id/descriptionTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_gravity="bottom"
+        android:layout_toRightOf="@+id/favoritecheckBox"
+        android:layout_weight="0.25"
+        android:text="Velocità vento"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/colorTextPrimaryDark"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/valueTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/favoritecheckBox"
+        android:layout_alignBottom="@+id/favoritecheckBox"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="30dp"
+        android:layout_toEndOf="@+id/descriptionTextView"
+        android:layout_weight="0.50"
+        android:text="20 Knots"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/colorTextPrimary"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/commentTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/favoritecheckBox"
+        android:layout_alignBottom="@+id/favoritecheckBox"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="30dp"
+        android:layout_toEndOf="@+id/descriptionTextView"
+        android:layout_weight="0.25"
+        android:text="data"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/colorTextPrimaryDark"
+        android:textSize="18sp" />
+
+
+</LinearLayout>

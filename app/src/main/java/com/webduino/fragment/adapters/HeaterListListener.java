@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 
-import static com.webduino.R.layout.meteoitemrowlayout;
+import static com.webduino.R.layout.heaterdatarowlayout;
 
 /**
  * Created by giacomo on 19/07/2015.
@@ -36,7 +36,7 @@ public interface HeaterListListener {
 
         public HeaterListArrayAdapter(Context context, ArrayList<HeaterListItem> list, HeaterListListener listener) {
 
-            super(context, meteoitemrowlayout, list);
+            super(context, heaterdatarowlayout, list);
 
             mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -90,12 +90,12 @@ public interface HeaterListListener {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 if (item.type == 0) {
                     // Inflate the layout with image
-                    v = inflater.inflate(R.layout.meteoitemheaderrowlayout, parent, false);
+                    v = inflater.inflate(R.layout.heaterdataheaderlayout, parent, false);
                     TextView descriptioTextView = (TextView) v.findViewById(R.id.descriptionTextView);
                     descriptioTextView.setText(item.description);
                 }
                 else {
-                    v = inflater.inflate(R.layout.meteoitemrowlayout, parent, false);
+                    v = inflater.inflate(R.layout.heaterdatarowlayout, parent, false);
                     TextView descriptioTextView = (TextView) v.findViewById(R.id.descriptionTextView);
                     descriptioTextView.setText(item.description);
                     TextView valueTextView = (TextView) v.findViewById(R.id.valueTextView);
@@ -121,11 +121,11 @@ public interface HeaterListListener {
             if (convertView == null) {
 
                 if (dataList.get(position).type == 0) {
-                    convertView = mInflater.inflate(R.layout.meteoitemheaderrowlayout, null);
+                    convertView = mInflater.inflate(R.layout.heaterdataheaderlayout, null);
                     holder = new HeaderViewHolder();
                     holder.textView = (TextView)convertView.findViewById(R.id.descriptionTextView);
                 } else {
-                    convertView = mInflater.inflate(R.layout.meteoitemrowlayout, null);
+                    convertView = mInflater.inflate(R.layout.heaterdatarowlayout, null);
                     holder = new RowViewHolder();
                     RowViewHolder rvHolder = (RowViewHolder) holder;
                     rvHolder.textView = (TextView)convertView.findViewById(R.id.descriptionTextView);

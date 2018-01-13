@@ -17,9 +17,9 @@ public class HeaterTabsPagerAdapter extends FragmentStatePagerAdapter {
         if (position == 0)
             return HeaterDetailsPageFragment.newInstance();
         else if (position == 1)
-            return PageFragment.newInstance(position + 1);
+            return HeaterNextActionsPageFragment.newInstance();
         else if (position == 2)
-            return PageFragment.newInstance(position + 1);
+            return HeaterLogPageFragment.newInstance();
         else
             return null;
     }

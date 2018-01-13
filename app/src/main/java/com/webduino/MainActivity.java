@@ -67,8 +67,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.webduino.elements.HeaterActuator.Command_Off;
-
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, ProgramFragment.OnProgramUpdatedListener,
@@ -478,10 +476,10 @@ public class MainActivity extends AppCompatActivity
 
     public void getDataLog(int actuatorId) {
 
-        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_DATALOG).execute(actuatorId,"heater");
+        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORDATALOG).execute(actuatorId,"heater");
 
         /*for (Sensor sensor : Sensors.list) {
-            new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_DATALOG).execute(sensor.getId(),"temperature");
+            new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORDATALOG).execute(sensor.getId(),"temperature");
         }*/
 
     }
@@ -575,7 +573,7 @@ public class MainActivity extends AppCompatActivity
             }
             @Override
             public void processFinishObjectList(List<Object> objectList, int requestType, boolean error, String errorMessage) {
-                if (requestType == requestDataTask.REQUEST_DATALOG) {
+                if (requestType == requestDataTask.REQUEST_SENSORDATALOG) {
                     List<HistoryData> list = new ArrayList<>();
                     for (Object data : objectList) {
                         list.add((HistoryData) data);

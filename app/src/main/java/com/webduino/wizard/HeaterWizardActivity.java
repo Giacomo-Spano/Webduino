@@ -117,6 +117,11 @@ public class HeaterWizardActivity extends WizardActivity implements AsyncRequest
     }
 
     @Override
+    public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+
+    }
+
+    @Override
     public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
 
     }
