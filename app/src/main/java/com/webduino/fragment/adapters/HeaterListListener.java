@@ -9,8 +9,6 @@ import android.widget.TextView;
 
 import com.webduino.R;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 
@@ -22,19 +20,20 @@ import static com.webduino.R.layout.heaterdatarowlayout;
 public interface HeaterListListener {
 
     public void onClickCheckBox(int position, boolean selected);
-
     public void onClick(long spotId);
 
-    class HeaterListArrayAdapter extends ArrayAdapter<HeaterListItem> {
+
+
+    class HeaterListArrayAdapter extends ArrayAdapter<ListItem> {
 
         private LayoutInflater mInflater;
 
-        ArrayList<HeaterListItem> dataList = new ArrayList<>();
+        ArrayList<ListItem> dataList = new ArrayList<>();
 
         private final Context context;
         HeaterListListener mListener;
 
-        public HeaterListArrayAdapter(Context context, ArrayList<HeaterListItem> list, HeaterListListener listener) {
+        public HeaterListArrayAdapter(Context context, ArrayList<ListItem> list, HeaterListListener listener) {
 
             super(context, heaterdatarowlayout, list);
 
@@ -52,7 +51,7 @@ public interface HeaterListListener {
 
         @Override
         public int getViewTypeCount() {
-            return 2; //return 2, you have two types that the getView() method will return, normal(0) and for the last row(1)
+            return 4; //return 2, you have two types that the getView() method will return, normal(0) and for the last row(1)
         }
 
         @Override
@@ -61,7 +60,7 @@ public interface HeaterListListener {
         }
 
         @Override
-        public HeaterListItem getItem(int position) {
+        public ListItem getItem(int position) {
             return dataList.get(position);
         }
 
@@ -72,46 +71,9 @@ public interface HeaterListListener {
 
         @Override
         public int getItemViewType(int position) {
-            HeaterListItem item = getItem(position);
+            ListItem item = getItem(position);
             return item.type;
             //return (position == 0) ? 0 : 1; //if we are at the last position then return 1, for any other position return 0
-        }
-
-        //@Override
-        public View getViewx(int position, View convertView, ViewGroup parent) {
-            View v = convertView;
-            //int type = getItemViewType(position);
-
-            HeaterListItem item = dataList.get(position);
-
-            if (v == null) {
-                //HeaterListItem item = getItem(position);
-                // Inflate the layout according to the view type
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                if (item.type == 0) {
-                    // Inflate the layout with image
-                    v = inflater.inflate(R.layout.heaterdataheaderlayout, parent, false);
-                    TextView descriptioTextView = (TextView) v.findViewById(R.id.descriptionTextView);
-                    descriptioTextView.setText(item.description);
-                }
-                else {
-                    v = inflater.inflate(R.layout.heaterdatarowlayout, parent, false);
-                    TextView descriptioTextView = (TextView) v.findViewById(R.id.descriptionTextView);
-                    descriptioTextView.setText(item.description);
-                    TextView valueTextView = (TextView) v.findViewById(R.id.valueTextView);
-                    valueTextView.setText(item.value);
-                    TextView commentTextView = (TextView) v.findViewById(R.id.commentTextView);
-                    //DateFormat df = new SimpleDateFormat("ddMMyyyyHHmm");
-                    if (item.date != null) {
-                        DateFormat df = new SimpleDateFormat("HH:mm");
-                        commentTextView.setText(df.format(item.date));
-                    } else {
-                        commentTextView.setText("");
-                    }
-                }
-            }
-            //
-            return v;
         }
 
         @Override
@@ -120,17 +82,38 @@ public interface HeaterListListener {
             ViewHolder holder = null;
             if (convertView == null) {
 
-                if (dataList.get(position).type == 0) {
+                if (dataList.get(position).type == ListItem.HeaterDataHeader) {
                     convertView = mInflater.inflate(R.layout.heaterdataheaderlayout, null);
-                    holder = new HeaderViewHolder();
+                    holder = new HeaderDataHeaderViewHolder();
                     holder.textView = (TextView)convertView.findViewById(R.id.descriptionTextView);
-                } else {
+
+                } else if (dataList.get(position).type == ListItem.HeaterDataRow) {
                     convertView = mInflater.inflate(R.layout.heaterdatarowlayout, null);
-                    holder = new RowViewHolder();
-                    RowViewHolder rvHolder = (RowViewHolder) holder;
+                    holder = new HeaterDataRowViewHolder();
+                    HeaterDataRowViewHolder rvHolder = (HeaterDataRowViewHolder) holder;
                     rvHolder.textView = (TextView)convertView.findViewById(R.id.descriptionTextView);
                     rvHolder.valueTextView = (TextView) convertView.findViewById(R.id.valueTextView);
                     rvHolder.commentTextView = (TextView) convertView.findViewById(R.id.commentTextView);
+
+                } else if (dataList.get(position).type == ListItem.HeaterNextActionRow) {
+                    convertView = mInflater.inflate(R.layout.heaternextactionrowlayout, null);
+                    holder = new HeaterNextActionRowViewHolder();
+                    HeaterNextActionRowViewHolder rvHolder = (HeaterNextActionRowViewHolder) holder;
+                    rvHolder.startTextView = (TextView)convertView.findViewById(R.id.startTextView);
+                    rvHolder.endTextView = (TextView) convertView.findViewById(R.id.endTextView);
+                    rvHolder.targetTextView = (TextView) convertView.findViewById(R.id.targetTextView);
+                    rvHolder.scenarioTextView = (TextView) convertView.findViewById(R.id.scenarioTextView);
+                    rvHolder.programTextView = (TextView) convertView.findViewById(R.id.programTextView);
+                    rvHolder.actionTextView = (TextView) convertView.findViewById(R.id.actionTextView);
+
+                } else if (dataList.get(position).type == ListItem.HeaterNextActionHeater) {
+                    convertView = mInflater.inflate(R.layout.heaternextactionheaderlayout, null);
+                    holder = new HeaterNextActionHeaderViewHolder();
+                    HeaterNextActionHeaderViewHolder rvHolder = (HeaterNextActionHeaderViewHolder) holder;
+                    rvHolder.textView = (TextView)convertView.findViewById(R.id.descriptionTextView);
+
+                } else {
+                    return null;
                 }
                 convertView.setTag(holder);
 
@@ -145,29 +128,62 @@ public interface HeaterListListener {
 
     public static class ViewHolder {
         public TextView textView;
-
-
-        public void update(HeaterListItem item) {
-            textView.setText(item.description);
-
-        }
-    }
-
-    public static class HeaderViewHolder extends ViewHolder {
-        public void update(HeaterListItem item) {
+        public void update(ListItem item) {
             textView.setText(item.description);
         }
     }
 
-    public static class RowViewHolder extends ViewHolder {
+    public static class HeaderDataHeaderViewHolder extends ViewHolder {
+        public void update(ListItem item) {
+            if (item instanceof HeaterDataHeaderItem) {
+                HeaterDataHeaderItem dataItem = (HeaterDataHeaderItem) item;
+                textView.setText(dataItem.description);
+            }
+        }
+    }
+
+    public static class HeaterDataRowViewHolder extends ViewHolder {
 
         public TextView valueTextView;
         public TextView commentTextView;
 
-        public void update(HeaterListItem item) {
-            textView.setText(item.description);
-            valueTextView.setText(item.value);
-            commentTextView.setText("");
+        public void update(ListItem item) {
+            if (item instanceof HeaterDataRowItem) {
+                HeaterDataRowItem dataItem = (HeaterDataRowItem) item;
+                textView.setText(dataItem.description);
+                valueTextView.setText(dataItem.value);
+                commentTextView.setText("");
+            }
+        }
+    }
+
+    public static class HeaterNextActionRowViewHolder extends ViewHolder {
+
+        public TextView targetTextView;
+        public TextView startTextView;
+        public TextView endTextView;
+        public TextView scenarioTextView;
+        public TextView programTextView;
+        public TextView actionTextView;
+
+        public void update(ListItem item) {
+            if (item instanceof HeaterNextActionRowItem) {
+                HeaterNextActionRowItem dataItem = (HeaterNextActionRowItem) item;
+                String target = "" + dataItem.targetvalue + "°C";
+                targetTextView.setText(target);
+                startTextView.setText(dataItem.start);
+                endTextView.setText(dataItem.end);
+                scenarioTextView.setText(dataItem.scenario);
+                programTextView.setText(dataItem.program);
+                actionTextView.setText(dataItem.action);
+            }
+        }
+    }
+
+    public static class HeaterNextActionHeaderViewHolder extends ViewHolder {
+        public void update(ListItem item) {
+            HeaterNextActionHeaderItem dataItem = (HeaterNextActionHeaderItem)item;
+            textView.setText(dataItem.description);
         }
     }
 }

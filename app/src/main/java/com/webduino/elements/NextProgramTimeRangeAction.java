@@ -18,7 +18,7 @@ public class NextProgramTimeRangeAction {
 
     public int actionid;
     public String actionname;
-    public int actiontype;
+    public String actiontype;
 
 
 
@@ -31,7 +31,7 @@ public class NextProgramTimeRangeAction {
     public int timeintervalid;
     public int actuatorid;
     public String conflicts;
-    private double target;
+    public double target;
 
 
     public NextProgramTimeRangeAction() {
@@ -40,15 +40,30 @@ public class NextProgramTimeRangeAction {
     public void fromJson(JSONObject jsonObj) {
 
         try {
-            if (jsonObj.has("start"))
-                start = jsonObj.getString("start");
-            if (jsonObj.has("end"))
-                end = jsonObj.getString("end");
+            if (jsonObj.has("starttime"))
+                start = jsonObj.getString("starttime");
+            if (jsonObj.has("endtime"))
+                end = jsonObj.getString("endtime");
             if (jsonObj.has("date"))
                 date = jsonObj.getString("date");
+            if (jsonObj.has("scenarioid"))
+                scenarioid = jsonObj.getInt("scenarioid");
+            if (jsonObj.has("scenarioname"))
+                scenarioname = jsonObj.getString("scenarioname");
+            if (jsonObj.has("programid"))
+                programid = jsonObj.getInt("programid");
+            if (jsonObj.has("scenarioname"))
+                programname = jsonObj.getString("programname");
+            if (jsonObj.has("timerangeid"))
+                timerangeid = jsonObj.getInt("timerangeid");
+            if (jsonObj.has("timerangename"))
+                timerangename = jsonObj.getString("timerangename");
+            if (jsonObj.has("timeintervalid"))
+                timeintervalid = jsonObj.getInt("timeintervalid");
             if (jsonObj.has("action")) {
                 JSONObject jaction = new JSONObject(jsonObj.getString("action"));
                 target = jaction.getDouble("targetvalue");
+                actiontype = jaction.getString("type");
             }
 
         } catch (JSONException e) {

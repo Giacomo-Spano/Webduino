@@ -6,10 +6,9 @@ import java.util.Date;
  * Created by gs163400 on 24/08/2017.
  */
 
-public class HeaterListItem {
-    public int type;
-    public String description;
-    public String value;
+public class HeaterDataRowItem extends ListItem {
+
+
     public Date date = null;
 }
 

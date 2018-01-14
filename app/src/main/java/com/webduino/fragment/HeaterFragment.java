@@ -2,7 +2,6 @@ package com.webduino.fragment;
 
 
 import android.app.Fragment;
-import android.app.ListFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -32,7 +31,7 @@ import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
-import com.webduino.fragment.adapters.HeaterListItem;
+import com.webduino.fragment.adapters.HeaterDataRowItem;
 import com.webduino.fragment.adapters.HeaterListListener;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
@@ -55,7 +54,7 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
 
     public boolean adaptercreated = false;
 
-    ArrayList<HeaterListItem> list = new ArrayList<>();
+    ArrayList<HeaterDataRowItem> list = new ArrayList<>();
 
     protected final int BUTTON_MANUALOFF = 1;
     protected final int BUTTON_MANUAL = 2;
@@ -295,36 +294,36 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         int count = 0;
 
         // Heater
-        HeaterListItem mi = new HeaterListItem();
+        HeaterDataRowItem mi = new HeaterDataRowItem();
         mi.type = 0;
         mi.description = "Stato";
         list.add(mi);
         // id
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Id";
         mi.value = "" + heater.getId();
         list.add(mi);
         // shieldid
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "ShieldId";
         mi.value = "" + heater.getShieldId();
         list.add(mi);
         // name
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Nome";
         mi.value = "" + heater.getName();
         list.add(mi);
         // stato
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Stato";
         mi.value = "" + heater.getStatus();
         list.add(mi);
         // relestatus
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Relè";
         if (heater.getReleStatus())
@@ -333,55 +332,55 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
             mi.value = "SPENTO";
         list.add(mi);
         // temperature
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Temperatura";
         mi.value = "" + heater.getRemoteTemperature() + "°C " + heater.getLastTemperatureUpdate();
         list.add(mi);
         // zone
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Zona";
         mi.value = "" + heater.getZoneId();
         list.add(mi);
         // target
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Target";
         mi.value = "" + heater.getTarget() + "°C";
         list.add(mi);
         // last command
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Ultimo comando";
         mi.value = heater.getLastCommandDate();
         list.add(mi);
 
         // Heater
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 0;
         mi.description = "Programma";
         list.add(mi);
         // action
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Action";
         mi.value = "";
         list.add(mi);
         // action
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Fine programma";
         mi.value = heater.getEndDate();
         list.add(mi);
         // action
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Durata";
         mi.value = heater.getDuration();
         list.add(mi);
         // action
-        mi = new HeaterListItem();
+        mi = new HeaterDataRowItem();
         mi.type = 1;
         mi.description = "Tempo rimanente";
         mi.value = heater.getRemainig();

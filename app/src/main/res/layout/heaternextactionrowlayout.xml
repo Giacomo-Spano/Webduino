@@ -1,51 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/colorPrimary">
 
-    <TextView
-        android:id="@+id/descriptionTextView"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:layout_gravity="bottom"
-        android:layout_toRightOf="@+id/favoritecheckBox"
-        android:layout_weight="0.25"
-        android:text="Velocità vento"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/colorTextPrimaryDark"
-        android:textSize="18sp" />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/valueTextView"
-        android:layout_width="0dp"
+        <TextView
+            android:id="@+id/startTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="0.25"
+            android:text="08:30:00"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/colorTextPrimaryDark"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/endTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="0.25"
+            android:text="12:45:59"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/colorTextPrimaryDark"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/favoritecheckBox"
-        android:layout_alignBottom="@+id/favoritecheckBox"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="30dp"
-        android:layout_toEndOf="@+id/descriptionTextView"
-        android:layout_weight="0.50"
-        android:text="20 Knots"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/colorTextPrimary"
-        android:textSize="18sp" />
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/linearLayout">
 
-    <TextView
-        android:id="@+id/commentTextView"
-        android:layout_width="0dp"
+        <TextView
+            android:id="@+id/scenarioTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nome scenario"
+            android:textColor="@color/colorTextPrimary" />
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/scenarioTextView"
+            android:text="Scenario"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/programTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/scenarioTextView"
+            android:text="Nome programma"
+            android:textColor="@color/colorTextPrimary" />
+
+        <TextView
+            android:id="@+id/textView9"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/programTextView"
+            android:layout_below="@+id/programTextView"
+            android:text="Programma"
+            android:textSize="10sp" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/favoritecheckBox"
-        android:layout_alignBottom="@+id/favoritecheckBox"
-        android:layout_gravity="bottom"
-        android:layout_marginStart="30dp"
-        android:layout_toEndOf="@+id/descriptionTextView"
-        android:layout_weight="0.25"
-        android:text="data"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/colorTextPrimaryDark"
-        android:textSize="18sp" />
+        android:layout_alignParentRight="true"
+        android:orientation="vertical"
+        android:id="@+id/linearLayout2">
+
+        <TextView
+            android:id="@+id/targetTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="23.1°C"
+            android:textAlignment="textEnd"
+            android:textColor="@color/colorTextPrimary"
+            android:textSize="30sp" />
+
+        <TextView
+            android:id="@+id/actionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_weight="1"
+            android:text="keeptemperature"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/colorTextPrimaryDark"
+            android:textSize="18sp" />
+    </LinearLayout>
 
 
-</LinearLayout>
+</RelativeLayout>

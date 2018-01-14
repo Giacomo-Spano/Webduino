@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.webduino.R;
-import com.webduino.fragment.adapters.HeaterListItem;
 import com.webduino.fragment.adapters.HeaterListListener;
+import com.webduino.fragment.adapters.ListItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public class PageFragment extends Fragment {
     //private static final String ARG_PAGE_NUMBER = "page_number";
 
     public boolean adaptercreated = false;
-    protected ArrayList<HeaterListItem> list = new ArrayList<>();
+    protected ArrayList<ListItem> list = new ArrayList<>();
     protected ListView listView;
 
     public PageFragment() {
