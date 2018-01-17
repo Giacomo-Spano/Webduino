@@ -133,16 +133,9 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         zoneTextView = (TextView) v.findViewById(R.id.zoneTextView);
         statusTextView = (TextView) v.findViewById(R.id.statusTextView);
 
+
         okButton = (Button) v.findViewById(R.id.okButton);
         okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                cancelButton.setVisibility(View.INVISIBLE);
-                okButton.setVisibility(View.INVISIBLE);
-            }
-        });
-        cancelButton = (Button) v.findViewById(R.id.cancelButton);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -155,12 +148,22 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
                 boolean nexttimerange = true;
                 new requestDataTask(getActivity(), getAsyncResponse(), requestDataTask.POST_ACTUATOR_COMMAND).execute(shieldId, actuatorId, command, duration, endtime, nexttimerange, temperature, zoneId);
 
-
+                cancelButton.setVisibility(View.INVISIBLE);
+                okButton.setVisibility(View.INVISIBLE);
+            }
+        });
+        cancelButton = (Button) v.findViewById(R.id.cancelButton);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
                 cancelButton.setVisibility(View.INVISIBLE);
                 okButton.setVisibility(View.INVISIBLE);
             }
         });
+
+        cancelButton.setVisibility(View.INVISIBLE);
+        okButton.setVisibility(View.INVISIBLE);
 
         ImageButton increaseButton = (ImageButton) v.findViewById(R.id.increaseButton);
         increaseButton.setOnClickListener(new View.OnClickListener() {

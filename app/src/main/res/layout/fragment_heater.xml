@@ -49,7 +49,7 @@
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:gravity="center_vertical"
-                android:src="@drawable/prova"
+                android:src="@drawable/minus"
                 android:text="-"
                 android:textAlignment="center"
                 android:textSize="30sp" />
@@ -82,7 +82,7 @@
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:gravity="center_vertical"
-                android:src="@drawable/prova"
+                android:src="@drawable/plus"
                 android:text="+"
                 android:textAlignment="center"
                 android:textSize="30sp" />
