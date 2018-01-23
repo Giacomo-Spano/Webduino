@@ -10,7 +10,10 @@ public class ListItem {
     public static int HeaterDataRow = 0;
     public static int HeaterDataHeader = 1;
     public static int HeaterNextActionRow = 2;
-    public static int HeaterNextActionHeater = 3;
+    public static int HeaterNextActionHeader = 3;
+    public static int HeaterNextActionIdleRow = 4;
+    public static int HeaterCommandLogRow = 5;
+    public static int HeaterItemTypescount = 6; // deve essere il numero di tipi
 
 
     public int type;

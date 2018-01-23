@@ -1,5 +1,6 @@
 package com.webduino.fragment.adapters;
 
+import java.time.LocalTime;
 import java.util.Date;
 
 /**
@@ -7,12 +8,14 @@ import java.util.Date;
  */
 
 public class HeaterNextActionRowItem extends ListItem {
-    public String date;
-    public String start;
-    public String end;
+    public Date date;
+    public Date start;
+    public Date end;
     public double targetvalue;
     public String scenario;
     public String program;
     public String action;
+    public String zone;
+    public String actiontype;
 }
 

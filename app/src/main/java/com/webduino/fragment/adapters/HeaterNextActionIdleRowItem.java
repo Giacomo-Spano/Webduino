@@ -6,7 +6,8 @@ import java.util.Date;
  * Created by gs163400 on 24/08/2017.
  */
 
-public class HeaterNextActionHeaderItem extends ListItem {
-    public Date date;
+public class HeaterNextActionIdleRowItem extends ListItem {
+    public Date end;
+    public Date start;
 }
 

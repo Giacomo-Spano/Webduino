@@ -101,9 +101,9 @@ public class requestDataTask extends
 
         if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS
                 || requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS
-                || requestType == REQUEST_ZONES || requestType ==REQUEST_SCENARIOS
+                || requestType == REQUEST_ZONES || requestType == REQUEST_SCENARIOS
                 || requestType == REQUEST_SENSORDATALOG
-                || requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS) {
+                || requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS || requestType == REQUEST_COMMANDDATALOG) {
             result = performGetRequest(params);
             return result;
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM) {
@@ -164,15 +164,20 @@ public class requestDataTask extends
 
                 Date date = new Date();
                 SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                path += "?enddate="+df.format(date);
+                path += "?enddate=" + df.format(date);
 
                 path += "&elapsed=360";
-                path += "&id="+actuatorId;
-                path += "&type="+type;
+                path += "&id=" + actuatorId;
+                path += "&type=" + type;
             } else if (requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS) {
                 path = "/system?requestcommand=nextprograms";
                 int actuatorId = (int) params[0];
                 path += "&id=" + actuatorId;
+            } else if (requestType == REQUEST_COMMANDDATALOG) {
+                path = "/system?requestcommand=commandlog";
+                int actuatorId = (int) params[0];
+                path += "&id=" + actuatorId;
+
             }
 
             String serverUrl = getServerUrl();
@@ -208,7 +213,7 @@ public class requestDataTask extends
                             list.add(sensor);
                     }
                     result.sensors = list;
-                }  else if (requestType == REQUEST_ZONES) {
+                } else if (requestType == REQUEST_ZONES) {
 
                     List<Zone> list = new ArrayList<Zone>();
                     JSONArray jArray = new JSONArray(json);
@@ -220,7 +225,7 @@ public class requestDataTask extends
                             list.add(zone);
                     }
                     result.zones = list;
-                }  else if (requestType == REQUEST_PROGRAMS) {
+                } else if (requestType == REQUEST_PROGRAMS) {
 
                     List<Object> list = new ArrayList<Object>();
                     JSONArray jArray = new JSONArray(json);
@@ -239,8 +244,12 @@ public class requestDataTask extends
                     for (int i = 0; i < jArray.length(); i++) {
                         JSONObject jObject = jArray.getJSONObject(i);
                         Object nextaction = new NextProgramTimeRangeAction();
-                        ((NextProgramTimeRangeAction) nextaction).fromJson(jObject);
-                        list.add(nextaction);
+                        try {
+                            ((NextProgramTimeRangeAction) nextaction).fromJson(jObject);
+                            list.add(nextaction);
+                        } catch (Exception e) {
+
+                        }
                     }
                     result.resultObject = list;
                 } else if (requestType == REQUEST_SENSORDATALOG) {
@@ -260,8 +269,12 @@ public class requestDataTask extends
                     JSONArray jArray = new JSONArray(json);
                     for (int i = 0; i < jArray.length(); i++) {
                         JSONObject jObject = jArray.getJSONObject(i);
-                        Object data = new HistoryData();
-                        ((HistoryData) data).fromJson(jObject);
+                        Object data = new CommandDataLog();
+                        try {
+                            ((CommandDataLog) data).fromJson(jObject);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                         list.add(data);
                     }
                     result.resultObject = list;
@@ -445,8 +458,10 @@ public class requestDataTask extends
             int actuatorId = (int) params[1];
             String command = (String) params[2];
             int duration = (int) params[3] * 60;
-            Date endtime = (Date) params[4];;
-            boolean nexttimerange = (boolean) params[5];;
+            Date endtime = (Date) params[4];
+            ;
+            boolean nexttimerange = (boolean) params[5];
+            ;
             double target = (double) params[6];
             int zoneId = (int) params[7];
             //boolean remote = (boolean) params[5];
@@ -456,7 +471,7 @@ public class requestDataTask extends
                 json.put("actuatorid", "" + actuatorId);
                 json.put("command", command);
 
-                if(nexttimerange) {
+                if (nexttimerange) {
                     json.put("nexttimerange", nexttimerange);
                 } else if (endtime != null && !endtime.equals("")) {
                     SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");

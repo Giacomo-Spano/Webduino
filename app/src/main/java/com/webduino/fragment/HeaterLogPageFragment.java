@@ -1,19 +1,30 @@
 package com.webduino.fragment;
 
+import com.webduino.AsyncRequestDataResponse;
 import com.webduino.HeaterActivity;
+import com.webduino.MainActivity;
+import com.webduino.elements.Actuator;
+import com.webduino.elements.CommandDataLog;
 import com.webduino.elements.HeaterActuator;
+import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
+import com.webduino.elements.requestDataTask;
+import com.webduino.fragment.adapters.HeaterCommandLogRowItem;
 import com.webduino.fragment.adapters.HeaterDataRowItem;
 import com.webduino.fragment.adapters.HeaterListListener;
+import com.webduino.fragment.adapters.ListItem;
+import com.webduino.scenarios.Scenario;
+import com.webduino.zones.Zone;
 
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by giaco on 07/01/2018.
  */
 
 public class HeaterLogPageFragment extends PageFragment {
-
 
     public static PageFragment newInstance() {
         PageFragment fragment = new HeaterLogPageFragment();
@@ -23,113 +34,84 @@ public class HeaterLogPageFragment extends PageFragment {
     @Override
     public void refreshData() {
 
-        HeaterActivity a = (HeaterActivity) getActivity();
-        int id = a.getSensorId();
-        HeaterActuator heater = (HeaterActuator) Sensors.getFromId(id);
+            HeaterActivity a = (HeaterActivity) getActivity();
+            int id = a.getSensorId();
+            HeaterActuator heater = (HeaterActuator) Sensors.getFromId(id);
 
-        if (heater == null)
-            return;
+            if (heater == null)
+                return;
 
-        if (!adaptercreated)
-            return;
+            if (!adaptercreated)
+                return;
 
-        list = new ArrayList<>();
-        int count = 0;
+            new requestDataTask(MainActivity.activity, new AsyncRequestDataResponse() {
+                @Override
+                public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
 
-        // Heater
-        HeaterDataRowItem mi = new HeaterDataRowItem();
-        mi.type = 0;
-        mi.description = "Stato";
-        list.add(mi);
-        // id
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Id";
-        mi.value = "" + heater.getId();
-        list.add(mi);
-        // shieldid
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "ShieldId";
-        mi.value = "" + heater.getShieldId();
-        list.add(mi);
-        // name
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Nome";
-        mi.value = "" + heater.getName();
-        list.add(mi);
-        // stato
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Stato";
-        mi.value = "" + heater.getStatus();
-        list.add(mi);
-        // relestatus
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Relè";
-        if (heater.getReleStatus())
-            mi.value = "ACCESO";
-        else
-            mi.value = "SPENTO";
-        list.add(mi);
-        // temperature
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Temperatura";
-        mi.value = "" + heater.getRemoteTemperature() + "°C " + heater.getLastTemperatureUpdate();
-        list.add(mi);
-        // zone
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Zona";
-        mi.value = "" + heater.getZoneId();
-        list.add(mi);
-        // target
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Target";
-        mi.value = "" + heater.getTarget() + "°C";
-        list.add(mi);
-        // last command
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Ultimo comando";
-        mi.value = heater.getLastCommandDate();
-        list.add(mi);
+                    List<CommandDataLog> commandLogList = (List<CommandDataLog>) result;
+                    list = new ArrayList<>();
+                    Date currentDate = null;
+                    for (CommandDataLog commandlog:commandLogList) {
 
-        // Heater
-        mi = new HeaterDataRowItem();
-        mi.type = 0;
-        mi.description = "Programma";
-        list.add(mi);
-        // action
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Action";
-        mi.value = "" /*+ /*heater.get*/;
-        list.add(mi);
-        // action
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Fine programma";
-        mi.value = heater.getEndDate();
-        list.add(mi);
-        // action
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Durata";
-        mi.value = heater.getDuration();
-        list.add(mi);
-        // action
-        mi = new HeaterDataRowItem();
-        mi.type = 1;
-        mi.description = "Tempo rimanente";
-        mi.value = heater.getRemainig();
-        list.add(mi);
+                        HeaterCommandLogRowItem mi = new HeaterCommandLogRowItem();
+                        mi.type = ListItem.HeaterCommandLogRow;
+                        mi.date = commandlog.date;
+                        mi.enddate = commandlog.enddate;
+                        mi.targetvalue = commandlog.target;
+                        mi.temperature = commandlog.temperature;
+                        mi.success = commandlog.success;
+                        mi.duration = commandlog.duration;
+                        mi.command = commandlog.command;
 
-        HeaterListListener.HeaterListArrayAdapter adapter = new HeaterListListener.HeaterListArrayAdapter(getActivity(), list, listener);
-        listView.setAdapter(adapter);
+                        list.add(mi);
+                    }
+                    HeaterListListener.HeaterListArrayAdapter adapter = new HeaterListListener.HeaterListArrayAdapter(getActivity(), list, listener);
+                    listView.setAdapter(adapter);
+                }
+
+                @Override
+                public void processFinishRegister(long shieldId, boolean error, String errorMessage) {
+                }
+
+                @Override
+                public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
+
+                }
+
+                @Override
+                public void processFinishZones(List<Zone> sensors, boolean error, String errorMessage) {
+
+                }
+
+                @Override
+                public void processFinishScenarios(List<Scenario> sensors, boolean error, String errorMessage) {
+
+                }
+
+                @Override
+                public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
+
+                }
+
+                @Override
+                public void processFinishSendCommand(String response, boolean error, String errorMessage) {
+
+                }
+
+                @Override
+                public void processFinishPrograms(List<Object> programs, int requestType, boolean error, String errorMessage) {
+
+                }
+
+                @Override
+                public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
+
+                }
+
+                @Override
+                public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
+
+                }
+            }, requestDataTask.REQUEST_COMMANDDATALOG).execute(id);
     }
 }

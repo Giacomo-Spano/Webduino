@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.webduino.R;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 
@@ -51,7 +52,7 @@ public interface HeaterListListener {
 
         @Override
         public int getViewTypeCount() {
-            return 4; //return 2, you have two types that the getView() method will return, normal(0) and for the last row(1)
+            return ListItem.HeaterItemTypescount;//5; //return 2, you have two types that the getView() method will return, normal(0) and for the last row(1)
         }
 
         @Override
@@ -102,15 +103,33 @@ public interface HeaterListListener {
                     rvHolder.startTextView = (TextView)convertView.findViewById(R.id.startTextView);
                     rvHolder.endTextView = (TextView) convertView.findViewById(R.id.endTextView);
                     rvHolder.targetTextView = (TextView) convertView.findViewById(R.id.targetTextView);
-                    rvHolder.scenarioTextView = (TextView) convertView.findViewById(R.id.scenarioTextView);
+                    rvHolder.scenarioTextView = (TextView) convertView.findViewById(R.id.descriptionTextView);
                     rvHolder.programTextView = (TextView) convertView.findViewById(R.id.programTextView);
                     rvHolder.actionTextView = (TextView) convertView.findViewById(R.id.actionTextView);
+                    rvHolder.zoneTextView = (TextView) convertView.findViewById(R.id.zoneTextView);
 
-                } else if (dataList.get(position).type == ListItem.HeaterNextActionHeater) {
+                } else if (dataList.get(position).type == ListItem.HeaterNextActionIdleRow) {
+                    convertView = mInflater.inflate(R.layout.heaternextactionidlerowlayout, null);
+                    holder = new HeaterNextActionIdleViewHolder();
+                    HeaterNextActionIdleViewHolder rvHolder = (HeaterNextActionIdleViewHolder) holder;
+                    rvHolder.startTextView = (TextView)convertView.findViewById(R.id.startTextView);
+                    rvHolder.endTextView = (TextView) convertView.findViewById(R.id.endTextView);
+                    rvHolder.descriptionTextView = (TextView) convertView.findViewById(R.id.descriptionTextView);
+
+                } else if (dataList.get(position).type == ListItem.HeaterNextActionHeader) {
                     convertView = mInflater.inflate(R.layout.heaternextactionheaderlayout, null);
                     holder = new HeaterNextActionHeaderViewHolder();
                     HeaterNextActionHeaderViewHolder rvHolder = (HeaterNextActionHeaderViewHolder) holder;
                     rvHolder.textView = (TextView)convertView.findViewById(R.id.descriptionTextView);
+
+                } else if (dataList.get(position).type == ListItem.HeaterCommandLogRow) {
+                    convertView = mInflater.inflate(R.layout.heatercommandlogrowlayout, null);
+                    holder = new HeaterCommandLogRowViewHolder();
+                    HeaterCommandLogRowViewHolder rvHolder = (HeaterCommandLogRowViewHolder) holder;
+                    rvHolder.dateTextView = (TextView)convertView.findViewById(R.id.dateTextView);
+                    rvHolder.commandTextView = (TextView) convertView.findViewById(R.id.commandTextView);
+                    rvHolder.durationTextView = (TextView) convertView.findViewById(R.id.durationTextView);
+                    rvHolder.targetTextView = (TextView) convertView.findViewById(R.id.targetTextView);
 
                 } else {
                     return null;
@@ -165,17 +184,42 @@ public interface HeaterListListener {
         public TextView scenarioTextView;
         public TextView programTextView;
         public TextView actionTextView;
+        public TextView zoneTextView;
 
         public void update(ListItem item) {
             if (item instanceof HeaterNextActionRowItem) {
                 HeaterNextActionRowItem dataItem = (HeaterNextActionRowItem) item;
                 String target = "" + dataItem.targetvalue + "°C";
                 targetTextView.setText(target);
-                startTextView.setText(dataItem.start);
-                endTextView.setText(dataItem.end);
+
+                SimpleDateFormat tf = new SimpleDateFormat("HH:mm:ss");
+                if (dataItem.start != null)
+                    startTextView.setText(tf.format(dataItem.start));
+                if (dataItem.end != null)
+                    endTextView.setText(tf.format(dataItem.end));
                 scenarioTextView.setText(dataItem.scenario);
                 programTextView.setText(dataItem.program);
-                actionTextView.setText(dataItem.action);
+                actionTextView.setText(dataItem.actiontype);
+                zoneTextView.setText(dataItem.zone);
+            }
+        }
+    }
+
+    public static class HeaterNextActionIdleViewHolder extends ViewHolder {
+
+        public TextView startTextView;
+        public TextView endTextView;
+        public TextView descriptionTextView;
+
+        public void update(ListItem item) {
+            if (item instanceof HeaterNextActionIdleRowItem) {
+                HeaterNextActionIdleRowItem dataItem = (HeaterNextActionIdleRowItem) item;
+                SimpleDateFormat tf = new SimpleDateFormat("HH:mm:ss");
+                if (dataItem.start != null)
+                    startTextView.setText(tf.format(dataItem.start));
+                if (dataItem.end != null)
+                    endTextView.setText(tf.format(dataItem.end));
+                descriptionTextView.setText(dataItem.description);
             }
         }
     }
@@ -183,7 +227,31 @@ public interface HeaterListListener {
     public static class HeaterNextActionHeaderViewHolder extends ViewHolder {
         public void update(ListItem item) {
             HeaterNextActionHeaderItem dataItem = (HeaterNextActionHeaderItem)item;
-            textView.setText(dataItem.description);
+            SimpleDateFormat df = new SimpleDateFormat("EEEEE dd-MM-yyyy");
+            textView.setText(df.format(dataItem.date));
+        }
+    }
+
+    public static class HeaterCommandLogRowViewHolder extends ViewHolder {
+
+        public TextView targetTextView;
+        public TextView dateTextView;
+        public TextView durationTextView;
+        public TextView commandTextView;
+
+        public void update(ListItem item) {
+            if (item instanceof HeaterCommandLogRowItem) {
+                HeaterCommandLogRowItem dataItem = (HeaterCommandLogRowItem) item;
+                String target = "" + dataItem.targetvalue + "°C";
+                targetTextView.setText(target);
+
+                SimpleDateFormat tf = new SimpleDateFormat("HH:mm:ss");
+                if (dataItem.date != null)
+                    dateTextView.setText(tf.format(dataItem.date));
+                //targetTextView.setText("" + dataItem.targetvalue);
+                durationTextView.setText(""+dataItem.duration);
+                commandTextView.setText(dataItem.command);
+            }
         }
     }
 }
