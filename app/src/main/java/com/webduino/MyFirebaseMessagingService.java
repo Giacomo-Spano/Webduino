@@ -33,7 +33,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //Displaying data in log
         //It is optional
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-        Log.d(TAG, "Notification Message Body: " + remoteMessage.getNotification().getBody());
+        Log.d(TAG, "Notification Message Body x: " + remoteMessage.getNotification().getBody());
 
         String type = remoteMessage.getData().get("type");
         String strId = remoteMessage.getData().get("id");
