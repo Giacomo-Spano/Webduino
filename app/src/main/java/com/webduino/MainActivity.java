@@ -10,6 +10,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -45,12 +46,14 @@ import com.webduino.elements.Programs;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
 import com.webduino.elements.requestDataTask;
+import com.webduino.fragment.TimeIntervalFragment;
 import com.webduino.fragment.HistoryFragment;
 import com.webduino.fragment.NextProgramsFragment;
 import com.webduino.fragment.PanelFragment;
 import com.webduino.fragment.PrefsFragment;
 import com.webduino.fragment.ProgramFragment;
 import com.webduino.fragment.ProgramsListFragment;
+import com.webduino.fragment.ScenariosFragment;
 import com.webduino.fragment.SensorsFragment;
 import com.webduino.fragment.HeaterFragment;
 import com.webduino.scenarios.Scenario;
@@ -103,7 +106,9 @@ public class MainActivity extends AppCompatActivity
 
     PanelFragment panelFragment;
     SensorsFragment sensorsFragment;
+    ScenariosFragment scenariosFragment;
     ProgramsListFragment programsFragment;
+
     NextProgramsFragment nextProgramFragment;
     HistoryFragment historyFragment;
     PrefsFragment preferencesFragment;
@@ -232,6 +237,7 @@ public class MainActivity extends AppCompatActivity
 
         panelFragment = new PanelFragment();
         sensorsFragment = new SensorsFragment();
+        scenariosFragment = new ScenariosFragment();
         programsFragment = new ProgramsListFragment();
         nextProgramFragment = new NextProgramsFragment();
         historyFragment = new HistoryFragment();
@@ -239,6 +245,7 @@ public class MainActivity extends AppCompatActivity
 
         showFragment(sensorsFragment);
         refreshData();
+        getScenarioData();
 
         myReceiver = new MyReceiver();
         intentFilter = new IntentFilter("com.webduino.USER_ACTION");
@@ -386,11 +393,11 @@ public class MainActivity extends AppCompatActivity
         // Creating a fragment transaction
         FragmentTransaction ft = fragmentManager.beginTransaction();
 
-        if (id == R.id.nav_programs) {
+        if (id == R.id.nav_scenarios) {
             // Handle the camera action
             //getProgramData();
-            //ft.replace(R.id.content_frame, programsFragment);
-            showPrograms();
+            ft.replace(R.id.content_frame, scenariosFragment);
+            //showPrograms();
             //enableMenuItem(R.id.action_create_program);
         } else if (id == R.id.nav_sensors) {
             // Handle the gallery action
@@ -463,7 +470,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void getScenarioData() {
-        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SCENARIOS).execute();
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
+
+            @Override
+            public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
+                if (error)
+                    return;
+                Scenarios.list.clear();
+                for (Object scenario : list) {
+                    Scenarios.add((Scenario) scenario);
+                }
+            }
+        }, requestDataTask.REQUEST_SCENARIOS).execute();
     }
 
     public void getProgramData() {

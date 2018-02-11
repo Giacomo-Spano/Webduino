@@ -21,5 +21,14 @@ public class Scenarios {
         list.get(index);
     }
 
+    public static Scenario getFromId(int id) {
+        for(Scenario scenario : list) {
+            if (scenario.id == id) {
+                return scenario;
+            }
+        }
+        return null;
+    }
+
 
 }

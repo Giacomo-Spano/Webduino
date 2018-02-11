@@ -1,0 +1,77 @@
+package com.webduino.scenarios;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * Created by gs163400 on 10/02/2018.
+ */
+
+public class ScenarioProgramTimeRange {
+    boolean active = false;
+
+    public int id;
+    public int programid;
+    public String name;
+    public String description;
+    public Date startTime;
+    public Date endTime;
+    public boolean enabled;
+    public int index;
+
+    public List<ProgramAction> programActionList = new ArrayList<>();
+
+
+    public ScenarioProgramTimeRange(JSONObject json) throws Exception {
+        fromJson(json);
+    }
+
+    public void fromJson(JSONObject json) throws Exception {
+
+        if (json.has("id"))
+            id = json.getInt("id");
+        if (json.has("programid"))
+            programid = json.getInt("programid");
+        if (json.has("name"))
+            name = json.getString("name");
+        if (json.has("description"))
+            description = json.getString("description");
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+        if (json.has("starttime") && json.has("endtime")) {
+            String str = json.getString("starttime");
+            startTime = df.parse(str);
+            str = json.getString("endtime");
+            endTime = df.parse(str);
+            if (endTime.compareTo(startTime) < 0)
+                throw new Exception("start time " + startTime.toString() + "must be before end time " + endTime.toString());
+        } else {
+            throw new Exception("missing start/end time");
+        }
+        if (json.has("enabled"))
+            enabled = json.getBoolean("enabled");
+        if (json.has("index"))
+            index = json.getInt("index");
+
+        if (json.has("actions")) {
+
+            ProgramActionFactory factory = new ProgramActionFactory();
+            JSONArray jsonArray = json.getJSONArray("actions");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jo = jsonArray.getJSONObject(i);
+                ProgramAction action = null;
+                try {
+                    action = factory.fromJson(jo);
+                    programActionList.add(action);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new Exception(e.toString());
+                }
+            }
+        }
+    }
+}

@@ -237,6 +237,17 @@ public class requestDataTask extends
                     }
                     result.programs = list;
 
+                } else if (requestType == REQUEST_SCENARIOS) {
+
+                    List<Object> list = new ArrayList<Object>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        Object data = new Scenario();
+                        ((Scenario) data).fromJson(jObject);
+                        list.add(data);
+                    }
+                    result.objectList = list;
                 } else if (requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS) {
 
                     List<Object> list = new ArrayList<Object>();
@@ -401,8 +412,6 @@ public class requestDataTask extends
             delegate.processFinishSensors(result.sensors, error, errorMessage);
         } else if (requestType == REQUEST_ZONES) {
             delegate.processFinishZones(result.zones, error, errorMessage);
-        } else if (requestType == REQUEST_SCENARIOS) {
-            delegate.processFinishScenarios(result.scenarios, error, errorMessage);
         } else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS) {
             delegate.processFinishPrograms(result.programs, requestType, error, errorMessage);
         } else if (requestType == POST_ACTUATOR_COMMAND) {
@@ -411,8 +420,8 @@ public class requestDataTask extends
             delegate.processFinishPostProgram(result.response, POST_PROGRAM, error, errorMessage);
         } else if (requestType == POST_DELETEPROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);
-        } else if (requestType == REQUEST_SENSORDATALOG) {
-            delegate.processFinishObjectList(result.objectList, REQUEST_SENSORDATALOG, error, errorMessage);
+        } else if (requestType == REQUEST_SENSORDATALOG || requestType == REQUEST_SCENARIOS) {
+            delegate.processFinishObjectList(result.objectList, requestType, error, errorMessage);
         } else {
             delegate.processFinish(result.resultObject, requestType, error, errorMessage);
         }

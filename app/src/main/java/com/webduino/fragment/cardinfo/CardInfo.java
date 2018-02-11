@@ -18,6 +18,7 @@ public class CardInfo {
     //public static final int TYPE_HEATER = 4;
     public static final int TYPE_ACTIONBUTTON = 5;
     public static final int TYPE_HEATER = 6;
+    public static final int TYPE_SCENARIO = 7;
 
     public String label;
     public String name;

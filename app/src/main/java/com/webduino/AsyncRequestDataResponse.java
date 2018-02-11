@@ -24,3 +24,4 @@ public interface AsyncRequestDataResponse {
     void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage);
     void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage);
 }
+

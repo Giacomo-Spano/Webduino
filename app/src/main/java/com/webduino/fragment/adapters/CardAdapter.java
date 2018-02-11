@@ -182,6 +182,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             return (RecyclerView.ViewHolder) new CardViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
         } else if (viewType == CardInfo.TYPE_HEATER) {
             return (RecyclerView.ViewHolder) new HeaterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_heater, parent, false));
+        } else if (viewType == CardInfo.TYPE_SCENARIO) {
+            return (RecyclerView.ViewHolder) new ScenarioViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_heater, parent, false));
         }
 
         /*if (viewType == CardInfo.TYPE_TEMPERATURESENSOR) {
@@ -463,6 +465,76 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                     mCallback.onHeaterClick(id);
                 }
             });*/
+        }
+
+
+
+        public void updateCard(CardInfo ci) {
+            super.updateCard(ci);
+
+
+            if (ci.getEnabled()) {
+                targetTextView.setTextColor(ci.titleColor);
+            } else {
+                targetTextView.setTextColor(disabledColor);
+            }
+            targetTextView.setVisibility(visibility);
+            sensorTextView.setVisibility(visibility);
+            temperatureTextView.setVisibility(visibility);
+
+            HeaterCardInfo hci = (HeaterCardInfo) ci;
+            sensorTextView.setText(hci.zone);
+            temperatureTextView.setText(hci.temperature + " °C");
+
+        }
+
+        public void setVisibility(int visibility) {
+            this.visibility = visibility;
+        }
+    }
+
+    public class ScenarioViewHolder extends CardViewHolder {
+        protected TextView targetTextView;
+        protected int actuatorId;
+        protected double target;
+        protected int visibility;
+        protected TextView sensorTextView;
+        protected TextView temperatureTextView;
+
+        public Drawable getIcon(CardInfo ci) {
+            HeaterCardInfo hci = (HeaterCardInfo) ci;
+            if (hci.status.equals("keeptemperature")) {
+                return ci.imageDrawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.auto, null);
+            }
+
+            return ResourcesCompat.getDrawable(context.getResources(), R.drawable.heater, null);
+            //return ResourcesCompat.getDrawable(context.getResources(), R.drawable.temperature, null);
+        }
+
+        public String getStatusText(CardInfo ci) {
+            HeaterCardInfo hci = (HeaterCardInfo) ci;
+            if (hci.status.equals("keeptemperature")) {
+                return "keep " + hci.target + "°C";
+            } else if (hci.status.equals("manual")) {
+                return "manual " + hci.target + "°C";
+            } else if (hci.status.equals("manualoff")) {
+                return "manualoff ";
+            }
+            return hci.status;
+        }
+
+        public int getStatusColor(CardInfo ci) {
+            if (((HeaterCardInfo) ci).releStatus)
+                return Color.GREEN;
+            else
+                return Color.RED;
+        }
+
+        public ScenarioViewHolder(View v) {
+            super(v);
+            targetTextView = (TextView) v.findViewById(R.id.target);
+            sensorTextView = (TextView) v.findViewById(R.id.sensor);
+            temperatureTextView = (TextView) v.findViewById(R.id.temperature);
         }
 
         public void updateCard(CardInfo ci) {
