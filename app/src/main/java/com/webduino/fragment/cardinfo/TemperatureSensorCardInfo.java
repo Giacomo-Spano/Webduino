@@ -7,7 +7,7 @@ package com.webduino.fragment.cardinfo;
 public class TemperatureSensorCardInfo extends SensorCardInfo {
     public double temperature = 0.0;
     //public boolean online = false;
-    public int getSensorType() {
+    public int getType() {
         return TYPE_TEMPERATURESENSOR;
     }
 }

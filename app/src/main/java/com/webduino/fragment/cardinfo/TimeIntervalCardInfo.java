@@ -5,7 +5,8 @@ package com.webduino.fragment.cardinfo;
  */
 
 public class TimeIntervalCardInfo extends CardInfo {
-    //public double temperature = 0.0;
-    //public String label = 0.0;
 
+    public TimeIntervalCardInfo() {
+        type = TYPE_TIMEINTERVAL;
+    }
 }

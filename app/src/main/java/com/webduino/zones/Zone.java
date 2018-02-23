@@ -17,8 +17,8 @@ import java.util.List;
  */
 public class Zone {
 
-    private int id;
-    private String name;
+    public int id;
+    public String name;
     private String type;
     public List<ZoneSensor> zoneSensors = new ArrayList<>();
 

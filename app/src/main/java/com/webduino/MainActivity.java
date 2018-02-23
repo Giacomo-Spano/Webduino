@@ -42,17 +42,20 @@ import com.webduino.elements.HeaterActuator;
 import com.webduino.elements.NextProgram;
 import com.webduino.elements.NextPrograms;
 import com.webduino.elements.Program;
+import com.webduino.elements.ProgramActionType;
+import com.webduino.elements.ProgramActionTypes;
 import com.webduino.elements.Programs;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
+import com.webduino.elements.Trigger;
+import com.webduino.elements.Triggers;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.TimeIntervalFragment;
 import com.webduino.fragment.HistoryFragment;
 import com.webduino.fragment.NextProgramsFragment;
 import com.webduino.fragment.PanelFragment;
 import com.webduino.fragment.PrefsFragment;
-import com.webduino.fragment.ProgramFragment;
-import com.webduino.fragment.ProgramsListFragment;
+//import com.webduino.fragment.ProgramFragment;
 import com.webduino.fragment.ScenariosFragment;
 import com.webduino.fragment.SensorsFragment;
 import com.webduino.fragment.HeaterFragment;
@@ -72,7 +75,7 @@ import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, ProgramFragment.OnProgramUpdatedListener,
+        implements NavigationView.OnNavigationItemSelectedListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         HeaterFragment.OnHeaterUpdatedListener,
@@ -107,7 +110,7 @@ public class MainActivity extends AppCompatActivity
     PanelFragment panelFragment;
     SensorsFragment sensorsFragment;
     ScenariosFragment scenariosFragment;
-    ProgramsListFragment programsFragment;
+    //ProgramsListFragment programsFragment;
 
     NextProgramsFragment nextProgramFragment;
     HistoryFragment historyFragment;
@@ -117,6 +120,14 @@ public class MainActivity extends AppCompatActivity
 
     private MyReceiver myReceiver;
     private IntentFilter intentFilter;
+
+    /*private static MainActivity instance;
+    public static Context getContext() {
+        if (instance != null)
+            return instance.getApplicationContext();
+        else
+            return null;
+    }*/
 
     private class MyReceiver extends BroadcastReceiver {
         @Override
@@ -238,12 +249,14 @@ public class MainActivity extends AppCompatActivity
         panelFragment = new PanelFragment();
         sensorsFragment = new SensorsFragment();
         scenariosFragment = new ScenariosFragment();
-        programsFragment = new ProgramsListFragment();
+        //programsFragment = new ProgramsListFragment();
         nextProgramFragment = new NextProgramsFragment();
         historyFragment = new HistoryFragment();
         preferencesFragment = new PrefsFragment();
 
         showFragment(sensorsFragment);
+        getTriggers();
+        getActionTypes();
         refreshData();
         getScenarioData();
 
@@ -365,10 +378,10 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_settings) {
             return true;
         } else if (id == R.id.action_create_program) {
-            programsFragment.createProgram();
+            //programsFragment.createProgram();
             return true;
         } else if (id == R.id.action_delete_program) {
-            programsFragment.deleteProgram();
+            //programsFragment.deleteProgram();
             return true;
         } else if (id == R.id.action_get_location) {
             getLocation();
@@ -446,8 +459,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void showPrograms() {
-        getProgramData();
-        showFragment(programsFragment);
+        //getProgramData();
+        //showFragment(programsFragment);
     }
 
     public void showSchedule() {
@@ -462,11 +475,39 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void getSensorData() {
-        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORS).execute();
+        //new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORS).execute();
+
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
+
+            @Override
+            public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
+                if (error)
+                    return;
+                Sensors.list.clear();
+                for (Object sensor : list) {
+                    Sensors.add((Sensor) sensor);
+                }
+                sensorsFragment.update();
+            }
+        }, requestDataTask.REQUEST_SENSORS).execute();
+
     }
 
     public void getZoneData() {
         new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_ZONES).execute();
+
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
+
+            @Override
+            public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
+                if (error)
+                    return;
+                Zones.list.clear();
+                for (Object zone : list) {
+                    Zones.add((Zone) zone);
+                }
+            }
+        }, requestDataTask.REQUEST_ZONES).execute();
     }
 
     public void getScenarioData() {
@@ -484,8 +525,35 @@ public class MainActivity extends AppCompatActivity
         }, requestDataTask.REQUEST_SCENARIOS).execute();
     }
 
-    public void getProgramData() {
-        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_PROGRAMS).execute();
+
+    public void getActionTypes() {
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
+
+            @Override
+            public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
+                if (error)
+                    return;
+                ProgramActionTypes.list.clear();
+                for (Object actionType : list) {
+                    ProgramActionTypes.add((ProgramActionType) actionType);
+                }
+            }
+        }, requestDataTask.REQUEST_ACTIONTYPES).execute();
+    }
+
+    public void getTriggers() {
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
+
+            @Override
+            public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
+                if (error)
+                    return;
+                Triggers.list.clear();
+                for (Object trigger : list) {
+                    Triggers.add((Trigger) trigger);
+                }
+            }
+        }, requestDataTask.REQUEST_TRIGGERS).execute();
     }
 
     public void getNextProgramData() {
@@ -523,73 +591,6 @@ public class MainActivity extends AppCompatActivity
             }
 
             @Override
-            public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
-
-                if (error)
-                    return;
-                Sensors.list.clear();
-                for (Sensor sensor : sensors) {
-                    Sensors.add(sensor);
-                }
-                sensorsFragment.update();
-            }
-
-            @Override
-            public void processFinishZones(List<Zone> zones, boolean error, String errorMessage) {
-
-                if (error)
-                    return;
-                Zones.list.clear();
-                for (Zone zone : zones) {
-                    Zones.add(zone);
-                }
-                //sensorsFragment.update();
-            }
-
-            @Override
-            public void processFinishScenarios(List<Scenario> scenarios, boolean error, String errorMessage) {
-
-                if (error)
-                    return;
-                Scenarios.list.clear();
-                for (Scenario scenario : scenarios) {
-                    Scenarios.add(scenario);
-                }
-                //sensorsFragment.update();
-            }
-
-            @Override
-            public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
-
-                if (error)
-                    return;
-                Actuators.list.clear();
-                for (Actuator actuator : actuators) {
-                    Actuators.add(actuator);
-                }
-                sensorsFragment.update();
-            }
-
-            @Override
-            public void processFinishPrograms(List<Object> programs, int requestType, boolean error, String errorMessage) {
-                if (error)
-                    return;
-                if (requestType == requestDataTask.REQUEST_PROGRAMS) {
-                    Programs.list.clear();
-                    for (Object program : programs) {
-                        Programs.add((Program) program);
-                    }
-                    programsFragment.update();
-
-                } else if (requestType == requestDataTask.REQUEST_NEXTPROGRAMS) {
-                    NextPrograms.list.clear();
-                    for (Object nextProgram : programs) {
-                        NextPrograms.add((NextProgram) nextProgram);
-                    }
-                    nextProgramFragment.update();
-                }
-            }
-            @Override
             public void processFinishObjectList(List<Object> objectList, int requestType, boolean error, String errorMessage) {
                 if (requestType == requestDataTask.REQUEST_SENSORDATALOG) {
                     List<HistoryData> list = new ArrayList<>();
@@ -610,19 +611,8 @@ public class MainActivity extends AppCompatActivity
         Actuators.update(heaterActuator);
     }
 
-    @Override
-    public void OnProgramUpdated() {
-        getProgramData(); // questo serve a fare il refresh dei dati
-        showFragment(programsFragment);
-    }
 
-    @Override
-    public void OnProgramDeleted(int programId) {
 
-        getProgramData();
-        Programs.delete(programId);
-        showFragment(programsFragment);
-    }
 
     // geofence
     @Override

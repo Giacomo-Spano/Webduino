@@ -5,8 +5,8 @@ package com.webduino.fragment.cardinfo;
  */
 
 public class TriggerCardInfo extends CardInfo {
-    public int id;
-    public String name;
-    boolean enabled;
 
+    public TriggerCardInfo() {
+        type = TYPE_TIMEINTERVAL;
+    }
 }

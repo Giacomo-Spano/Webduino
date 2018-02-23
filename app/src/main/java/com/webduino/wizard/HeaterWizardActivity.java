@@ -127,26 +127,6 @@ public class HeaterWizardActivity extends WizardActivity implements AsyncRequest
     }
 
     @Override
-    public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
-
-    }
-
-    @Override
-    public void processFinishZones(List<Zone> sensors, boolean error, String errorMessage) {
-
-    }
-
-    @Override
-    public void processFinishScenarios(List<Scenario> sensors, boolean error, String errorMessage) {
-
-    }
-
-    @Override
-    public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
-
-    }
-
-    @Override
     public void processFinishSendCommand(String response, boolean error, String errorMessage) {
 
 
@@ -165,11 +145,6 @@ public class HeaterWizardActivity extends WizardActivity implements AsyncRequest
             setResult(RESULT_CANCELED);
             finish();     //Terminate the wizard
         }
-    }
-
-    @Override
-    public void processFinishPrograms(List<Object> programs, int requestType, boolean error, String errorMessage) {
-
     }
 
     @Override

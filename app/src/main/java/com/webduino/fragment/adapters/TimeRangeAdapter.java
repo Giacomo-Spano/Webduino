@@ -84,8 +84,7 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 TimeRangeViewHolder timeRangeViewHolder = (TimeRangeViewHolder) viewHolder;
                 TimeRangeCardInfo pci = (TimeRangeCardInfo) ci;
 
-                timeRangeViewHolder.timeRange = pci.timeRange;
-                //timeRangeViewHolder.title.setText(pci.name);
+                //timeRangeViewHolder.timeRange = pci.timeRange;
                 timeRangeViewHolder.update();
                 break;
         }
@@ -108,7 +107,7 @@ public class TimeRangeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (viewType == TYPE_TIMERANGE) {
-            return (RecyclerView.ViewHolder) new TimeRangeViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_timerange, parent, false));
+            return (RecyclerView.ViewHolder) new TimeRangeViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_wizardtimerange, parent, false));
         } /*else if (viewType == TYPE_HEATER) {
             return (RecyclerView.ViewHolder) new HeaterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_heater, parent, false));
         }*/

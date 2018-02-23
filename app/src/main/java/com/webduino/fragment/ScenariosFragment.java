@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import com.webduino.R;
 import com.webduino.elements.HeaterActuator;
 import com.webduino.fragment.adapters.CardAdapter;
+import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.HeaterCardInfo;
 import com.webduino.fragment.cardinfo.ScenarioCardInfo;
@@ -26,8 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScenariosFragment extends Fragment implements CardAdapter.OnListener {
-
-    public static final int HEATERWIZARD_REQUEST = 1;  // The request code
 
     private List<CardInfo> list;
     private CardAdapter cardAdapter;
@@ -63,7 +62,6 @@ public class ScenariosFragment extends Fragment implements CardAdapter.OnListene
         cardAdapter.swap(list);
 
         if (scenarioFragment != null) {
-
             //scenarioFragment.refreshData();
         }
     }
@@ -74,11 +72,19 @@ public class ScenariosFragment extends Fragment implements CardAdapter.OnListene
 
         for (Scenario scenario : Scenarios.list) {
             try {
-                CardInfo ci = scenario.getCardInfo(this);
+                CardInfo ci = scenario.getCardInfo();
                 result.add(ci);
             } catch (Exception e) {
             }
         }
+        CardInfo addButton = new ActionButtonCardInfo();
+        addButton.id = 1;
+        addButton.name = "Aggiungi Scenario";
+        addButton.label = " ";
+        addButton.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.power, null);
+        addButton.setColor(Color.BLUE);
+        result.add(addButton);
+
         return result;
     }
 
@@ -87,18 +93,32 @@ public class ScenariosFragment extends Fragment implements CardAdapter.OnListene
 
         if (cardInfo instanceof ScenarioCardInfo) {
 
-            ScenarioCardInfo scenarioCerdInfo = (ScenarioCardInfo) cardInfo;
-            Bundle bundle = new Bundle();
-            bundle.putString("id", "" + scenarioCerdInfo.id);
+            ScenarioCardInfo scenarioCardInfordInfo = (ScenarioCardInfo) cardInfo;
+            showScenarioFragment(scenarioCardInfordInfo);
 
-            scenarioFragment = new ScenarioFragment();
+        } else if (cardInfo instanceof ActionButtonCardInfo) {
 
-            scenarioFragment.setArguments(bundle);
-            FragmentManager fragmentManager = getFragmentManager();
-            FragmentTransaction ft = fragmentManager.beginTransaction();
-            ft.replace(R.id.content_frame, (Fragment ) scenarioFragment);
-            ft.addToBackStack(null);
-            ft.commit();
+            ScenarioCardInfo scenarioCardInfordInfo = new ScenarioCardInfo();
+            showScenarioFragment(scenarioCardInfordInfo);
         }
+    }
+
+    private void showScenarioFragment(ScenarioCardInfo scenarioCardInfo) {
+        Bundle bundle = new Bundle();
+        bundle.putString("id", "" + scenarioCardInfo.id);
+        scenarioFragment = new ScenarioFragment();
+        scenarioFragment.setListener(new ScenarioFragment.OnScenarioFragmentInteractionListener() {
+            @Override
+            public void onSaveTimeInterval(Scenario scenario) {
+
+            }
+        });
+
+        scenarioFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        ft.replace(R.id.content_frame, (Fragment) scenarioFragment);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 }

@@ -8,9 +8,12 @@ import com.webduino.elements.HeaterActuator;
 
 public class ScenarioCardInfo extends CardInfo {
 
-    public String status = "---";
-    public double target = 0.0;
-    public double temperature = 0.0;
-    public boolean releStatus;
+
     public String zone = "";
+
+
+    public ScenarioCardInfo() {
+        type = TYPE_SCENARIO;
+        //online = true; // sempre online altrimentio diventa grigio
+    }
 }

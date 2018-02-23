@@ -2,6 +2,8 @@ package com.webduino.fragment;
 
 import android.os.Bundle;
 import android.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,17 +13,27 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.webduino.R;
+import com.webduino.fragment.adapters.CardAdapter;
+import com.webduino.fragment.cardinfo.CardInfo;
+import com.webduino.fragment.cardinfo.OptionCardInfo;
+import com.webduino.fragment.cardinfo.optioncardvalue.BooleanOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.DateOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.IntegerOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.MultiChoiceOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
 import com.webduino.scenarios.ScenarioTimeInterval;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class TimeIntervalFragment extends Fragment {
 
     ScenarioTimeInterval timeInterval = new ScenarioTimeInterval();
-    EditText startdate, enddate;
-    CheckBox cbenabled,cbsunday,cbmonday,cbtuesday,cbwednesday,cbthursday,cbfriday,cbsaturday;
-    TextView tvname, tvdescription;
+    private CardAdapter optionsAdapter;
+    OptionCardInfo optionCard_Name, optionCard_Description, optionCard_Enabled, optionCard_StartDate, optionCard_EndDate, optionCard_daysofweek;
 
     private OnTimeIntervalFragmentInteractionListener mListener;
 
@@ -41,80 +53,45 @@ public class TimeIntervalFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_timeinterval, container, false);
 
-        tvname = view.findViewById(R.id.nameEditText);
-        tvname.setText(timeInterval.name);
-        tvdescription = view.findViewById(R.id.descriptionEditText);
-        tvdescription.setText(timeInterval.description);
-
-        cbenabled = view.findViewById(R.id.enabledCheckBox);
-        cbenabled.setChecked(timeInterval.enabled);
-
-        cbsunday = view.findViewById(R.id.sunday);
-        cbsunday.setChecked(timeInterval.enabled);
-        cbmonday = view.findViewById(R.id.monday);
-        cbmonday.setChecked(timeInterval.monday);
-        cbtuesday = view.findViewById(R.id.tuesday);
-        cbtuesday.setChecked(timeInterval.tuesday);
-        cbwednesday = view.findViewById(R.id.wednesday);
-        cbwednesday.setChecked(timeInterval.wednesday);
-        cbthursday = view.findViewById(R.id.thursday);
-        cbthursday.setChecked(timeInterval.thursday);
-        cbfriday = view.findViewById(R.id.friday);
-        cbfriday.setChecked(timeInterval.friday);
-        cbsaturday = view.findViewById(R.id.saturday);
-        cbsaturday.setChecked(timeInterval.saturday);
-
-        startdate = (EditText) view.findViewById(R.id.startdate);
-        startdate.setKeyListener(null);
-        startdate.setOnClickListener(new View.OnClickListener() {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        RecyclerView optionList = (RecyclerView) view.findViewById(R.id.optionList);
+        optionList.setHasFixedSize(true);
+        optionList.setLayoutManager(linearLayoutManager);
+        optionsAdapter = new CardAdapter(this, createOptionList());
+        optionList.setAdapter(optionsAdapter);
+        optionsAdapter.setListener(new CardAdapter.OnListener() {
             @Override
-            public void onClick(View view) {
-                showStartDateTimePickerDialog(timeInterval.startDateTime);
-            }
-        });
-        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        startdate.setText(df.format(timeInterval.startDateTime));
-
-        startdate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus)
-                    showStartDateTimePickerDialog(timeInterval.startDateTime);
+            public void onClick(int position, CardInfo cardInfo) {
+                OptionCardInfo optionCardInfo = (OptionCardInfo) cardInfo;
+                optionCardInfo.value.setListener(new OptionCardValue.OptionCardListener() {
+                    @Override
+                    public void onSetValue(Object value) {
+                        optionsAdapter.notifyDataSetChanged();
+                    }
+                });
+                optionCardInfo.value.showPicker();
             }
         });
 
-        enddate = (EditText) view.findViewById(R.id.enddate);
-        enddate.setKeyListener(null);
-        enddate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showEndDateTimePickerDialog(timeInterval.endDateTime);
-            }
-        });
-        enddate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus)
-                    showEndDateTimePickerDialog(timeInterval.endDateTime);
-            }
-        });
-        enddate.setText(df.format(timeInterval.endDateTime));
 
         ImageButton okbutton = view.findViewById(R.id.confirmButton);
         okbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                timeInterval.name = tvname.getText().toString();
-                timeInterval.description = tvdescription.getText().toString();
-                timeInterval.enabled = cbenabled.isChecked();
-                timeInterval.sunday = cbsunday.isChecked();
-                timeInterval.monday = cbmonday.isChecked();
-                timeInterval.tuesday = cbtuesday.isChecked();
-                timeInterval.wednesday = cbwednesday.isChecked();
-                timeInterval.thursday = cbthursday.isChecked();
-                timeInterval.friday = cbfriday.isChecked();
-                timeInterval.saturday = cbsaturday.isChecked();
+                timeInterval.name = optionCard_Name.value.getStringValue();
+                timeInterval.description = optionCard_Description.value.getStringValue();
+                Object val = optionCard_Enabled.value;
+                timeInterval.enabled = optionCard_Enabled.value.getBoolValue();
+
+                MultiChoiceOptionCardValue multichioce = (MultiChoiceOptionCardValue)optionCard_daysofweek.value;
+                timeInterval.monday = multichioce.getValue(0);
+                timeInterval.tuesday = multichioce.getValue(1);
+                timeInterval.wednesday = multichioce.getValue(2);
+                timeInterval.thursday = multichioce.getValue(3);
+                timeInterval.friday = multichioce.getValue(4);
+                timeInterval.saturday = multichioce.getValue(5);
+                timeInterval.sunday = multichioce.getValue(6);
 
                 if (mListener != null) {
                     mListener.onSaveTimeInterval(timeInterval);
@@ -155,38 +132,41 @@ public class TimeIntervalFragment extends Fragment {
         void onSaveTimeInterval(ScenarioTimeInterval timeInterval);
     }
 
-    public void showStartDateTimePickerDialog(Date datetime) {
-        DatePickerFragment dateFragment= new DatePickerFragment();
-        dateFragment.setDate(datetime);
-        dateFragment.setListener(new DatePickerFragment.DataPickerListener() {
-            @Override
-            public void setDate(Date date) {
-                timeInterval.startDateTime.setTime(date.getTime());
-                SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-                startdate.setText(df.format(date));
-            }
-            @Override
-            public void cancel() {
+    public List<CardInfo> createOptionList() {
+        List<CardInfo> result = new ArrayList<CardInfo>();
 
-            }
-        });
-        dateFragment.show(getFragmentManager(), "Data inizio");
-    }
-    public void showEndDateTimePickerDialog(Date datetime) {
-        DatePickerFragment dateFragment= new DatePickerFragment();
-        dateFragment.setDate(datetime);
-        dateFragment.setListener(new DatePickerFragment.DataPickerListener() {
-            @Override
-            public void setDate(Date date) {
-                timeInterval.endDateTime.setTime(date.getTime());
-                SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-                startdate.setText(df.format(date));
-            }
-            @Override
-            public void cancel() {
+        optionCard_Enabled = new OptionCardInfo();
+        optionCard_Enabled.value = new BooleanOptionCardValue("Stato",timeInterval.enabled,"Abilitato","Disabilitato");
+        result.add(optionCard_Enabled);
 
-            }
-        });
-        dateFragment.show(getFragmentManager(), "Data fine");
+        optionCard_Name = new OptionCardInfo();
+        optionCard_Name.value = new StringOptionCardValue("Nome",timeInterval.name);
+        result.add(optionCard_Name);
+
+        optionCard_Description = new OptionCardInfo();
+        optionCard_Description.value = new StringOptionCardValue("Descrizione",timeInterval.description);
+        result.add(optionCard_Description);
+
+        optionCard_StartDate = new OptionCardInfo();
+        optionCard_StartDate.value = new DateOptionCardValue("Data inizio",timeInterval.startDateTime);
+        result.add(optionCard_StartDate);
+
+        optionCard_EndDate = new OptionCardInfo();
+        optionCard_EndDate.value = new DateOptionCardValue("Data fine",timeInterval.endDateTime);
+        result.add(optionCard_EndDate);
+
+        CharSequence[] items = {
+                "Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"
+        };
+        boolean[] itemValues = {
+                timeInterval.monday, timeInterval.tuesday, timeInterval.wednesday, timeInterval.thursday, timeInterval.friday, timeInterval.saturday, timeInterval.sunday
+        };
+        optionCard_daysofweek = new OptionCardInfo();
+        optionCard_daysofweek.value = new MultiChoiceOptionCardValue("Giorni della settimana",items,itemValues);
+        result.add(optionCard_daysofweek);
+
+        return result;
     }
+
+
 }

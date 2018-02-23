@@ -23,16 +23,18 @@
 
 
         <ImageView
+            android:id="@+id/image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            card_view:srcCompat="@drawable/temperature"
-            android:layout_below="@+id/titleEditText"
+            android:layout_alignParentLeft="false"
             android:layout_alignParentStart="false"
+            android:layout_below="@+id/titleEditText"
             android:layout_centerHorizontal="true"
-            android:id="@+id/image"
+            android:gravity="center_vertical"
             android:paddingBottom="3dp"
-            android:paddingTop="3dp" />
+            android:paddingTop="3dp"
+            android:src="@drawable/opendoor"
+            card_view:srcCompat="@drawable/opendoor" />
 
 
         <TextView
@@ -54,8 +56,8 @@
             android:text="--.-"
             android:textSize="@dimen/temperaturebutton_temperature_textsize"
             android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/image"
             android:layout_toEndOf="@+id/image" />
-
 
     </RelativeLayout>
 

@@ -1,0 +1,155 @@
+package com.webduino.fragment;
+
+import android.app.Fragment;
+import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.ImageButton;
+import android.widget.Spinner;
+
+import com.webduino.R;
+import com.webduino.elements.Trigger;
+import com.webduino.elements.Triggers;
+import com.webduino.fragment.adapters.CardAdapter;
+import com.webduino.fragment.cardinfo.CardInfo;
+import com.webduino.fragment.cardinfo.OptionCardInfo;
+import com.webduino.fragment.cardinfo.optioncardvalue.BooleanOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.DateOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.IntegerOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.ListOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.MultiChoiceOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
+import com.webduino.scenarios.ScenarioTimeInterval;
+import com.webduino.scenarios.ScenarioTrigger;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+public class TriggerFragment extends Fragment {
+
+    ScenarioTrigger trigger = new ScenarioTrigger();
+    private CardAdapter optionsAdapter;
+    OptionCardInfo optionCard_Enabled, optionCard_TriggerId, optionCard_Priority;
+
+    private OnTriggerFragmentInteractionListener mListener;
+
+    public TriggerFragment() {
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_trigger, container, false);
+
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        RecyclerView optionList = (RecyclerView) view.findViewById(R.id.optionList);
+        optionList.setHasFixedSize(true);
+        optionList.setLayoutManager(linearLayoutManager);
+        optionsAdapter = new CardAdapter(this, createOptionList());
+        optionList.setAdapter(optionsAdapter);
+        optionsAdapter.setListener(new CardAdapter.OnListener() {
+            @Override
+            public void onClick(int position, CardInfo cardInfo) {
+                OptionCardInfo optionCardInfo = (OptionCardInfo) cardInfo;
+                optionCardInfo.value.setListener(new OptionCardValue.OptionCardListener() {
+                    @Override
+                    public void onSetValue(Object value) {
+                        optionsAdapter.notifyDataSetChanged();
+                    }
+                });
+                optionCardInfo.value.showPicker();
+            }
+        });
+
+
+
+        ImageButton okbutton = view.findViewById(R.id.confirmButton);
+        okbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                trigger.triggerid = optionCard_TriggerId.value.getIntValue();
+                trigger.priority = optionCard_Priority.value.getIntValue();
+                trigger.enabled = optionCard_Enabled.value.getBoolValue();
+
+                if (mListener != null) {
+                    mListener.onSaveTrigger(trigger);
+                }
+                getActivity().getFragmentManager().popBackStack();
+            }
+        });
+
+        ImageButton cancelbutton = view.findViewById(R.id.cancelButton);
+        cancelbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getFragmentManager().popBackStack();
+            }
+        });
+
+        return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    void addListener(OnTriggerFragmentInteractionListener listener) {
+        mListener = listener;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    public interface OnTriggerFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onSaveTrigger(ScenarioTrigger trigger);
+    }
+
+    public List<CardInfo> createOptionList() {
+        List<CardInfo> result = new ArrayList<CardInfo>();
+
+        optionCard_Enabled = new OptionCardInfo();
+        optionCard_Enabled.value = new BooleanOptionCardValue("Stato",trigger.enabled,"Abilitato","Disabilitato");
+        result.add(optionCard_Enabled);
+
+        optionCard_Priority = new OptionCardInfo();
+        optionCard_Priority.value = new IntegerOptionCardValue("Priorità",trigger.priority);
+        result.add(optionCard_Priority);
+
+        CharSequence[] items = new CharSequence[Triggers.list.size()];
+        int[] itemValues = new int[Triggers.list.size()];
+        int i = 0;
+        for (Trigger trigger: Triggers.list) {
+            items[i] = trigger.name;
+            itemValues[i] = trigger.id;
+            i++;
+        }
+        optionCard_TriggerId = new OptionCardInfo();
+        optionCard_TriggerId.value = new ListOptionCardValue("Trigger",trigger.triggerid, items, itemValues);
+        result.add(optionCard_TriggerId);
+
+        return result;
+    }
+}

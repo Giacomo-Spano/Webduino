@@ -65,4 +65,12 @@ public class ScenarioProgram {
             }
         }
     }
+
+    public ScenarioProgramTimeRange getTimeRangeFromId(int id) {
+        for (ScenarioProgramTimeRange timeRange:timeRanges) {
+            if (timeRange.id == id)
+                return timeRange;
+        }
+        return null;
+    }
 }

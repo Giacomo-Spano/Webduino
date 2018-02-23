@@ -24,15 +24,17 @@ import java.util.List;
 public class Scenario {
 
     public int id;
-    public boolean active = false;
+
+    public boolean enabled = false;
     public String name = "";
     public String description = "";
+    public Date startDate, endDate;
     public ScenarioCalendar calendar = new ScenarioCalendar();
     public List<ScenarioTrigger> triggers = new ArrayList<>();
     public List<ScenarioProgram> programs = new ArrayList<>();
     public int priority = 0;
-    //public boolean dateEnabled = true;
-    public boolean enabled = false;
+
+    public boolean status = false;
 
 
     public void fromJson(JSONObject jObject) {
@@ -44,6 +46,26 @@ public class Scenario {
                 name = jObject.getString("name");
             if (jObject.has("description"))
                 description = jObject.getString("description");
+
+            if (jObject.has("startdate")) {
+                String time = jObject.getString("startdate");
+                SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                try {
+                    startDate = df.parse(time);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (jObject.has("enddate")) {
+                String time = jObject.getString("enddate");
+                SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+                try {
+                    endDate = df.parse(time);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
 
             if (jObject.has("calendar")) {
                 JSONObject calendarjson = jObject.getJSONObject("calendar");
@@ -85,25 +107,44 @@ public class Scenario {
             if (jObject.has("enabled"))
                 enabled = jObject.getBoolean("enabled");
 
+            if (jObject.has("status"))
+                status = jObject.getBoolean("status");
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
+    public CardInfo getCardInfo() {
 
-    public CardInfo getCardInfo(Fragment context) {
-        return getCardInfo(context, null);
-    }
-
-    public CardInfo getCardInfo(Fragment context, CardInfo cardInfo) {
-
-        if (cardInfo == null)
-            cardInfo = new ScenarioCardInfo();
+        CardInfo cardInfo = new ScenarioCardInfo();
         cardInfo.id = id;
         cardInfo.name = name;
+        cardInfo.enabled = enabled;
+        if (status)
+            cardInfo.label = "Attivo";
+        else
+            cardInfo.label = "Non attivo";
+
         cardInfo.online = false;
         cardInfo.setEnabled(true);
 
         return cardInfo;
+    }
+
+    public ScenarioTrigger getTriggerFromId(int id) {
+        for (ScenarioTrigger trigger:triggers) {
+            if (trigger.id == id)
+                return trigger;
+        }
+        return null;
+    }
+
+    public ScenarioProgram getProgramFromId(int id) {
+        for (ScenarioProgram program:programs) {
+            if (program.id == id)
+                return program;
+        }
+        return null;
     }
 }

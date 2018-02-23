@@ -15,10 +15,15 @@ public class CardInfo {
     public static final int TYPE_TEMPERATURESENSOR = 1;
     public static final int TYPE_DOORSENSOR = 2;
     public static final int TYPE_ONEWIRESENSOR = 3;
-    //public static final int TYPE_HEATER = 4;
     public static final int TYPE_ACTIONBUTTON = 5;
     public static final int TYPE_HEATER = 6;
     public static final int TYPE_SCENARIO = 7;
+    public static final int TYPE_OPTION = 8;
+    public static final int TYPE_TIMEINTERVAL = 9;
+    public static final int TYPE_TRIGGER = 10;
+    public static final int TYPE_PROGRAM = 11;
+    public static final int TYPE_PROGRAMTIMERANGE = 12;
+    public static final int TYPE_PROGRAMACTION = 13;
 
     public String label;
     public String name;
@@ -28,15 +33,23 @@ public class CardInfo {
     public Drawable imageDrawable;
 
     public boolean online = false;
-    private boolean enabled;
+    public boolean enabled;
+
+    public boolean status = false;
 
     public int labelColor;
     public int labelBackgroundColor;
     public int titleColor;
     public int imageColor;
 
-    public int getSensorType() {
-        return TYPE_SENSOR;
+    protected int type;
+
+    public CardInfo() {
+        type = TYPE_SENSOR;
+    }
+
+    public int getType() {
+        return type;
     }
 
     public void setEnabled(boolean enabled) {

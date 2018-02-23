@@ -7,8 +7,8 @@ package com.webduino.fragment.cardinfo;
 public class DoorSensorCardInfo extends SensorCardInfo {
     public boolean openStatus;
 
-    public int getSensorType() {
-        return TYPE_DOORSENSOR;
+    public DoorSensorCardInfo() {
+        type = TYPE_DOORSENSOR;
     }
 
 }

@@ -7,7 +7,6 @@ import com.webduino.elements.HeaterActuator;
  */
 
 public class HeaterCardInfo extends SensorCardInfo {
-    //public int actuatorId;
 
     public String status = "---";
     public double target = 0.0;
@@ -21,15 +20,7 @@ public class HeaterCardInfo extends SensorCardInfo {
     public double sensorTemperature = 0.0;
     public String sensorName;
 
-    /*public void copyFrom(HeaterActuator actuator) {
-        status = actuator.getStatus();
-        target = actuator.getTarget();
-        releStatus = actuator.getReleStatus();
-        heater = actuator;
-    }*/
-
-
-    public int getSensorType() {
-        return TYPE_HEATER;
+    public HeaterCardInfo() {
+        type = TYPE_HEATER;
     }
 }

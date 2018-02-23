@@ -1,240 +1,250 @@
 package com.webduino.fragment;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.icu.text.SimpleDateFormat;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
-import com.webduino.MainActivity;
+import android.widget.ImageButton;
+
 import com.webduino.R;
-import com.webduino.WebduinoResponse;
-import com.webduino.elements.Program;
-import com.webduino.elements.Programs;
-import com.webduino.elements.TimeRange;
-import com.webduino.elements.requestDataTask;
-import com.webduino.wizard.ProgramWizardActivity;
+import com.webduino.fragment.adapters.CardAdapter;
+import com.webduino.fragment.adapters.SimpleItemTouchHelperCallback;
+import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
+import com.webduino.fragment.cardinfo.CardInfo;
+import com.webduino.fragment.cardinfo.OptionCardInfo;
+import com.webduino.fragment.cardinfo.TimeRangeCardInfo;
+import com.webduino.fragment.cardinfo.optioncardvalue.BooleanOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.IntegerOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.MultiChoiceOptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
+import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
+import com.webduino.scenarios.ScenarioProgram;
+import com.webduino.scenarios.ScenarioProgramTimeRange;
 
-import java.sql.Time;
+import java.util.ArrayList;
+import java.util.List;
 
-import static android.app.Activity.RESULT_OK;
+public class ProgramFragment extends Fragment implements ProgramTimeRangeFragment.OnProgramTimeRangeFragmentInteractionListener {
 
-/**
- * Created by Giacomo Spanò on 16/11/2016.
- */
+    ScenarioProgram program = new ScenarioProgram();
+    private CardAdapter programTimeRangeAdapter, optionsAdapter;
+    OptionCardInfo optionCard_Name, optionCard_Description, optionCard_daysofweek, optionCard_Priority, optionCard_Enabled;
 
-public class ProgramFragment extends Fragment implements View.OnClickListener {
+    private OnProgramFragmentInteractionListener mListener;
 
-    public static final int PROGRAMWIZARD_EDIT = 1;  // The request code
-    public static final int PROGRAMWIZARD_CREATE = 2;  // The request code
-
-    protected TextView textView;
-    protected Button editButton;
-    protected Program program = new Program();
-
-    public void deleteProgram() {
-        new requestDataTask(getActivity(), requestDataCallback(), requestDataTask.POST_DELETEPROGRAM).execute(program.id);
+    public ProgramFragment() {
     }
-
-
-    // Container Activity must implement this interface
-    public interface OnProgramUpdatedListener {
-        public void OnProgramUpdated();
-        public void OnProgramDeleted(int programId);
-    }
-
-    OnProgramUpdatedListener mListener;
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            mListener = (OnProgramUpdatedListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnProgramUpdatedListener");
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_program, container, false);
 
-        if (savedInstanceState != null) {
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        RecyclerView optionList = (RecyclerView) view.findViewById(R.id.optionList);
+        optionList.setHasFixedSize(false);
+        optionList.setLayoutManager(linearLayoutManager);
+        optionsAdapter = new CardAdapter(this, createOptionList());
+        optionList.setAdapter(optionsAdapter);
+        optionsAdapter.setListener(new CardAdapter.OnListener() {
+            @Override
+            public void onClick(int position, CardInfo cardInfo) {
+                OptionCardInfo optionCardInfo = (OptionCardInfo) cardInfo;
+                optionCardInfo.value.setListener(new OptionCardValue.OptionCardListener() {
+                    @Override
+                    public void onSetValue(Object value) {
+                        optionsAdapter.notifyDataSetChanged();
+                    }
+                });
+                optionCardInfo.value.showPicker();
+            }
+        });
 
-        }
+        linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        RecyclerView timerangeRecyclerView = (RecyclerView) view.findViewById(R.id.programList);
+        timerangeRecyclerView.setHasFixedSize(true);
+        timerangeRecyclerView.setLayoutManager(linearLayoutManager);
+        programTimeRangeAdapter = new CardAdapter(this, createProgramTimeRangeList());
+        timerangeRecyclerView.setAdapter(programTimeRangeAdapter);
+        programTimeRangeAdapter.setListener(new CardAdapter.OnListener() {
+            @Override
+            public void onClick(int position, CardInfo cardInfo) {
+                onProgramTimeRangeClick(position,cardInfo);
+            }
+        });
 
-        View v;
-        v = inflater.inflate(R.layout.fragment_program, container, false);
+        // questo serve per abilitare il drag and drop
+        ItemTouchHelper.Callback callback =
+                new SimpleItemTouchHelperCallback(programTimeRangeAdapter);
+        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+        touchHelper.attachToRecyclerView(timerangeRecyclerView);
 
-        textView = (TextView) v.findViewById(R.id.textView);
-        editButton = (Button) v.findViewById(R.id.editButton);
-        editButton.setOnClickListener(this);
 
-        int id = getArguments().getInt("programid");
-        if (id != -1) {
-            program = Programs.getFromId(id);
-            update();
-        } else {
-            /*program = new Program();
-            int newId = Programs.getMaxId();
-            program.id = newId+1;
-            TimeRange tr = new TimeRange();
-            tr.starTime = Time.valueOf("00:00:00");
-            tr.endTime = Time.valueOf("23:59:00");
-            tr.temperature = 15.0;
-            tr.name = "fascia1";
-            program.timeRanges.add(tr);
-            update();*/
-            startProgramWizard();
-        }
 
-        return v;
+        ImageButton okbutton = view.findViewById(R.id.confirmButton);
+        okbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                program.enabled = optionCard_Enabled.value.getBoolValue();
+                program.name = optionCard_Name.value.getStringValue();
+                program.description = optionCard_Name.value.getStringValue();
+                program.priority = optionCard_Name.value.getIntValue();
+                MultiChoiceOptionCardValue multichioce = (MultiChoiceOptionCardValue)optionCard_daysofweek.value;
+                program.monday = multichioce.getValue(0);
+                program.tuesday = multichioce.getValue(1);
+                program.wednesday = multichioce.getValue(2);
+                program.thursday = multichioce.getValue(3);
+                program.friday = multichioce.getValue(4);
+                program.saturday = multichioce.getValue(5);
+                program.sunday = multichioce.getValue(6);
+
+                if (mListener != null) {
+                    mListener.onSaveTrigger(program);
+
+                }
+                getActivity().getFragmentManager().popBackStack();
+            }
+        });
+
+        ImageButton cancelbutton = view.findViewById(R.id.cancelButton);
+        cancelbutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getFragmentManager().popBackStack();
+            }
+        });
+
+        return view;
     }
 
-    private void update() {
-        String str = "";
-        str += "id: " + program.id + "\n";
-        str += "name: " + program.name + "\n";
-
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        if (!program.active) {
-            str += "\nNon attivo";
-        } else if (program.dateEnabled ) {
-            str += "\nDa: " + sdf.format(program.startDate);
-            str += "\nA" + sdf.format(program.endDate);
-        } else {
-            str += "\nSempre attivo";
+    private List<CardInfo> createProgramTimeRangeList() {
+        List<CardInfo> result = new ArrayList<CardInfo>();
+        for(ScenarioProgramTimeRange timerange:program.timeRanges) {
+            TimeRangeCardInfo timerangecardinfo = new TimeRangeCardInfo();
+            timerangecardinfo.id = timerange.id;
+            timerangecardinfo.name = timerange.name;
+            timerangecardinfo.setEnabled(timerange.enabled);
+            timerangecardinfo.startTime = timerange.startTime;
+            timerangecardinfo.endTime = timerange.endTime;
+            result.add(timerangecardinfo);
         }
-
-        str += "date: " + program.dateEnabled + "\n";
-        if (program.Monday)
-            str += "L";
-        else
-            str += "-";
-        if (program.Tuesday)
-            str += "M";
-        else
-            str += "-";
-        if (program.Wednesday)
-            str += "M";
-        else
-            str += "-";
-        if (program.Thursday)
-            str += "G";
-        else
-            str += "-";
-        if (program.Friday)
-            str += "V";
-        else
-            str += "-";
-        if (program.Saturday)
-            str += "S";
-        else
-            str += "-";
-        if (program.Sunday)
-            str += "D";
-        else
-            str += "-";
-
-        SimpleDateFormat df = new SimpleDateFormat("HH:mm:00");
-        for (TimeRange timeRange : program.timeRanges) {
-            str += "\n DALLE " + df.format(timeRange.starTime);
-            str += " ALLE " + df.format(timeRange.endTime);
-            str += " - " + timeRange.name;
-            str += " " + timeRange.temperature + "°C";
-        }
-
-        textView.setText(str);
+        CardInfo addButton = new ActionButtonCardInfo();
+        addButton.id = 0;
+        addButton.name = "Aggiungi fascia oraria";
+        addButton.label = " ";
+        addButton.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.calendar, null);
+        addButton.setColor(Color.BLUE);
+        result.add(addButton);
+        return result;
     }
 
-    @Override
-    public void onClick(View v) {
-        startProgramWizard();
+    public List<CardInfo> createOptionList() {
+        List<CardInfo> result = new ArrayList<CardInfo>();
 
-    }
+        optionCard_Enabled = new OptionCardInfo();
+        optionCard_Enabled.value = new BooleanOptionCardValue("Stato",program.enabled,"Abilitato","Disabilitato");
+        result.add(optionCard_Enabled);
 
-    private void startProgramWizard() {
-        Intent intent = new Intent(getActivity(), ProgramWizardActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putInt("programid", program.id);
-        intent.putExtras(bundle);
-        startActivityForResult(intent, PROGRAMWIZARD_EDIT);
-    }
+        optionCard_Name = new OptionCardInfo();
+        optionCard_Name.value = new StringOptionCardValue("Nome",program.name);
+        result.add(optionCard_Name);
 
-    @Override
-    public void onStart() {
-        super.onStart();
+        optionCard_Description = new OptionCardInfo();
+        optionCard_Description.value = new StringOptionCardValue("Descrizione",program.description);
+        result.add(optionCard_Description);
+
+        optionCard_Priority = new OptionCardInfo();
+        optionCard_Priority.value = new IntegerOptionCardValue("Priorità",program.priority);
+        result.add(optionCard_Priority);
+
+        CharSequence[] items = {
+                "Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"
+        };
+        boolean[] itemValues = {
+                program.monday, program.tuesday, program.wednesday, program.thursday, program.friday, program.saturday, program.sunday
+        };
+        optionCard_daysofweek = new OptionCardInfo();
+        optionCard_daysofweek.value = new MultiChoiceOptionCardValue("Giorni della settimana",items,itemValues);
+        result.add(optionCard_daysofweek);
+
+
+
+        return result;
     }
 
     @Override
     public void onResume() {
         super.onResume();
+    }
 
-        enableMenuItem(true);
+    void addListener(OnProgramFragmentInteractionListener listener) {
+        mListener = listener;
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-
-        enableMenuItem(false);
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
+    public void onProgramTimeRangeClick(int position, CardInfo cardInfo) {
+        if (cardInfo instanceof TimeRangeCardInfo) {
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            TimeRangeCardInfo timeRangeCardInfo = (TimeRangeCardInfo) cardInfo;
+            showTimeRangeFragment(timeRangeCardInfo);
+        } else if (cardInfo instanceof ActionButtonCardInfo) {
 
-        // Check which request we're responding to
-        if (requestCode == PROGRAMWIZARD_EDIT || requestCode == PROGRAMWIZARD_CREATE) {
-            // Make sure the request was successful
-            if (resultCode == RESULT_OK) {
-                mListener.OnProgramUpdated();
-                //MainActivity a = (MainActivity) getActivity();
-                //a.getProgramData(); // questo serve a fare il refresh dei dati
-            }
+            TimeRangeCardInfo timeRangeCardInfo = new TimeRangeCardInfo();
+            showTimeRangeFragment(timeRangeCardInfo);
         }
     }
 
-    public void enableMenuItem(boolean enable) {
-        MainActivity ma = (MainActivity) getActivity();
-        ma.enableProgramFragmentMenuItem(enable);
+    private void showTimeRangeFragment(TimeRangeCardInfo timeRangeCardInfo) {
+        ProgramTimeRangeFragment programTimeRangeFragment = new ProgramTimeRangeFragment();
+        programTimeRangeFragment.addListener(this);
+        ScenarioProgramTimeRange timeRange = null;
+        if (timeRangeCardInfo.id == 0) {
+            try {
+                timeRange = new ScenarioProgramTimeRange();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            timeRange = program.getTimeRangeFromId(timeRangeCardInfo.id);
+        }
+        if (timeRange != null)
+            programTimeRangeFragment.timeRange = timeRange;
+
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        ft.replace(R.id.content_frame, (Fragment) programTimeRangeFragment);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
-    @NonNull
-    private WebduinoResponse requestDataCallback() {
-        return new WebduinoResponse() {
+    @Override
+    public void onSaveTrigger(ScenarioProgramTimeRange timeRange) {
 
-            @Override
-            public void processFinishPostProgram(boolean response, int requestType, boolean error, String errorMessage) {
-                if (!error && requestType == requestDataTask.POST_DELETEPROGRAM) {
+    }
 
-                    new AlertDialog.Builder(getContext())
-                            .setTitle("Cancellazione programma")
-                            .setMessage("Programma cancellato")
-                            .setCancelable(false)
-                            .setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // Whatever...
-                                    mListener.OnProgramDeleted(program.id);
-                                }
-                            }).show();
-
-                } else {
-                    /// aggiungere messaggio di errore
-                }
-            }
-        };
+    public interface OnProgramFragmentInteractionListener {
+        // TODO: Update argument type and name
+        void onSaveTrigger(ScenarioProgram trigger);
     }
 }

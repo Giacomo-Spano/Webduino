@@ -49,7 +49,7 @@ public class requestDataTask extends
     public static final int REQUEST_SENSORS = 3;
     //public static final int REQUEST_ACTUATORS = 4;
     public static final int REQUEST_SHIELD = 5;
-    public static final int REQUEST_PROGRAMS = 6;
+    //public static final int REQUEST_PROGRAMS = 6;
     public static final int REQUEST_NEXTPROGRAMS = 7;
     public static final int POST_ACTUATOR_COMMAND = 8;
     public static final int POST_PROGRAM = 9;
@@ -59,6 +59,8 @@ public class requestDataTask extends
     public static final int REQUEST_SCENARIOS = 13;
     public static final int REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS = 14;
     public static final int REQUEST_COMMANDDATALOG = 15;
+    public static final int REQUEST_TRIGGERS = 16;
+    public static final int REQUEST_ACTIONTYPES = 17;
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -72,12 +74,12 @@ public class requestDataTask extends
 
     protected class Result {
         public long shieldId;
-        public List<Sensor> sensors;
+        //public List<Sensor> sensors;
         public List<Actuator> actuators;
         public List<Shield> shields;
         public List<Object> programs;
         public List<Object> objectList;
-        public List<Zone> zones;
+        //public List<Zone> zones;
         public List<Scenario> scenarios;
         public Actuator actuator;
         public String resultString;
@@ -100,10 +102,11 @@ public class requestDataTask extends
         requestDataTask.Result result = null;
 
         if (requestType == REQUEST_REGISTERDEVICE || requestType == REQUEST_SENSORS
-                || requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS
+                || requestType == REQUEST_NEXTPROGRAMS
                 || requestType == REQUEST_ZONES || requestType == REQUEST_SCENARIOS
                 || requestType == REQUEST_SENSORDATALOG
-                || requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS || requestType == REQUEST_COMMANDDATALOG) {
+                || requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS || requestType == REQUEST_COMMANDDATALOG
+                || requestType == REQUEST_TRIGGERS || requestType == REQUEST_ACTIONTYPES) {
             result = performGetRequest(params);
             return result;
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM) {
@@ -149,10 +152,6 @@ public class requestDataTask extends
 
                 path = "/system?requestcommand=scenarios";
 
-            } else if (requestType == REQUEST_PROGRAMS) {
-
-                path = "/program?";
-
             } else if (requestType == REQUEST_NEXTPROGRAMS) {
 
                 path = "/program?next=true";
@@ -177,6 +176,14 @@ public class requestDataTask extends
                 path = "/system?requestcommand=commandlog";
                 int actuatorId = (int) params[0];
                 path += "&id=" + actuatorId;
+
+            } else if (requestType == REQUEST_TRIGGERS) {
+
+                path = "/system?requestcommand=triggers";
+
+            } else if (requestType == REQUEST_ACTIONTYPES) {
+
+                path = "/system?requestcommand=instructiontypes";
 
             }
 
@@ -203,7 +210,7 @@ public class requestDataTask extends
                     // TODO add favorites list
                 } else if (requestType == REQUEST_SENSORS) {
 
-                    List<Sensor> list = new ArrayList<Sensor>();
+                    List<Object> list = new ArrayList<Object>();
                     JSONArray jArray = new JSONArray(json);
                     SensorFactory factory = new SensorFactory();
                     for (int i = 0; i < jArray.length(); i++) {
@@ -212,10 +219,10 @@ public class requestDataTask extends
                         if (sensor != null)
                             list.add(sensor);
                     }
-                    result.sensors = list;
+                    result.objectList = list;
                 } else if (requestType == REQUEST_ZONES) {
 
-                    List<Zone> list = new ArrayList<Zone>();
+                    List<Object> list = new ArrayList<Object>();
                     JSONArray jArray = new JSONArray(json);
                     ZoneFactory factory = new ZoneFactory();
                     for (int i = 0; i < jArray.length(); i++) {
@@ -224,19 +231,7 @@ public class requestDataTask extends
                         if (zone != null)
                             list.add(zone);
                     }
-                    result.zones = list;
-                } else if (requestType == REQUEST_PROGRAMS) {
-
-                    List<Object> list = new ArrayList<Object>();
-                    JSONArray jArray = new JSONArray(json);
-                    for (int i = 0; i < jArray.length(); i++) {
-                        JSONObject jObject = jArray.getJSONObject(i);
-                        Object program = new Program();
-                        ((Program) program).fromJson(jObject);
-                        list.add(program);
-                    }
-                    result.programs = list;
-
+                    result.objectList = list;
                 } else if (requestType == REQUEST_SCENARIOS) {
 
                     List<Object> list = new ArrayList<Object>();
@@ -289,6 +284,36 @@ public class requestDataTask extends
                         list.add(data);
                     }
                     result.resultObject = list;
+                } else if (requestType == REQUEST_TRIGGERS) {
+
+                    List<Object> list = new ArrayList<Object>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        Object data = new Trigger();
+                        try {
+                            ((Trigger) data).fromJson(jObject);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        list.add(data);
+                    }
+                    result.objectList = list;
+                } else if (requestType == REQUEST_ACTIONTYPES) {
+
+                    List<Object> list = new ArrayList<Object>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        Object data = new ProgramActionType();
+                        try {
+                            ((ProgramActionType) data).fromJson(jObject);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        list.add(data);
+                    }
+                    result.objectList = list;
                 }
 
 
@@ -349,7 +374,7 @@ public class requestDataTask extends
             message = "Aggiornamnento";
         else if (requestType == REQUEST_SCENARIOS)
             message = "Aggiornamnento";
-        else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS)
+        else if (requestType == REQUEST_NEXTPROGRAMS)
             message = "Aggiornamnento";
         else if (requestType == REQUEST_SHIELD)
             message = "Aggiornamnento";
@@ -408,19 +433,14 @@ public class requestDataTask extends
 
         if (requestType == REQUEST_REGISTERDEVICE) {
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
-        } else if (requestType == REQUEST_SENSORS) {
-            delegate.processFinishSensors(result.sensors, error, errorMessage);
-        } else if (requestType == REQUEST_ZONES) {
-            delegate.processFinishZones(result.zones, error, errorMessage);
-        } else if (requestType == REQUEST_PROGRAMS || requestType == REQUEST_NEXTPROGRAMS) {
-            delegate.processFinishPrograms(result.programs, requestType, error, errorMessage);
         } else if (requestType == POST_ACTUATOR_COMMAND) {
             delegate.processFinishSendCommand(result.resultString, error, errorMessage);
         } else if (requestType == POST_PROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_PROGRAM, error, errorMessage);
         } else if (requestType == POST_DELETEPROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);
-        } else if (requestType == REQUEST_SENSORDATALOG || requestType == REQUEST_SCENARIOS) {
+        } else if (requestType == REQUEST_SENSORDATALOG || requestType == REQUEST_SCENARIOS || requestType == REQUEST_TRIGGERS
+                || requestType == REQUEST_ACTIONTYPES || requestType == REQUEST_ZONES || requestType == REQUEST_SENSORS) {
             delegate.processFinishObjectList(result.objectList, requestType, error, errorMessage);
         } else {
             delegate.processFinish(result.resultObject, requestType, error, errorMessage);

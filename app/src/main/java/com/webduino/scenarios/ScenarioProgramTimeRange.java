@@ -26,6 +26,8 @@ public class ScenarioProgramTimeRange {
 
     public List<ProgramAction> programActionList = new ArrayList<>();
 
+    public ScenarioProgramTimeRange() {
+    }
 
     public ScenarioProgramTimeRange(JSONObject json) throws Exception {
         fromJson(json);
@@ -73,5 +75,13 @@ public class ScenarioProgramTimeRange {
                 }
             }
         }
+    }
+
+    public ProgramAction getActionFromId(int id) {
+        for (ProgramAction action:programActionList) {
+            if (action.id == id)
+                return action;
+        }
+        return null;
     }
 }

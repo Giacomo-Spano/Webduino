@@ -81,28 +81,6 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
         }
     }
 
-
-
-
-    /*public void updateActuator(Actuator actuator) {
-
-        for (CardInfo ci : list) {
-
-            try {
-                HeaterCardInfo hci = (HeaterCardInfo) ci;
-                if (hci.actuatorId == actuator.getId()) {
-                    hci.copyFrom((HeaterActuator) actuator);
-                }
-                cardAdapter.swap(list);
-                return;
-            } catch (ClassCastException e) {
-
-            }
-        }
-
-
-    }*/
-
     public List<CardInfo> createSensorList() {
 
         List<CardInfo> result = new ArrayList<CardInfo>();
@@ -112,11 +90,6 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
             try {
                 CardInfo ci = sensor.getCardInfo(this);
                 result.add(ci);
-
-                /*for (Sensor child : sensor.childsensors) {
-                    CardInfo ci2 = child.getCardInfo(this);
-                    result.add(ci2);
-                }*/
             } catch (Exception e) {
 
             }

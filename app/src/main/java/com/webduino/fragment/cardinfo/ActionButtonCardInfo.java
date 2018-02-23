@@ -7,7 +7,8 @@ import android.graphics.LightingColorFilter;
  */
 
 public class ActionButtonCardInfo extends CardInfo {
-    //public double temperature = 0.0;
-    //public String label = 0.0;
+    public ActionButtonCardInfo() {
+        type = TYPE_ACTIONBUTTON;
+    }
 
 }

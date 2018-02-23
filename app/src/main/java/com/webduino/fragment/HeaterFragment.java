@@ -244,26 +244,6 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
             }
 
             @Override
-            public void processFinishSensors(List<Sensor> sensors, boolean error, String errorMessage) {
-            }
-
-            @Override
-            public void processFinishZones(List<Zone> zones, boolean error, String errorMessage) {
-            }
-
-            @Override
-            public void processFinishScenarios(List<Scenario> scenarios, boolean error, String errorMessage) {
-            }
-
-            @Override
-            public void processFinishActuators(List<Actuator> actuators, boolean error, String errorMessage) {
-            }
-
-            @Override
-            public void processFinishPrograms(List<Object> programs, int requestType, boolean error, String errorMessage) {
-            }
-
-            @Override
             public void processFinishObjectList(List<Object> objectList, int requestType, boolean error, String errorMessage) {
             }
 

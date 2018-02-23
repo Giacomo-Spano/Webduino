@@ -36,4 +36,11 @@
     <string name="geofence_too_many_geofences">geofence_too_many_geofences</string>
     <string name="geofence_too_many_pending_intents">geofence_too_many_pending_intents</string>
     <string name="unknown_geofence_error">unknown_geofence_error</string>
+
+    <string name="scenario_name">Nome</string>
+    <string name="scenario_desciption">Descrizione</string>
+    <string name="scenario_status">Stato</string>
+    <string name="scenario_startdate">Data inizio</string>
+    <string name="scenario_enddate">Data fine</string>
+    <string name="scenario_priority">Priorità</string>
 </resources>

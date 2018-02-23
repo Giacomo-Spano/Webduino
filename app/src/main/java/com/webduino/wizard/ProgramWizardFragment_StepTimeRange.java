@@ -94,9 +94,8 @@ public class ProgramWizardFragment_StepTimeRange extends Fragment implements Tim
 
     @NonNull
     private TimeRangeCardInfo timeRangeCardInfoFromTimeRange(TimeRange timeRange) {
-        //HeaterActuator heater = actuator;
         TimeRangeCardInfo ci = new TimeRangeCardInfo();
-        ci.timeRange = timeRange;
+        //ci.timeRange = timeRange;
         return ci;
     }
 

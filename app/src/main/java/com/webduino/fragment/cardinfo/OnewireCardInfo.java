@@ -7,7 +7,7 @@ package com.webduino.fragment.cardinfo;
 public class OnewireCardInfo extends SensorCardInfo {
     public boolean openStatus;
 
-    public int getSensorType() {
-        return TYPE_ONEWIRESENSOR;
+    public OnewireCardInfo() {
+        type = TYPE_ONEWIRESENSOR;
     }
 }

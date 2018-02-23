@@ -7,5 +7,7 @@ import com.webduino.elements.Program;
  */
 
 public class ProgramCardInfo extends CardInfo {
-    public Program program;
+    public ProgramCardInfo() {
+        type = TYPE_PROGRAM;
+    }
 }

@@ -2,6 +2,7 @@ package com.webduino.fragment.adapters;
 
 //import android.content.Context;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.LightingColorFilter;
 import android.graphics.PorterDuff;
@@ -15,25 +16,50 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.DoorSensorCardInfo;
 import com.webduino.fragment.cardinfo.HeaterCardInfo;
-import com.webduino.fragment.cardinfo.OnewireCardInfo;
+import com.webduino.fragment.cardinfo.OptionCardInfo;
 import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
+import com.webduino.fragment.cardinfo.TimeRangeCardInfo;
 
+import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by Giacomo Spanò on 17/12/2016.
  */
 
-public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ItemTouchHelperAdapter {
 
     private List<CardInfo> cardInfoList;
 
     OnListener mCallback;
+
+    @Override
+    public void onItemDismiss(int position) {
+        cardInfoList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(cardInfoList, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(cardInfoList, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+        //return true;
+    }
 
     public interface OnListener {
         //void onHeaterClick(int id);
@@ -52,6 +78,7 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         this.context = context;
     }
 
+
     public void swap(List list) {
         if (cardInfoList != null) {
             cardInfoList.clear();
@@ -61,6 +88,18 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
         notifyDataSetChanged();
     }
+
+    public void add(CardInfo cardInfo) {
+        if (cardInfoList != null) {
+            cardInfoList.add(cardInfo);
+            notifyDataSetChanged();
+        } /*else {
+            cardInfoList.add(cardInfo);
+        }*/
+
+    }
+
+
 
     public void setCardInfo(int position, CardInfo card) {
         if (position >= 0 && position < cardInfoList.size() && card != null)
@@ -98,123 +137,47 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         ((CardViewHolder) viewHolder).updateCard(ci);
 
-
-        /*if (viewHolder instanceof ActionButtonViewHolder) {
-
-            ActionButtonViewHolder actionButtonViewHolder = (ActionButtonViewHolder) viewHolder;
-            ActionButtonCardInfo abci = (ActionButtonCardInfo) ci;
-            actionButtonViewHolder.id = abci.id;
-            actionButtonViewHolder.updateCard(abci);
-
-        } else if (viewHolder instanceof HeaterViewHolder) {
-
-            HeaterViewHolder heaterViewHolder = (HeaterViewHolder) viewHolder;
-            HeaterCardInfo hci = (HeaterCardInfo) ci;
-            ci.label = hci.status;
-            if (hci.releStatus)
-                ci.labelBackgroundColor = Color.GREEN;
-            else
-                ci.labelBackgroundColor = Color.RED;
-            heaterViewHolder.id = hci.actuatorId;
-
-            if (hci.hideTarget) {
-                heaterViewHolder.setVisibility(View.GONE);
-            } else {
-                heaterViewHolder.setVisibility(View.VISIBLE);
-                heaterViewHolder.sensorTextView.setText(hci.sensorName);
-                heaterViewHolder.temperatureTextView.setText(""+hci.sensorTemperature+"°C");
-                heaterViewHolder.targetTextView.setText(""+hci.target+"°C");
-            }
-
-            heaterViewHolder.updateCard(ci);
-
-        } else if (viewHolder instanceof TemperatureSensorViewHolder) {
-
-            TemperatureSensorViewHolder temperatureSensorViewHolder = (TemperatureSensorViewHolder) viewHolder;
-            TemperatureSensorCardInfo tci = (TemperatureSensorCardInfo) ci;
-
-
-
-            if (tci.online) {
-                tci.label = "Online";
-            } else {
-                tci.label = "Offline";
-            }
-            temperatureSensorViewHolder.temperature = tci.temperature;
-            temperatureSensorViewHolder.id = tci.id;
-
-            temperatureSensorViewHolder.updateCard(ci);
-        }*/
     }
 
     @Override
     public int getItemViewType(int position) {
-
-        return cardInfoList.get(position).getSensorType();
-
-        /*if (cardInfoList.get(position) instanceof HeaterCardInfo)
-            return TYPE_HEATER;
-        else if (cardInfoList.get(position) instanceof TemperatureSensorCardInfo)
-            return TYPE_TEMPERATURESENSOR;
-        else if (cardInfoList.get(position) instanceof DoorSensorCardInfo)
-            return TYPE_DOORSENSOR;
-        else if (cardInfoList.get(position) instanceof ActionButtonCardInfo)
-            return TYPE_ACTIONBUTTON;*/
-
-        // here your custom logic to choose the view type
-        //return position == 0 ? TYPE_HEATER : TYPE_TEMPERATURESENSOR;
-        //return 0;
+        return cardInfoList.get(position).getType();
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        //CardInfoFactory factory = new CardInfoFactory();
-        //RecyclerView.ViewHolder viewHolder = factory.createCardInfo(parent, viewType);
+        Context context = MainActivity.activity.getApplicationContext();
 
         if (viewType == CardInfo.TYPE_TEMPERATURESENSOR) {
-            return (RecyclerView.ViewHolder) new CardAdapter.TemperatureSensorViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_temperature, parent, false));
+            return (RecyclerView.ViewHolder) new CardAdapter.TemperatureSensorViewHolder(LayoutInflater.from(context).inflate(R.layout.card_temperature, parent, false));
         } else if (viewType == CardInfo.TYPE_DOORSENSOR) {
-            return (RecyclerView.ViewHolder) new DoorSensorViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
+            return (RecyclerView.ViewHolder) new DoorSensorViewHolder(LayoutInflater.from(context).inflate(R.layout.card_door, parent, false));
         } else if (viewType == CardInfo.TYPE_ONEWIRESENSOR) {
-            return (RecyclerView.ViewHolder) new OnewireViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
+            return (RecyclerView.ViewHolder) new OnewireViewHolder(LayoutInflater.from(context).inflate(R.layout.card_door, parent, false));
         } else if (viewType == CardInfo.TYPE_SENSOR) {
-            return (RecyclerView.ViewHolder) new CardViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
+            return (RecyclerView.ViewHolder) new CardViewHolder(LayoutInflater.from(context).inflate(R.layout.card_door, parent, false));
         } else if (viewType == CardInfo.TYPE_HEATER) {
-            return (RecyclerView.ViewHolder) new HeaterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_heater, parent, false));
+            return (RecyclerView.ViewHolder) new HeaterViewHolder(LayoutInflater.from(context).inflate(R.layout.card_heater, parent, false));
         } else if (viewType == CardInfo.TYPE_SCENARIO) {
-            return (RecyclerView.ViewHolder) new ScenarioViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_heater, parent, false));
+            return (RecyclerView.ViewHolder) new ScenarioViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
+        } else if (viewType == CardInfo.TYPE_TIMEINTERVAL) {
+            return (RecyclerView.ViewHolder) new TimeIntervalViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
+        } else if (viewType == CardInfo.TYPE_TRIGGER) {
+            return (RecyclerView.ViewHolder) new TriggerViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
+        } else if (viewType == CardInfo.TYPE_PROGRAMTIMERANGE) {
+            return (RecyclerView.ViewHolder) new ProgramTimerangeViewHolder(LayoutInflater.from(context).inflate(R.layout.card_programtimerange, parent, false));
+        } else if (viewType == CardInfo.TYPE_PROGRAM) {
+            return (RecyclerView.ViewHolder) new ProgramViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
+        } else if (viewType == CardInfo.TYPE_PROGRAMACTION) {
+            return (RecyclerView.ViewHolder) new ProgramActionViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
+        } else if (viewType == CardInfo.TYPE_OPTION) {
+            return (RecyclerView.ViewHolder) new OptionViewHolder(LayoutInflater.from(context).inflate(R.layout.card_option, parent, false));
+        }else if (viewType == CardInfo.TYPE_ACTIONBUTTON) {
+            return (RecyclerView.ViewHolder) new ActionButtonViewHolder(LayoutInflater.from(context).inflate(R.layout.card_actionbutton, parent, false));
         }
-
-        /*if (viewType == CardInfo.TYPE_TEMPERATURESENSOR) {
-            return (RecyclerView.ViewHolder) new TemperatureSensorViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_temperature, parent, false));
-        } else if (viewType == TYPE_DOORSENSOR) {
-            return (RecyclerView.ViewHolder) new DoorSensorViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
-        } else if (viewType == TYPE_HEATER) {
-            return (RecyclerView.ViewHolder) new HeaterViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_heater, parent, false));
-        } else if (viewType == TYPE_ACTIONBUTTON) {
-            return (RecyclerView.ViewHolder) new ActionButtonViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_actionbutton, parent, false));
-        }*/
         return null;
     }
-
-    /*public class CardInfoFactory {
-
-        public RecyclerView.ViewHolder createCardInfo(ViewGroup parent, int type) {
-
-            if (type == CardInfo.TYPE_TEMPERATURESENSOR) {
-                return (RecyclerView.ViewHolder) new CardAdapter.TemperatureSensorViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_temperature, parent, false));
-            } else if (type == CardInfo.TYPE_DOORSENSOR) {
-                return (RecyclerView.ViewHolder) new DoorSensorViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
-            } else if (type == CardInfo.TYPE_ONEWIRESENSOR) {
-                return (RecyclerView.ViewHolder) new OnewireViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
-            } else if (type == CardInfo.TYPE_SENSOR) {
-                return (RecyclerView.ViewHolder) new CardViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.card_door, parent, false));
-            }
-
-            return null;
-        }
-    }*/
 
     public class CardViewHolder extends RecyclerView.ViewHolder {
         protected TextView title;
@@ -242,6 +205,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         public void updateCard(CardInfo ci) {
 
             // il title è il nome del sensore
+            if (title == null || label == null || image == null)
+                return;
             title.setText(ci.name);
             // la label è lo stato (es. temperatua, aperto/chiuso, acceso/spento, etc
             label.setText(getStatusText(ci));
@@ -249,7 +214,7 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             if (ci.getEnabled()) {
                 // l'immagine è il tipo di sensore
                 image.setImageDrawable(getIcon(ci));
-                image.setColorFilter(new LightingColorFilter(getIconColor(ci), getIconColor(ci)));
+                image.setColorFilter(new LightingColorFilter(/*Color.RED*/getIconColor(ci), getIconColor(ci)));
                 title.setTextColor(getTitleColor(ci));
                 // il background di label cambia in base allo stao (es. temperatua, aperto/chiuso, acceso/spento, etc
                 label.setBackgroundColor(getStatusColor(ci));
@@ -302,6 +267,29 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public void updateCard(ActionButtonCardInfo ci) {
             super.updateCard(ci);
+        }
+    }
+
+    public class OptionViewHolder extends CardViewHolder {
+
+        private final TextView valueTextView;
+        private final TextView nameTextView;
+
+        public OptionViewHolder(View v) {
+            super(v);
+            nameTextView = (TextView) v.findViewById(R.id.nameTextView);
+            valueTextView = (TextView) v.findViewById(R.id.valueTextView);
+        }
+
+        public void updateCard(CardInfo ci) {
+
+            if (nameTextView == null || valueTextView == null)
+                return;
+            OptionCardInfo oci = (OptionCardInfo) ci;
+            if (oci != null && oci.value != null) {
+                nameTextView.setText(oci.value.getName());
+                valueTextView.setText(oci.value.getStringValue());
+            }
         }
     }
 
@@ -428,32 +416,6 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
 
-        /*if (ci.status.equals("keeptemperature")) {
-            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.auto, null);
-            ci.target = heater.getTarget();
-            ci.sensorName = heater.getSensorIdName();
-            ci.sensorTemperature = heater.getRemoteTemperature();
-        } else if (ci.status.equals("idle")) {
-            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
-            ci.hideTarget = true;
-        } else if (ci.status.equals("manualoff")) {
-            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.briefcase, null);
-            ci.hideTarget = true;
-        } else if (ci.status.equals("manual")) {
-            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.power, null);
-            ci.target = heater.getTarget();
-            ci.sensorName = heater.getSensorIdName();
-            ci.sensorTemperature = heater.getRemoteTemperature();
-        } else if (ci.status.equals("idle")) {
-            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
-            ci.hideTarget = true;
-        } else {
-            ci.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.heater, null);
-            ci.hideTarget = true;
-        }*/
-
-
-
         public HeaterViewHolder(View v) {
             super(v);
             targetTextView = (TextView) v.findViewById(R.id.target);
@@ -466,7 +428,6 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                 }
             });*/
         }
-
 
 
         public void updateCard(CardInfo ci) {
@@ -493,55 +454,125 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    public class ScenarioViewHolder extends CardViewHolder {
-        protected TextView targetTextView;
-        protected int actuatorId;
-        protected double target;
-        protected int visibility;
-        protected TextView sensorTextView;
-        protected TextView temperatureTextView;
+    public class TimeIntervalViewHolder extends ScenarioInfoViewHolder {
 
-        public Drawable getIcon(CardInfo ci) {
-            HeaterCardInfo hci = (HeaterCardInfo) ci;
-            if (hci.status.equals("keeptemperature")) {
-                return ci.imageDrawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.auto, null);
-            }
+        public TimeIntervalViewHolder(View v) {
+            super(v);
+        }
+    }
 
-            return ResourcesCompat.getDrawable(context.getResources(), R.drawable.heater, null);
-            //return ResourcesCompat.getDrawable(context.getResources(), R.drawable.temperature, null);
+    public class TriggerViewHolder extends ScenarioInfoViewHolder {
+
+        public TriggerViewHolder(View v) {
+            super(v);
+        }
+    }
+
+    public class ProgramViewHolder extends ScenarioInfoViewHolder {
+
+        public ProgramViewHolder(View v) {
+            super(v);
+        }
+    }
+
+    public class ProgramTimerangeViewHolder extends ScenarioInfoViewHolder {
+
+        protected TextView startTextView, endTextView, moreTextView;
+
+        public ProgramTimerangeViewHolder(View v) {
+            super(v);
+            startTextView = (TextView) v.findViewById(R.id.startTextView);
+            endTextView = (TextView) v.findViewById(R.id.endTextView);
+            moreTextView = (TextView) v.findViewById(R.id.moreTextView);
+            moreTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // item clicked
+                    int position = getAdapterPosition();
+                    CardInfo card = cardInfoList.get(position);
+                    mCallback.onClick(position, card);
+                }
+            });
         }
 
-        public String getStatusText(CardInfo ci) {
-            HeaterCardInfo hci = (HeaterCardInfo) ci;
-            if (hci.status.equals("keeptemperature")) {
-                return "keep " + hci.target + "°C";
-            } else if (hci.status.equals("manual")) {
-                return "manual " + hci.target + "°C";
-            } else if (hci.status.equals("manualoff")) {
-                return "manualoff ";
-            }
-            return hci.status;
-        }
+        public void updateCard(CardInfo ci) {
+            super.updateCard(ci);
 
-        public int getStatusColor(CardInfo ci) {
-            if (((HeaterCardInfo) ci).releStatus)
-                return Color.GREEN;
-            else
-                return Color.RED;
+            TimeRangeCardInfo tci = (TimeRangeCardInfo) ci;
+            SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+            if (tci.startTime != null && startTextView != null)
+                startTextView.setText(df.format(tci.startTime));
+            if (tci.startTime != null && endTextView != null)
+                endTextView.setText(df.format(tci.endTime));
         }
+    }
+
+    public class ProgramActionViewHolder extends ScenarioInfoViewHolder {
+
+        public ProgramActionViewHolder(View v) {
+            super(v);
+        }
+    }
+
+    public class ScenarioViewHolder extends ScenarioInfoViewHolder {
 
         public ScenarioViewHolder(View v) {
             super(v);
-            targetTextView = (TextView) v.findViewById(R.id.target);
+        }
+    }
+
+    public class ScenarioInfoViewHolder extends CardViewHolder {
+
+        public Drawable getIcon(CardInfo ci) {
+            //ScenarioCardInfo hci = (ScenarioCardInfo) ci;
+            return ci.imageDrawable = ResourcesCompat.getDrawable(context.getResources(), R.drawable.closeddoor, null);
+        }
+
+        public String getStatusText(CardInfo ci) {
+            //ScenarioCardInfo hci = (ScenarioCardInfo) ci;
+            if (ci.status) {
+                return "Attivo";
+            } else {
+                return "Non attivo";
+            }
+        }
+
+        public int getStatusColor(CardInfo ci) {
+
+            if (!ci.enabled) {
+                return Color.GRAY;
+            } else {
+
+                if (ci.status)
+                    return Color.GREEN;
+                else
+                    return Color.RED;
+            }
+        }
+
+        public int getIconColor(CardInfo ci) {
+            return getStatusColor(ci);
+        }
+
+        public ScenarioInfoViewHolder(View v) {
+            super(v);
+            /*targetTextView = (TextView) v.findViewById(R.id.target);
             sensorTextView = (TextView) v.findViewById(R.id.sensor);
-            temperatureTextView = (TextView) v.findViewById(R.id.temperature);
+            temperatureTextView = (TextView) v.findViewById(R.id.temperature);*/
         }
 
         public void updateCard(CardInfo ci) {
             super.updateCard(ci);
 
 
-            if (ci.getEnabled()) {
+            /*if (ci.getEnabled()) {
                 targetTextView.setTextColor(ci.titleColor);
             } else {
                 targetTextView.setTextColor(disabledColor);
@@ -550,14 +581,11 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             sensorTextView.setVisibility(visibility);
             temperatureTextView.setVisibility(visibility);
 
-            HeaterCardInfo hci = (HeaterCardInfo) ci;
+            ScenarioCardInfo hci = (ScenarioCardInfo) ci;
             sensorTextView.setText(hci.zone);
-            temperatureTextView.setText(hci.temperature + " °C");
+            //temperatureTextView.setText(hci.temperature + " °C");*/
 
         }
 
-        public void setVisibility(int visibility) {
-            this.visibility = visibility;
-        }
     }
 }
