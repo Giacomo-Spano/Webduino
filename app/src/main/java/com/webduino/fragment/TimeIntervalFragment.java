@@ -1,5 +1,8 @@
 package com.webduino.fragment;
 
+import android.graphics.Color;
+import android.graphics.LightingColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -7,11 +10,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.CardInfo;
@@ -73,8 +79,8 @@ public class TimeIntervalFragment extends Fragment {
             }
         });
 
-
-        ImageButton okbutton = view.findViewById(R.id.confirmButton);
+        Button okbutton = view.findViewById(R.id.confirmButton);
+        MainActivity.setImageButton(okbutton,getResources().getColor(R.color.colorPrimary),true,getResources().getDrawable(R.drawable.check));
         okbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,7 +107,8 @@ public class TimeIntervalFragment extends Fragment {
             }
         });
 
-        ImageButton cancelbutton = view.findViewById(R.id.cancelButton);
+        Button cancelbutton = view.findViewById(R.id.cancelButton);
+        MainActivity.setImageButton(cancelbutton,getResources().getColor(R.color.colorPrimary),false,getResources().getDrawable(R.drawable.uncheck));
         cancelbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -136,33 +143,30 @@ public class TimeIntervalFragment extends Fragment {
         List<CardInfo> result = new ArrayList<CardInfo>();
 
         optionCard_Enabled = new OptionCardInfo();
-        optionCard_Enabled.value = new BooleanOptionCardValue("Stato",timeInterval.enabled,"Abilitato","Disabilitato");
+        optionCard_Enabled.value = new BooleanOptionCardValue(getString(R.string.status),timeInterval.enabled,"Abilitato","Disabilitato");
         result.add(optionCard_Enabled);
 
         optionCard_Name = new OptionCardInfo();
-        optionCard_Name.value = new StringOptionCardValue("Nome",timeInterval.name);
+        optionCard_Name.value = new StringOptionCardValue(getString(R.string.name),timeInterval.name);
         result.add(optionCard_Name);
 
         optionCard_Description = new OptionCardInfo();
-        optionCard_Description.value = new StringOptionCardValue("Descrizione",timeInterval.description);
+        optionCard_Description.value = new StringOptionCardValue(getString(R.string.description),timeInterval.description);
         result.add(optionCard_Description);
 
         optionCard_StartDate = new OptionCardInfo();
-        optionCard_StartDate.value = new DateOptionCardValue("Data inizio",timeInterval.startDateTime);
+        optionCard_StartDate.value = new DateOptionCardValue(getString(R.string.startdate),timeInterval.startDateTime);
         result.add(optionCard_StartDate);
 
         optionCard_EndDate = new OptionCardInfo();
-        optionCard_EndDate.value = new DateOptionCardValue("Data fine",timeInterval.endDateTime);
+        optionCard_EndDate.value = new DateOptionCardValue(getString(R.string.enddate),timeInterval.endDateTime);
         result.add(optionCard_EndDate);
 
-        CharSequence[] items = {
-                "Lun", "Mar", "Mer", "Gio", "Ven", "Sab", "Dom"
-        };
         boolean[] itemValues = {
                 timeInterval.monday, timeInterval.tuesday, timeInterval.wednesday, timeInterval.thursday, timeInterval.friday, timeInterval.saturday, timeInterval.sunday
         };
         optionCard_daysofweek = new OptionCardInfo();
-        optionCard_daysofweek.value = new MultiChoiceOptionCardValue("Giorni della settimana",items,itemValues);
+        optionCard_daysofweek.value = new MultiChoiceOptionCardValue(getString(R.string.dayofweek),getResources().getStringArray(R.array.dayshortlist),itemValues);
         result.add(optionCard_daysofweek);
 
         return result;

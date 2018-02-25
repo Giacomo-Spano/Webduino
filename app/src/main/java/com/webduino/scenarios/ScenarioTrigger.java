@@ -1,7 +1,11 @@
 package com.webduino.scenarios;
 
+import com.webduino.elements.Trigger;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.SimpleDateFormat;
 
 /**
  * Created by gs163400 on 10/02/2018.
@@ -31,5 +35,22 @@ public class ScenarioTrigger {
         if (json.has("enabled")) enabled = json.getBoolean("enabled");
         //if (json.has("status")) status = json.getBoolean("status");
         if (json.has("priority")) priority = json.getInt("priority");
+    }
+
+    public JSONObject toJson() throws JSONException {
+
+        JSONObject json = new JSONObject();
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+
+        json.put("id", id);
+        json.put("triggerid", triggerid);
+        json.put("scenarioid", scenarioid);
+        json.put("name", name);
+        json.put("description", description);
+        json.put("type", type);
+        json.put("enabled", enabled);
+        json.put("priority", priority);
+
+        return json;
     }
 }

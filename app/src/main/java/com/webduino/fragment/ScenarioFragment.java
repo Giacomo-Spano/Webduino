@@ -13,15 +13,18 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 
+import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.WebduinoResponse;
+import com.webduino.elements.TimeRange;
+import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.adapters.HeaterDataRowItem;
-import com.webduino.fragment.adapters.HeaterListListener;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.optioncardvalue.BooleanOptionCardValue;
-import com.webduino.fragment.cardinfo.optioncardvalue.DateOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.IntegerOptionCardValue;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
 import com.webduino.fragment.cardinfo.TimeIntervalCardInfo;
@@ -29,10 +32,11 @@ import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.ProgramCardInfo;
 import com.webduino.fragment.cardinfo.TriggerCardInfo;
 import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
-import com.webduino.fragment.cardinfo.optioncardvalue.MultiChoiceOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
+import com.webduino.scenarios.ProgramAction;
 import com.webduino.scenarios.Scenario;
 import com.webduino.scenarios.ScenarioProgram;
+import com.webduino.scenarios.ScenarioProgramTimeRange;
 import com.webduino.scenarios.ScenarioTimeInterval;
 import com.webduino.scenarios.ScenarioTrigger;
 import com.webduino.scenarios.Scenarios;
@@ -41,7 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ScenarioFragment extends Fragment implements
-        TimeIntervalFragment.OnTimeIntervalFragmentInteractionListener, TriggerFragment.OnTriggerFragmentInteractionListener, ProgramFragment.OnProgramFragmentInteractionListener {
+        TimeIntervalFragment.OnTimeIntervalFragmentInteractionListener, TriggerFragment.OnTriggerFragmentInteractionListener, ProgramFragment.OnProgramFragmentInteractionListener,
+       ProgramTimeRangeFragment.OnProgramTimeRangeFragmentInteractionListener, ProgramActionFragment.OnProgramActionFragmentInteractionListener {
 
     public boolean adaptercreated = false;
     ArrayList<HeaterDataRowItem> list = new ArrayList<>();
@@ -72,10 +77,10 @@ public class ScenarioFragment extends Fragment implements
         if (savedInstanceState != null) {
 
         }
-        View v = inflater.inflate(R.layout.fragment_scenario, container, false);
+        View view = inflater.inflate(R.layout.fragment_scenario, container, false);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
-        RecyclerView optionList = (RecyclerView) v.findViewById(R.id.optionList);
+        RecyclerView optionList = (RecyclerView) view.findViewById(R.id.optionList);
         optionList.setHasFixedSize(false);
         optionList.setLayoutManager(linearLayoutManager);
         optionsAdapter = new CardAdapter(this, createOptionList());
@@ -95,7 +100,7 @@ public class ScenarioFragment extends Fragment implements
         });
 
         linearLayoutManager = new LinearLayoutManager(this.getActivity());
-        RecyclerView calendarList = (RecyclerView) v.findViewById(R.id.calendarList);
+        RecyclerView calendarList = (RecyclerView) view.findViewById(R.id.calendarList);
         calendarList.setHasFixedSize(false);
         calendarList.setLayoutManager(linearLayoutManager);
         calendarsAdapter = new CardAdapter(this, createCalendarList());
@@ -108,7 +113,7 @@ public class ScenarioFragment extends Fragment implements
         });
 
         linearLayoutManager = new LinearLayoutManager(this.getActivity());
-        RecyclerView triggerList = (RecyclerView) v.findViewById(R.id.triggerList);
+        RecyclerView triggerList = (RecyclerView) view.findViewById(R.id.triggerList);
         triggerList.setHasFixedSize(false);
         triggerList.setLayoutManager(linearLayoutManager);
         triggersAdapter = new CardAdapter(this, createTriggerList());
@@ -122,7 +127,7 @@ public class ScenarioFragment extends Fragment implements
         //triggerList.setNestedScrollingEnabled(false);
 
         linearLayoutManager = new LinearLayoutManager(this.getActivity());
-        RecyclerView programList = (RecyclerView) v.findViewById(R.id.programList);
+        RecyclerView programList = (RecyclerView) view.findViewById(R.id.programList);
         programList.setHasFixedSize(false);
         programList.setLayoutManager(linearLayoutManager);
         programsAdaptes = new CardAdapter(this, createProgramList());
@@ -134,7 +139,8 @@ public class ScenarioFragment extends Fragment implements
             }
         });
 
-        ImageButton okbutton = v.findViewById(R.id.confirmButton);
+        Button okbutton = view.findViewById(R.id.confirmButton);
+        MainActivity.setImageButton(okbutton,getResources().getColor(R.color.colorPrimary),true,getResources().getDrawable(R.drawable.check));
         okbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -152,7 +158,9 @@ public class ScenarioFragment extends Fragment implements
             }
         });
 
-        ImageButton cancelbutton = v.findViewById(R.id.cancelButton);
+        Button cancelbutton = view.findViewById(R.id.cancelButton);
+        MainActivity.setImageButton(cancelbutton,getResources().getColor(R.color.colorPrimary),false,getResources().getDrawable(R.drawable.uncheck));
+
         cancelbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -160,7 +168,10 @@ public class ScenarioFragment extends Fragment implements
             }
         });
 
-        return v;
+        ((MainActivity) getActivity()).hideFloatingActionButton();
+
+
+        return view;
     }
 
 
@@ -213,7 +224,8 @@ public class ScenarioFragment extends Fragment implements
         if (timeIntervalCardInfo.id == 0)
             timeInterval = new ScenarioTimeInterval();
         else
-            timeInterval = scenario.calendar.getTimeIntervalFromId(timeIntervalCardInfo.id);
+            timeInterval = timeIntervalCardInfo.timeInterval;
+
         if (timeInterval != null) {
             timeIntervalFragment.timeInterval = timeInterval;
 
@@ -233,7 +245,7 @@ public class ScenarioFragment extends Fragment implements
         if (triggerCardInfo.id == 0)
             trigger = new ScenarioTrigger();
         else
-            trigger = scenario.getTriggerFromId(triggerCardInfo.id);
+            trigger = triggerCardInfo.trigger;
 
         if (trigger != null){
             triggerFragment.trigger = trigger;
@@ -253,7 +265,8 @@ public class ScenarioFragment extends Fragment implements
         if (programCardInfo.id == 0)
             program = new ScenarioProgram();
         else
-            program = scenario.getProgramFromId(programCardInfo.id);
+            program = programCardInfo.program;
+
         if (program != null) {
             programFragment.program = program;
 
@@ -289,10 +302,11 @@ public class ScenarioFragment extends Fragment implements
 
     public List<CardInfo> createCalendarList() {
         List<CardInfo> result = new ArrayList<CardInfo>();
-        for (ScenarioTimeInterval timeInterval : scenario.calendar.timeintervals) {
+        for (ScenarioTimeInterval timeInterval : scenario.calendar.timeIntervals) {
             TimeIntervalCardInfo timeintervalcardinfo = new TimeIntervalCardInfo();
             timeintervalcardinfo.id = timeInterval.id;
             timeintervalcardinfo.name = timeInterval.name;
+            timeintervalcardinfo.timeInterval = timeInterval;
             timeintervalcardinfo.setEnabled(timeInterval.enabled);
             result.add(timeintervalcardinfo);
         }
@@ -313,6 +327,7 @@ public class ScenarioFragment extends Fragment implements
             TriggerCardInfo triggercardinfo = new TriggerCardInfo();
             triggercardinfo.id = trigger.id;
             triggercardinfo.name = trigger.name;
+            triggercardinfo.trigger = trigger;
             triggercardinfo.setEnabled(trigger.enabled);
             result.add(triggercardinfo);
         }
@@ -332,6 +347,7 @@ public class ScenarioFragment extends Fragment implements
             ProgramCardInfo programCardInfo = new ProgramCardInfo();
             programCardInfo.id = program.id;
             programCardInfo.name = program.name;
+            programCardInfo.program = program;
             programCardInfo.setEnabled(program.enabled);
             result.add(programCardInfo);
         }
@@ -379,13 +395,35 @@ public class ScenarioFragment extends Fragment implements
         adaptercreated = false;
     }
 
+    public void saveScenario()  {
+
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+               scenario = (Scenario) result;
+            }
+
+        }, requestDataTask.POST_SCENARIO).execute(scenario);
+
+    }
+
     @Override
     public void onSaveTimeInterval(ScenarioTimeInterval timeInterval) {
-        for (ScenarioTimeInterval ti : scenario.calendar.timeintervals) {
-            if (ti.id == timeInterval.id) {
-                scenario.calendar.timeintervals.remove(ti);
-                scenario.calendar.timeintervals.add(timeInterval);
-                return;
+
+        if (timeInterval.id == 0) {
+            scenario.calendar.timeIntervals.add(timeInterval);
+            saveScenario();
+        } else {
+            for (ScenarioTimeInterval ti : scenario.calendar.timeIntervals) {
+                if (ti.id == timeInterval.id) {
+                    int itemIndex = scenario.calendar.timeIntervals.indexOf(ti);
+                    if (itemIndex != -1) {
+                        scenario.calendar.timeIntervals.set(itemIndex, timeInterval);
+                    }
+                    saveScenario();
+                    return;
+                }
             }
         }
     }
@@ -393,10 +431,90 @@ public class ScenarioFragment extends Fragment implements
     @Override
     public void onSaveTrigger(ScenarioTrigger trigger) {
 
+        if (trigger.id == 0) {
+            scenario.triggers.add(trigger);
+            saveScenario();
+        } else {
+            for (ScenarioTrigger trgr : scenario.triggers) {
+                if (trgr.id == trigger.id) {
+                    int itemIndex = scenario.triggers.indexOf(trgr);
+                    if (itemIndex != -1) {
+                        scenario.triggers.set(itemIndex, trigger);
+                    }
+                    saveScenario();
+                    return;
+                }
+            }
+        }
     }
 
     @Override
-    public void onSaveTrigger(ScenarioProgram trigger) {
+    public void onSaveProgram(ScenarioProgram program) {
 
+        if (program.id == 0) {
+            scenario.programs.add(program);
+            saveScenario();
+        } else {
+            for (ScenarioProgram prgm : scenario.programs) {
+                if (prgm.id == program.id) {
+                    int itemIndex = scenario.programs.indexOf(prgm);
+                    if (itemIndex != -1) {
+                        scenario.programs.set(itemIndex, program);
+                    }
+                    saveScenario();
+                    return;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onSaveProgramAction(ProgramAction action) {
+
+        ScenarioProgram program = scenario.getProgramFromTimerangeId(action.timerangeid);
+        ScenarioProgramTimeRange timerange = program.getTimeRangeFromId(action.timerangeid);
+
+        if (timerange != null) {
+            if (action.id == 0) {
+                timerange.programActionList.add(action);
+                saveScenario();
+            } else {
+                for (ProgramAction actn : timerange.programActionList) {
+                    if (actn.id == action.id) {
+                        int itemIndex = timerange.programActionList.indexOf(actn);
+                        if (itemIndex != -1) {
+                            timerange.programActionList.set(itemIndex, action);
+                        }
+                        saveScenario();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onSaveProgramTimeRange(ScenarioProgramTimeRange timeRange) {
+
+        ScenarioProgram program = scenario.getProgramFromTimerangeId(timeRange.id);
+        ScenarioProgramTimeRange timerange = program.getTimeRangeFromId(timeRange.id);
+
+        if (timerange != null && program != null) {
+            if (timerange.id == 0) {
+                program.timeRanges.add(timeRange);
+                saveScenario();
+            } else {
+                for (ScenarioProgramTimeRange trng : program.timeRanges) {
+                    if (trng.id == timeRange.id) {
+                        int itemIndex = program.timeRanges.indexOf(trng);
+                        if (itemIndex != -1) {
+                            program.timeRanges.set(itemIndex, timeRange);
+                        }
+                        saveScenario();
+                        return;
+                    }
+                }
+            }
+        }
     }
 }

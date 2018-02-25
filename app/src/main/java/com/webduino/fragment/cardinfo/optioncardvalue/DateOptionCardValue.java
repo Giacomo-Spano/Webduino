@@ -48,7 +48,6 @@ public class DateOptionCardValue extends OptionCardValue {
         dateFragment.show(MainActivity.activity.getFragmentManager(), "Data inizio");
     }
 
-
     public Object showPicker() {
 
         Date date = new Date();
@@ -57,5 +56,4 @@ public class DateOptionCardValue extends OptionCardValue {
         showStartDateTimePickerDialog(date);
       return null;
     }
-
 }

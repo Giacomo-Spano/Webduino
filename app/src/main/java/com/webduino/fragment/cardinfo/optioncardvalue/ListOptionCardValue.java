@@ -19,7 +19,7 @@ public class ListOptionCardValue extends OptionCardValue {
     @Override
     public int getIntValue() {
         if (value == null) return 0;
-        return itemValues[(int)value];
+        return (int)value;
     }
 
     public ListOptionCardValue(String name, Integer value, CharSequence[] items, int[] itemValues) {

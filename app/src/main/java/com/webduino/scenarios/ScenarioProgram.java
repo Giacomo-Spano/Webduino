@@ -1,8 +1,10 @@
 package com.webduino.scenarios;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -66,8 +68,38 @@ public class ScenarioProgram {
         }
     }
 
+    public JSONObject toJson() throws JSONException {
+
+        JSONObject json = new JSONObject();
+
+        json.put("id", id);
+        json.put("scenarioid", scenarioId);
+        json.put("name", name);
+        json.put("description", description);
+        json.put("enabled", enabled);
+        json.put("sunday", sunday);
+        json.put("monday", monday);
+        json.put("tuesday", tuesday);
+        json.put("wednesday", wednesday);
+        json.put("thursday", thursday);
+        json.put("friday", friday);
+        json.put("saturday", saturday);
+        json.put("priority", priority);
+        JSONArray jarray = new JSONArray();
+        if (timeRanges != null) {
+            for (ScenarioProgramTimeRange timeRange : timeRanges) {
+                jarray.put(timeRange.toJson());
+            }
+            json.put("timeranges", jarray);
+        }
+
+        return json;
+
+    }
+
+
     public ScenarioProgramTimeRange getTimeRangeFromId(int id) {
-        for (ScenarioProgramTimeRange timeRange:timeRanges) {
+        for (ScenarioProgramTimeRange timeRange : timeRanges) {
             if (timeRange.id == id)
                 return timeRange;
         }

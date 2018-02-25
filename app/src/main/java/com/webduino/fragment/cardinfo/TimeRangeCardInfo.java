@@ -1,6 +1,7 @@
 package com.webduino.fragment.cardinfo;
 
 import com.webduino.elements.TimeRange;
+import com.webduino.scenarios.ScenarioProgramTimeRange;
 
 import java.util.Date;
 
@@ -10,6 +11,7 @@ import java.util.Date;
 
 public class TimeRangeCardInfo extends CardInfo {
     public Date startTime, endTime;
+    public ScenarioProgramTimeRange timerange;
 
     public TimeRangeCardInfo() {
         type = TYPE_PROGRAMTIMERANGE;

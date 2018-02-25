@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.webduino.MainActivity;
 import com.webduino.elements.HeaterActuator;
 import com.webduino.elements.Sensor;
 import com.webduino.R;
@@ -66,6 +67,8 @@ public class SensorsFragment extends Fragment implements CardAdapter.OnListener 
         cardAdapter = new CardAdapter(this,createSensorList());
         recList.setAdapter(cardAdapter);
         cardAdapter.setListener(this);
+
+        ((MainActivity) getActivity()).showFloatingActionButton();
 
         return v;
     }

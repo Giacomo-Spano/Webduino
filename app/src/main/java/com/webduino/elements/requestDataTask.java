@@ -61,6 +61,7 @@ public class requestDataTask extends
     public static final int REQUEST_COMMANDDATALOG = 15;
     public static final int REQUEST_TRIGGERS = 16;
     public static final int REQUEST_ACTIONTYPES = 17;
+    public static final int POST_SCENARIO = 18;
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -109,7 +110,8 @@ public class requestDataTask extends
                 || requestType == REQUEST_TRIGGERS || requestType == REQUEST_ACTIONTYPES) {
             result = performGetRequest(params);
             return result;
-        } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM) {
+        } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM
+                || requestType == POST_SCENARIO || requestType == POST_SCENARIO) {
             try {
                 result = performPostCall(params);
                 return result;
@@ -372,14 +374,14 @@ public class requestDataTask extends
             message = "Aggiornamnento";
         else if (requestType == REQUEST_ZONES)
             message = "Aggiornamnento";
-        else if (requestType == REQUEST_SCENARIOS)
-            message = "Aggiornamnento";
+        else if (requestType == POST_SCENARIO)
+            message = activity.getResources().getString(R.string.scenariosaveinprogress);
         else if (requestType == REQUEST_NEXTPROGRAMS)
             message = "Aggiornamnento";
         else if (requestType == REQUEST_SHIELD)
             message = "Aggiornamnento";
-        else if (requestType == POST_PROGRAM)
-            message = "Salvataggio programma";
+        else if (requestType == POST_SCENARIO)
+            message = activity.getResources().getString(R.string.scenariosaveinprogress);
         else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_DELETEPROGRAM)
             message = "Comando inviato";
         else if (requestType == REQUEST_SENSORDATALOG)
@@ -435,8 +437,8 @@ public class requestDataTask extends
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
         } else if (requestType == POST_ACTUATOR_COMMAND) {
             delegate.processFinishSendCommand(result.resultString, error, errorMessage);
-        } else if (requestType == POST_PROGRAM) {
-            delegate.processFinishPostProgram(result.response, POST_PROGRAM, error, errorMessage);
+        } else if (requestType == POST_SCENARIO) {
+            delegate.processFinish(result.resultObject, requestType, error, errorMessage);
         } else if (requestType == POST_DELETEPROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);
         } else if (requestType == REQUEST_SENSORDATALOG || requestType == REQUEST_SCENARIOS || requestType == REQUEST_TRIGGERS
@@ -480,6 +482,7 @@ public class requestDataTask extends
         String path = "";
         if (requestType == POST_ACTUATOR_COMMAND) {
             path = "/shield?";
+
             String serverUrl = getServerUrl();
             String url = serverUrl + path;
 
@@ -515,6 +518,34 @@ public class requestDataTask extends
                 //json.put("remote", "" + remote);
                 Result result = new Result();
                 result.resultString = postCall(url, json.toString());
+                return result;
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+                throw e;
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw e;
+            }
+
+        } else if (requestType == POST_SCENARIO) {
+            path = "/system?data=scenario";
+
+            String serverUrl = getServerUrl();
+            String url = serverUrl + path;
+
+            Scenario scenario = (Scenario) params[0];
+
+            JSONObject json = scenario.toJson();
+
+            try {
+                json.put("scenario", "" + json.toString());
+
+                Result result = new Result();
+                String strresult = postCall(url, json.toString());
+                //JSONObject json = new JSONObject(json.toString());
+                Scenario updatedscenario = new Scenario(new JSONObject(strresult));
+                result.resultObject = updatedscenario;
                 return result;
 
             } catch (JSONException e) {
@@ -585,8 +616,9 @@ public class requestDataTask extends
                 return response;
             } else {
 
+
                 errorMessage = conn.getResponseMessage() + " responseCode: " + responseCode;
-                throw new Exception(errorMessage);
+                throw new Exception(response);
             }
         } catch (Exception e) {
             e.printStackTrace();

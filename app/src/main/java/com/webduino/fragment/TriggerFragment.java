@@ -8,10 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 
+import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.elements.Trigger;
 import com.webduino.elements.Triggers;
@@ -37,7 +39,7 @@ public class TriggerFragment extends Fragment {
 
     ScenarioTrigger trigger = new ScenarioTrigger();
     private CardAdapter optionsAdapter;
-    OptionCardInfo optionCard_Enabled, optionCard_TriggerId, optionCard_Priority;
+    OptionCardInfo optionCard_Enabled, optionCard_Name, optionCard_Description, optionCard_TriggerId, optionCard_Priority;
 
     private OnTriggerFragmentInteractionListener mListener;
 
@@ -56,7 +58,6 @@ public class TriggerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_trigger, container, false);
-
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this.getActivity());
         RecyclerView optionList = (RecyclerView) view.findViewById(R.id.optionList);
@@ -78,13 +79,14 @@ public class TriggerFragment extends Fragment {
             }
         });
 
-
-
-        ImageButton okbutton = view.findViewById(R.id.confirmButton);
+        Button okbutton = view.findViewById(R.id.confirmButton);
+        MainActivity.setImageButton(okbutton,getResources().getColor(R.color.colorPrimary),true,getResources().getDrawable(R.drawable.check));
         okbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                trigger.name = optionCard_Name.value.getStringValue();
+                trigger.description = optionCard_Description.value.getStringValue();
                 trigger.triggerid = optionCard_TriggerId.value.getIntValue();
                 trigger.priority = optionCard_Priority.value.getIntValue();
                 trigger.enabled = optionCard_Enabled.value.getBoolValue();
@@ -96,7 +98,8 @@ public class TriggerFragment extends Fragment {
             }
         });
 
-        ImageButton cancelbutton = view.findViewById(R.id.cancelButton);
+        Button cancelbutton = view.findViewById(R.id.cancelButton);
+        MainActivity.setImageButton(cancelbutton,getResources().getColor(R.color.colorPrimary),false,getResources().getDrawable(R.drawable.uncheck));
         cancelbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,11 +134,19 @@ public class TriggerFragment extends Fragment {
         List<CardInfo> result = new ArrayList<CardInfo>();
 
         optionCard_Enabled = new OptionCardInfo();
-        optionCard_Enabled.value = new BooleanOptionCardValue("Stato",trigger.enabled,"Abilitato","Disabilitato");
+        optionCard_Enabled.value = new BooleanOptionCardValue(getString(R.string.status),trigger.enabled,getString(R.string.enabled),getString(R.string.disabled));
         result.add(optionCard_Enabled);
 
+        optionCard_Name = new OptionCardInfo();
+        optionCard_Name.value = new StringOptionCardValue(getString(R.string.name),trigger.name);
+        result.add(optionCard_Name);
+
+        optionCard_Description = new OptionCardInfo();
+        optionCard_Description.value = new StringOptionCardValue(getString(R.string.description),trigger.description);
+        result.add(optionCard_Description);
+
         optionCard_Priority = new OptionCardInfo();
-        optionCard_Priority.value = new IntegerOptionCardValue("Priorità",trigger.priority);
+        optionCard_Priority.value = new IntegerOptionCardValue(getString(R.string.priority),trigger.priority);
         result.add(optionCard_Priority);
 
         CharSequence[] items = new CharSequence[Triggers.list.size()];
@@ -147,7 +158,7 @@ public class TriggerFragment extends Fragment {
             i++;
         }
         optionCard_TriggerId = new OptionCardInfo();
-        optionCard_TriggerId.value = new ListOptionCardValue("Trigger",trigger.triggerid, items, itemValues);
+        optionCard_TriggerId.value = new ListOptionCardValue(getString(R.string.trigger),trigger.triggerid, items, itemValues);
         result.add(optionCard_TriggerId);
 
         return result;

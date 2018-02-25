@@ -43,4 +43,26 @@
     <string name="scenario_startdate">Data inizio</string>
     <string name="scenario_enddate">Data fine</string>
     <string name="scenario_priority">Priorità</string>
+    <string name="cancel">Annulla</string>
+    <string name="save">Salva</string>
+    <string name="dayofweek">Giorni della settimana</string>
+    <string name="status">Stato</string>
+    <string name="name">Nome</string>
+    <string name="description">Descrizione</string>
+    <string name="startdate">Data inizio</string>
+    <string name="enddate">Data fine</string>
+    <string name="priority">Priorità</string>
+    <string name="trigger">Trigger</string>
+    <string name="enabled">Abilitato</string>
+    <string name="disabled">Disabilitato</string>
+    <string name="scenariosaveinprogress">Salvataggio scenario in corso</string>
+    <string-array name="dayshortlist">
+        <item>Lu</item>
+        <item>Ma</item>
+        <item>Me</item>
+        <item>Gi</item>
+        <item>Ve</item>
+        <item>Sa</item>
+        <item>Do</item>
+    </string-array>
 </resources>

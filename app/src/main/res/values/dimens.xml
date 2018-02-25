@@ -16,6 +16,8 @@
     <dimen name="item_title_textsize">20sp</dimen>
     <dimen name="item_value_textsize">16sp</dimen>
 
+    <dimen name="scenario_title_textsize">32sp</dimen>
+
 
 
     <dimen name="actionbutton_sensor_textsize">12sp</dimen>

@@ -1,7 +1,11 @@
 package com.webduino.scenarios;
 
+import com.webduino.elements.Sensor;
+import com.webduino.elements.Sensors;
 import com.webduino.fragment.cardinfo.optioncardvalue.ListOptionCardValue;
+import com.webduino.zones.Zone;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -12,8 +16,6 @@ import java.util.List;
  */
 
 public class ProgramAction {
-
-
 
     public int id = 0;
     public int timerangeid = 0;
@@ -38,8 +40,9 @@ public class ProgramAction {
 
     }
 
-    public ProgramAction(int id, int programtimerangeid, String type, String name, String description, int priority, int actuatorid, double targevalue, double thresholdvalue, int zoneId, int seconds, boolean enabled) {
+    public ProgramAction(int id, int timerangeid, String type, String name, String description, int priority, int actuatorid, double targevalue, double thresholdvalue, int zoneId, int seconds, boolean enabled) {
         this.id = id;
+        this.timerangeid = timerangeid;
         this.type = type;
         this.name = name;
         this.description = description;
@@ -50,8 +53,6 @@ public class ProgramAction {
         this.zoneid = zoneId;
         this.seconds = seconds;
         this.enabled = enabled;
-
-
     }
 
     public boolean hasZone() {
@@ -74,30 +75,22 @@ public class ProgramAction {
         return hasDuration;
     }
 
+    public JSONObject toJson() throws JSONException {
+        JSONObject json = new JSONObject();
 
-    /*public void fromJson(JSONObject json) throws Exception {
+        json.put("id", id);
+        json.put("timerangeid", timerangeid);
+        json.put("type", type);
+        json.put("name", name);
+        json.put("description", description);
+        json.put("actuatorid", actuatorid);
+        json.put("targetvalue", targetvalue);
+        json.put("thresholdvalue", thresholdvalue);
+        json.put("zoneid", zoneid);
+        json.put("seconds", seconds);
+        json.put("enabled", enabled);
+        json.put("priority", priority);
 
-        if (json.has("id"))
-            id = json.getInt("id");
-        if (json.has("enabled"))
-            enabled = json.getBoolean("enabled");
-        if (json.has("name"))
-            name = json.getString("name");
-        if (json.has("description"))
-            description = json.getString("description");
-        if (json.has("type"))
-            type = json.getString("type");
-        if (json.has("priority"))
-            priority = json.getInt("priority");
-        if (json.has("actuatorid"))
-            actuatorid = json.getInt("actuatorid");
-        if (json.has("target"))
-            targetvalue = json.getDouble("target");
-        if (json.has("thresholdvalue"))
-            thresholdvalue = json.getDouble("thresholdvalue");
-        if (json.has("zoneid"))
-            zoneid = json.getInt("zoneid");
-        if (json.has("seconds"))
-            seconds = json.getInt("seconds");
-    }*/
+        return json;
+    }
 }

@@ -65,4 +65,36 @@ public class ScenarioTimeInterval {
         if (json.has("friday")) friday = json.getBoolean("friday");
         if (json.has("saturday")) saturday = json.getBoolean("saturday");
     }
+
+    public JSONObject toJson() {
+
+        JSONObject json = new JSONObject();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+
+        try {
+            json.put("id", id);
+            json.put("scenarioid", scenarioid);
+            json.put("name", name);
+            json.put("description", description);
+            json.put("enabled", enabled);
+            if (startDateTime != null)
+                json.put("startdatetime", df.format(startDateTime));
+            if (endDateTime != null)
+                json.put("enddatetime", df.format(endDateTime));
+            json.put("sunday", sunday);
+            json.put("monday", monday);
+            json.put("tuesday", tuesday);
+            json.put("wednesday", wednesday);
+            json.put("thursday", thursday);
+            json.put("friday", friday);
+            json.put("saturday", saturday);
+            json.put("priority", priority);
+
+            return json;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.webduino.scenarios;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -78,10 +79,34 @@ public class ScenarioProgramTimeRange {
     }
 
     public ProgramAction getActionFromId(int id) {
-        for (ProgramAction action:programActionList) {
+        for (ProgramAction action : programActionList) {
             if (action.id == id)
                 return action;
         }
         return null;
+    }
+
+    public JSONObject toJson() throws JSONException {
+
+        JSONObject json = new JSONObject();
+        json.put("id", id);
+        json.put("programid", programid);
+        json.put("name", name);
+        json.put("description", description);
+        SimpleDateFormat df = new SimpleDateFormat("HH:mm");
+        json.put("starttime", df.format(startTime));
+        json.put("endtime", df.format(endTime));
+        json.put("enabled", enabled);
+        json.put("index", index);
+
+        JSONArray jarray = new JSONArray();
+        if (programActionList != null) {
+            for (ProgramAction action : programActionList) {
+                jarray.put(action.toJson());
+            }
+            json.put("actions", jarray);
+        }
+
+        return json;
     }
 }

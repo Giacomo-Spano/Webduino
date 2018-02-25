@@ -8,20 +8,18 @@ import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.Button;
 
+import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.fragment.adapters.CardAdapter;
-import com.webduino.fragment.adapters.SimpleItemTouchHelperCallback;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
 import com.webduino.fragment.cardinfo.ProgramActionCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
-import com.webduino.fragment.cardinfo.TimeRangeCardInfo;
 import com.webduino.fragment.cardinfo.optioncardvalue.BooleanOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
@@ -90,7 +88,8 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         });
 
 
-        ImageButton okbutton = view.findViewById(R.id.confirmButton);
+        Button okbutton = view.findViewById(R.id.confirmButton);
+        MainActivity.setImageButton(okbutton,getResources().getColor(R.color.colorPrimary),true,getResources().getDrawable(R.drawable.check));
         okbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -102,14 +101,15 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
                 timeRange.endTime = optionCard_EndTime.value.getDateValue();
 
                 if (mListener != null) {
-                    mListener.onSaveTrigger(timeRange);
+                    mListener.onSaveProgramTimeRange(timeRange);
 
                 }
                 getActivity().getFragmentManager().popBackStack();
             }
         });
 
-        ImageButton cancelbutton = view.findViewById(R.id.cancelButton);
+        Button cancelbutton = view.findViewById(R.id.cancelButton);
+        MainActivity.setImageButton(cancelbutton,getResources().getColor(R.color.colorPrimary),false,getResources().getDrawable(R.drawable.uncheck));
         cancelbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -126,6 +126,7 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
             ProgramActionCardInfo actioncardinfo = new ProgramActionCardInfo();
             actioncardinfo.id = action.id;
             actioncardinfo.name = action.name;
+            actioncardinfo.action = action;
             actioncardinfo.setEnabled(action.enabled);
             result.add(actioncardinfo);
         }
@@ -198,7 +199,8 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         if (programActionCardInfo.id == 0)
             action = new ProgramAction();
         else
-            action = timeRange.getActionFromId(programActionCardInfo.id);
+            action = programActionCardInfo.action;
+
         if (timeRange != null) {
             programActionFragment.action = action;
 
@@ -217,6 +219,6 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
 
     public interface OnProgramTimeRangeFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onSaveTrigger(ScenarioProgramTimeRange timeRange);
+        void onSaveProgramTimeRange(ScenarioProgramTimeRange timeRange);
     }
 }

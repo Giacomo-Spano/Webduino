@@ -10,6 +10,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Color;
+import android.graphics.LightingColorFilter;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -66,6 +69,7 @@ import com.webduino.zones.Zones;
 
 import android.Manifest;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 
@@ -98,6 +102,7 @@ public class MainActivity extends AppCompatActivity
     protected GoogleApiClient mGoogleApiClient;
     private Button mAddGeofencesButton;
 
+    FloatingActionButton fab;
 
     // GPSTracker class
     GPSTracker gps;
@@ -121,14 +126,23 @@ public class MainActivity extends AppCompatActivity
     private MyReceiver myReceiver;
     private IntentFilter intentFilter;
 
-    /*private static MainActivity instance;
-    public static Context getContext() {
-        if (instance != null)
-            return instance.getApplicationContext();
-        else
-            return null;
-    }*/
+    public FloatingActionButton getFloatingActionButton() {
+        return fab;
+    }
 
+    public void showFloatingActionButton() {
+        if (fab != null)
+            fab.show();
+    }
+
+    public void hideFloatingActionButton() {
+        if (fab != null)
+            fab.hide();
+    }
+    public void setImageResourceFloatingActionButton(int drawable) {
+
+        fab.setImageResource(drawable/*android.R.drawable.ic_media_pause*/);
+    }
     private class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -225,7 +239,7 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*FloatingActionButton*/ fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -335,6 +349,7 @@ public class MainActivity extends AppCompatActivity
     private void refreshData() {
         getSensorData();
         getZoneData();
+        getScenarioData();
 
     }
 
@@ -660,4 +675,23 @@ public class MainActivity extends AppCompatActivity
         }
     }
     // end geofence
+
+    public static void setImageButton(Button button, int color, boolean textright, Drawable drawable) {
+
+        ImageView imgView = new ImageView(activity);
+
+        imgView.setImageDrawable(drawable);
+
+        imgView.setColorFilter(new LightingColorFilter(color,color));
+
+        button.setTextColor(color);
+
+        Drawable myDrawable = imgView.getDrawable();
+        myDrawable.setBounds( 0, 0, 120, 120);
+        if (textright)
+            button.setCompoundDrawables( null,  null, myDrawable, null );
+        else
+            button.setCompoundDrawables( myDrawable, null,  null, null );
+
+    }
 }

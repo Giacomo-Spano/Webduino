@@ -12,8 +12,9 @@ import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.Button;
 
+import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.adapters.SimpleItemTouchHelperCallback;
@@ -96,7 +97,8 @@ public class ProgramFragment extends Fragment implements ProgramTimeRangeFragmen
 
 
 
-        ImageButton okbutton = view.findViewById(R.id.confirmButton);
+        Button okbutton = view.findViewById(R.id.confirmButton);
+        MainActivity.setImageButton(okbutton,getResources().getColor(R.color.colorPrimary),true,getResources().getDrawable(R.drawable.check));
         okbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -115,14 +117,15 @@ public class ProgramFragment extends Fragment implements ProgramTimeRangeFragmen
                 program.sunday = multichioce.getValue(6);
 
                 if (mListener != null) {
-                    mListener.onSaveTrigger(program);
+                    mListener.onSaveProgram(program);
 
                 }
                 getActivity().getFragmentManager().popBackStack();
             }
         });
 
-        ImageButton cancelbutton = view.findViewById(R.id.cancelButton);
+        Button cancelbutton = view.findViewById(R.id.cancelButton);
+        MainActivity.setImageButton(cancelbutton,getResources().getColor(R.color.colorPrimary),false,getResources().getDrawable(R.drawable.uncheck));
         cancelbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -139,6 +142,7 @@ public class ProgramFragment extends Fragment implements ProgramTimeRangeFragmen
             TimeRangeCardInfo timerangecardinfo = new TimeRangeCardInfo();
             timerangecardinfo.id = timerange.id;
             timerangecardinfo.name = timerange.name;
+            timerangecardinfo.timerange = timerange;
             timerangecardinfo.setEnabled(timerange.enabled);
             timerangecardinfo.startTime = timerange.startTime;
             timerangecardinfo.endTime = timerange.endTime;
@@ -226,7 +230,7 @@ public class ProgramFragment extends Fragment implements ProgramTimeRangeFragmen
                 e.printStackTrace();
             }
         } else {
-            timeRange = program.getTimeRangeFromId(timeRangeCardInfo.id);
+            timeRange = timeRangeCardInfo.timerange;
         }
         if (timeRange != null)
             programTimeRangeFragment.timeRange = timeRange;
@@ -239,12 +243,12 @@ public class ProgramFragment extends Fragment implements ProgramTimeRangeFragmen
     }
 
     @Override
-    public void onSaveTrigger(ScenarioProgramTimeRange timeRange) {
+    public void onSaveProgramTimeRange(ScenarioProgramTimeRange timeRange) {
 
     }
 
     public interface OnProgramFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onSaveTrigger(ScenarioProgram trigger);
+        void onSaveProgram(ScenarioProgram trigger);
     }
 }
