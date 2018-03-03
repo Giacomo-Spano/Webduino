@@ -68,6 +68,7 @@ import com.webduino.zones.Zone;
 import com.webduino.zones.Zones;
 
 import android.Manifest;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -210,6 +211,9 @@ public class MainActivity extends AppCompatActivity
         }
 
         setContentView(R.layout.activity_main);
+
+        // QUESTO SERVE PER FARE STARE ACCESO LO SCHERMO
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
 
         try {

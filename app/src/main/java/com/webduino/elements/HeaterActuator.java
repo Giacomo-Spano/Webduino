@@ -150,7 +150,7 @@ public class HeaterActuator extends Actuator {
 
 
     @Override
-    void fromJson(JSONObject json) {
+    public void fromJson(JSONObject json) {
 
         super.fromJson(json);
 
@@ -161,8 +161,8 @@ public class HeaterActuator extends Actuator {
                 releStatus = json.getBoolean("relestatus");
             if (json.has("scenario"))
                 scenarioId = json.getInt("scenario");
-            if (json.has("zone"))
-                zoneId = json.getInt("zone");
+            if (json.has("zoneid"))
+                zoneId = json.getInt("zoneid");
             if (json.has("lasttemperatureupdate"))
                 lastTemperatureUpdate = json.getString("lasttemperatureupdate");
             if (json.has("lastcommanddate"))

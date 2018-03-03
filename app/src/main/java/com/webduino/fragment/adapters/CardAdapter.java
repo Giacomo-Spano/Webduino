@@ -183,6 +183,7 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
         protected TextView title;
         protected ImageView image;
         protected TextView label;
+        protected ImageView statusImage;
         protected int disabledColor;
         protected int id;
 
@@ -191,6 +192,7 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             title = (TextView) v.findViewById(R.id.titleEditText);
             image = (ImageView) v.findViewById(R.id.image);
             label = (TextView) v.findViewById(R.id.label);
+            statusImage = (ImageView) v.findViewById(R.id.statusImage);
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

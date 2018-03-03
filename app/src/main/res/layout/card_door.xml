@@ -12,6 +12,19 @@
         android:layout_height="wrap_content"
         android:background="@color/colorTextPrimary">
 
+        <ImageView
+            android:id="@+id/statusImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/label"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:gravity="center_vertical"
+            android:paddingBottom="3dp"
+            android:paddingTop="3dp"
+            android:src="@drawable/offline"
+            />
+
         <TextView
             android:id="@+id/titleEditText"
             android:layout_width="wrap_content"

@@ -435,9 +435,9 @@ public class requestDataTask extends
 
         if (requestType == REQUEST_REGISTERDEVICE) {
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
-        } else if (requestType == POST_ACTUATOR_COMMAND) {
+        } /*else if (requestType == POST_ACTUATOR_COMMAND) {
             delegate.processFinishSendCommand(result.resultString, error, errorMessage);
-        } else if (requestType == POST_SCENARIO) {
+        }*/else if (requestType == POST_SCENARIO || requestType == POST_ACTUATOR_COMMAND) {
             delegate.processFinish(result.resultObject, requestType, error, errorMessage);
         } else if (requestType == POST_DELETEPROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);
@@ -517,7 +517,8 @@ public class requestDataTask extends
                 json.put("zone", "" + zoneId);
                 //json.put("remote", "" + remote);
                 Result result = new Result();
-                result.resultString = postCall(url, json.toString());
+                String str = postCall(url, json.toString());
+                result.resultObject = new JSONObject(str);
                 return result;
 
             } catch (JSONException e) {
@@ -543,7 +544,6 @@ public class requestDataTask extends
 
                 Result result = new Result();
                 String strresult = postCall(url, json.toString());
-                //JSONObject json = new JSONObject(json.toString());
                 Scenario updatedscenario = new Scenario(new JSONObject(strresult));
                 result.resultObject = updatedscenario;
                 return result;
@@ -605,6 +605,21 @@ public class requestDataTask extends
 
             int responseCode = conn.getResponseCode();
 
+            InputStream is = null;
+
+            if (responseCode >= 200 && responseCode < 400) {
+                // Create an InputStream in order to extract the response object
+                is = conn.getInputStream();
+            }
+            else {
+                is = conn.getErrorStream();
+
+                for (int i = 0; i < is.available(); i++) {
+                    System.out.println("" + is.read());
+                }
+
+            }
+
             if (responseCode == HttpsURLConnection.HTTP_OK) {
 
                 String line;
@@ -617,8 +632,11 @@ public class requestDataTask extends
             } else {
 
 
+                InputStream _is = conn.getErrorStream();
+
+
                 errorMessage = conn.getResponseMessage() + " responseCode: " + responseCode;
-                throw new Exception(response);
+                throw new Exception(errorMessage);
             }
         } catch (Exception e) {
             e.printStackTrace();
