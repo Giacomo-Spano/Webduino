@@ -56,6 +56,9 @@
     <string name="enabled">Abilitato</string>
     <string name="disabled">Disabilitato</string>
     <string name="scenariosaveinprogress">Salvataggio scenario in corso</string>
+    <string name="Scenarios">Scenari</string>
+    <string name="Zones">Zone</string>
+    <string name="Actuators">Attuatori</string>
     <string-array name="dayshortlist">
         <item>Lu</item>
         <item>Ma</item>

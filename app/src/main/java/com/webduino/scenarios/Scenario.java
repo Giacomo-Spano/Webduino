@@ -24,7 +24,7 @@ import java.util.List;
 public class Scenario {
 
     public int id;
-
+    public int webduinosystemid;
     public boolean enabled = false;
     public String name = "";
     public String description = "";
@@ -48,6 +48,8 @@ public class Scenario {
         try {
             if (jObject.has("id"))
                 id = jObject.getInt("id");
+            if (jObject.has("webduinosystemid"))
+                webduinosystemid = jObject.getInt("webduinosystemid");
             if (jObject.has("name"))
                 name = jObject.getString("name");
             if (jObject.has("description"))
@@ -125,6 +127,7 @@ public class Scenario {
 
         CardInfo cardInfo = new ScenarioCardInfo();
         cardInfo.id = id;
+        ((ScenarioCardInfo)cardInfo).scenario = this;
         cardInfo.name = name;
         cardInfo.enabled = enabled;
         if (status)
@@ -159,6 +162,7 @@ public class Scenario {
         JSONObject json = new JSONObject();
         try {
             json.put("id", id);
+            json.put("webduinosystemid", webduinosystemid);
             json.put("name", name);
             json.put("description", description);
             //json.put("dateenabled", dateEnabled);

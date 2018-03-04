@@ -173,9 +173,16 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             return (RecyclerView.ViewHolder) new ProgramActionViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
         } else if (viewType == CardInfo.TYPE_OPTION) {
             return (RecyclerView.ViewHolder) new OptionViewHolder(LayoutInflater.from(context).inflate(R.layout.card_option, parent, false));
-        }else if (viewType == CardInfo.TYPE_ACTIONBUTTON) {
+        } else if (viewType == CardInfo.TYPE_ACTIONBUTTON) {
             return (RecyclerView.ViewHolder) new ActionButtonViewHolder(LayoutInflater.from(context).inflate(R.layout.card_actionbutton, parent, false));
+        } else if (viewType == CardInfo.TYPE_WEBDUINOSYSTEM) {
+            return (RecyclerView.ViewHolder) new WebduinoSystemViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
+        } else if (viewType == CardInfo.TYPE_WEBDUINOSYSTEMZONE) {
+            return (RecyclerView.ViewHolder) new WebduinoSystemZoneViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
+        } else if (viewType == CardInfo.TYPE_WEBDUINOSYSTEMACTUATOR) {
+            return (RecyclerView.ViewHolder) new WebduinoSystemActuatorViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
         }
+
         return null;
     }
 
@@ -453,6 +460,27 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
         public void setVisibility(int visibility) {
             this.visibility = visibility;
+        }
+    }
+
+    public class WebduinoSystemZoneViewHolder extends ScenarioInfoViewHolder {
+
+        public WebduinoSystemZoneViewHolder(View v) {
+            super(v);
+        }
+    }
+
+    public class WebduinoSystemActuatorViewHolder extends ScenarioInfoViewHolder {
+
+        public WebduinoSystemActuatorViewHolder(View v) {
+            super(v);
+        }
+    }
+
+    public class WebduinoSystemViewHolder extends ScenarioInfoViewHolder {
+
+        public WebduinoSystemViewHolder(View v) {
+            super(v);
         }
     }
 

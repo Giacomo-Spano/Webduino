@@ -24,6 +24,9 @@ public class CardInfo {
     public static final int TYPE_PROGRAM = 11;
     public static final int TYPE_PROGRAMTIMERANGE = 12;
     public static final int TYPE_PROGRAMACTION = 13;
+    public static final int TYPE_WEBDUINOSYSTEM = 14;
+    public static final int TYPE_WEBDUINOSYSTEMZONE = 15;
+    public static final int TYPE_WEBDUINOSYSTEMACTUATOR = 16;
 
     public String label;
     public String name;

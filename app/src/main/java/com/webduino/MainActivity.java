@@ -10,10 +10,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.graphics.LightingColorFilter;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -39,22 +37,17 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.webduino.chart.HistoryData;
-import com.webduino.elements.Actuator;
 import com.webduino.elements.Actuators;
 import com.webduino.elements.HeaterActuator;
-import com.webduino.elements.NextProgram;
-import com.webduino.elements.NextPrograms;
-import com.webduino.elements.Program;
 import com.webduino.elements.ProgramActionType;
 import com.webduino.elements.ProgramActionTypes;
-import com.webduino.elements.Programs;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
 import com.webduino.elements.Trigger;
 import com.webduino.elements.Triggers;
 import com.webduino.elements.requestDataTask;
-import com.webduino.fragment.TimeIntervalFragment;
 import com.webduino.fragment.HistoryFragment;
+import com.webduino.fragment.WebduinoSystemsFragment;
 import com.webduino.fragment.NextProgramsFragment;
 import com.webduino.fragment.PanelFragment;
 import com.webduino.fragment.PrefsFragment;
@@ -64,6 +57,8 @@ import com.webduino.fragment.SensorsFragment;
 import com.webduino.fragment.HeaterFragment;
 import com.webduino.scenarios.Scenario;
 import com.webduino.scenarios.Scenarios;
+import com.webduino.webduinosystems.WebduinoSystem;
+import com.webduino.webduinosystems.WebduinoSystems;
 import com.webduino.zones.Zone;
 import com.webduino.zones.Zones;
 
@@ -116,7 +111,7 @@ public class MainActivity extends AppCompatActivity
     PanelFragment panelFragment;
     SensorsFragment sensorsFragment;
     ScenariosFragment scenariosFragment;
-    //ProgramsListFragment programsFragment;
+    WebduinoSystemsFragment webduinoSystemsFragment;
 
     NextProgramsFragment nextProgramFragment;
     HistoryFragment historyFragment;
@@ -267,7 +262,8 @@ public class MainActivity extends AppCompatActivity
         panelFragment = new PanelFragment();
         sensorsFragment = new SensorsFragment();
         scenariosFragment = new ScenariosFragment();
-        //programsFragment = new ProgramsListFragment();
+        webduinoSystemsFragment = new WebduinoSystemsFragment();
+
         nextProgramFragment = new NextProgramsFragment();
         historyFragment = new HistoryFragment();
         preferencesFragment = new PrefsFragment();
@@ -353,6 +349,7 @@ public class MainActivity extends AppCompatActivity
     private void refreshData() {
         getSensorData();
         getZoneData();
+        getWebduinoSystemData();
         getScenarioData();
 
     }
@@ -438,10 +435,8 @@ public class MainActivity extends AppCompatActivity
             /*MenuItem actionitem = menu.findItem(R.id.action_create_program);
             actionitem.setVisible(false);*/
 
-        } else if (id == R.id.nav_slideshow) {
-            //getNextProgramData();
-            //ft.replace(R.id.content_frame, nextProgramFragment);
-            showSchedule();
+        } else if (id == R.id.nav_webduinosystems) {
+            ft.replace(R.id.content_frame, webduinoSystemsFragment);
 
         } else if (id == R.id.nav_manage) {
 
@@ -463,6 +458,15 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    /*@Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        //menu.clear();
+
+        menu.add(0, MENU_EDIT, Menu.NONE, getString(R.string.menu_action_edit)).setIcon(R.drawable.ic_action_edit).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        menu.add(0, MENU_DELETE, Menu.NONE, getString(R.string.menu_action_delete)).setIcon(R.drawable.ic_action_delete).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        return super.onPrepareOptionsMenu(menu);
+    }*/
 
     public void enableMenuItem(int id, boolean enable) {
         MenuItem actionitem = menu.findItem(id);
@@ -513,7 +517,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void getZoneData() {
-        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_ZONES).execute();
+        //new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_ZONES).execute();
 
         new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
 
@@ -527,6 +531,22 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }, requestDataTask.REQUEST_ZONES).execute();
+    }
+
+    public void getWebduinoSystemData() {
+
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
+
+            @Override
+            public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
+                if (error)
+                    return;
+                WebduinoSystems.list.clear();
+                for (Object webduinosystem : list) {
+                    WebduinoSystems.add((WebduinoSystem) webduinosystem);
+                }
+            }
+        }, requestDataTask.REQUEST_WEBDUINOSYSTEMS).execute();
     }
 
     public void getScenarioData() {

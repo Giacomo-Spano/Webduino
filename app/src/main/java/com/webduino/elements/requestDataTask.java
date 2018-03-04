@@ -17,6 +17,8 @@ import com.webduino.scenarios.Scenario;
 import com.webduino.SensorFactory;
 import com.webduino.ZoneFactory;
 import com.webduino.chart.HistoryData;
+import com.webduino.webduinosystems.WebduinoSystem;
+import com.webduino.webduinosystems.WebduinoSystemFactory;
 import com.webduino.zones.Zone;
 
 import org.json.JSONArray;
@@ -62,6 +64,7 @@ public class requestDataTask extends
     public static final int REQUEST_TRIGGERS = 16;
     public static final int REQUEST_ACTIONTYPES = 17;
     public static final int POST_SCENARIO = 18;
+    public static final int REQUEST_WEBDUINOSYSTEMS = 19;
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -107,7 +110,7 @@ public class requestDataTask extends
                 || requestType == REQUEST_ZONES || requestType == REQUEST_SCENARIOS
                 || requestType == REQUEST_SENSORDATALOG
                 || requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS || requestType == REQUEST_COMMANDDATALOG
-                || requestType == REQUEST_TRIGGERS || requestType == REQUEST_ACTIONTYPES) {
+                || requestType == REQUEST_TRIGGERS || requestType == REQUEST_ACTIONTYPES || requestType == REQUEST_WEBDUINOSYSTEMS) {
             result = performGetRequest(params);
             return result;
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM
@@ -149,6 +152,10 @@ public class requestDataTask extends
             } else if (requestType == REQUEST_ZONES) {
 
                 path = "/system?requestcommand=zones";
+
+            } else if (requestType == REQUEST_WEBDUINOSYSTEMS) {
+
+                path = "/system?requestcommand=webduinosystems";
 
             } else if (requestType == REQUEST_SCENARIOS) {
 
@@ -232,6 +239,18 @@ public class requestDataTask extends
                         Zone zone = factory.createZone(jObject);
                         if (zone != null)
                             list.add(zone);
+                    }
+                    result.objectList = list;
+                } else if (requestType == REQUEST_WEBDUINOSYSTEMS) {
+
+                    List<Object> list = new ArrayList<Object>();
+                    JSONArray jArray = new JSONArray(json);
+                    WebduinoSystemFactory factory = new WebduinoSystemFactory();
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        WebduinoSystem webduinoSystem = factory.createWebduinoSystem(jObject);
+                        if (webduinoSystem != null)
+                            list.add(webduinoSystem);
                     }
                     result.objectList = list;
                 } else if (requestType == REQUEST_SCENARIOS) {
@@ -442,7 +461,8 @@ public class requestDataTask extends
         } else if (requestType == POST_DELETEPROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);
         } else if (requestType == REQUEST_SENSORDATALOG || requestType == REQUEST_SCENARIOS || requestType == REQUEST_TRIGGERS
-                || requestType == REQUEST_ACTIONTYPES || requestType == REQUEST_ZONES || requestType == REQUEST_SENSORS) {
+                || requestType == REQUEST_ACTIONTYPES || requestType == REQUEST_ZONES || requestType == REQUEST_SENSORS
+                || requestType == REQUEST_WEBDUINOSYSTEMS) {
             delegate.processFinishObjectList(result.objectList, requestType, error, errorMessage);
         } else {
             delegate.processFinish(result.resultObject, requestType, error, errorMessage);

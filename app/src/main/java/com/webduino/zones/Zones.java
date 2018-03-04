@@ -21,5 +21,14 @@ public class Zones {
         list.get(index);
     }
 
+    public static Zone getFromId(int id) {
+        for(Zone zone : list) {
+            if (zone.id == id) {
+                return zone;
+            }
+        }
+        return null;
+    }
+
 
 }
