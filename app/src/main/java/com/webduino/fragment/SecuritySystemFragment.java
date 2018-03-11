@@ -61,49 +61,6 @@ public class SecuritySystemFragment extends WebduinoSystemFragment {
 
         View v = createView(inflater, container, R.layout.fragment_securitysystem);
 
-        targetTextView = (TextView) v.findViewById(R.id.targetTextView);
-        zoneTextView = (TextView) v.findViewById(R.id.zoneTextView);
-        statusTextView = (TextView) v.findViewById(R.id.statusTextView);
-
-        okButton = (Button) v.findViewById(R.id.okButton);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-             
-                cancelButton.setVisibility(View.INVISIBLE);
-                okButton.setVisibility(View.INVISIBLE);
-            }
-        });
-        cancelButton = (Button) v.findViewById(R.id.cancelButton);
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                cancelButton.setVisibility(View.INVISIBLE);
-                okButton.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        cancelButton.setVisibility(View.INVISIBLE);
-        okButton.setVisibility(View.INVISIBLE);
-
-        ImageButton increaseButton = (ImageButton) v.findViewById(R.id.increaseButton);
-        increaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                cancelButton.setVisibility(View.VISIBLE);
-                okButton.setVisibility(View.VISIBLE);
-            }
-        });
-        ImageButton decreaseButton = (ImageButton) v.findViewById(R.id.decreaseButton);
-        decreaseButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                cancelButton.setVisibility(View.VISIBLE);
-                okButton.setVisibility(View.VISIBLE);
-            }
-        });
 
         refreshData();
         return v;
@@ -114,16 +71,16 @@ public class SecuritySystemFragment extends WebduinoSystemFragment {
 
     @Override
     public void onClickScenario(CardInfo cardInfo) {
-
+        super.onClickScenario(cardInfo);
     }
 
     @Override
     public void onClickZone(CardInfo cardInfo) {
-
+        super.onClickZone(cardInfo);
     }
 
     @Override
     public void onClickActuator(CardInfo cardInfo) {
-
+        super.onClickActuator(cardInfo);
     }
 }

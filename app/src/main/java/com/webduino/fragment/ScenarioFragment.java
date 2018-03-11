@@ -14,12 +14,10 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 
 import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.WebduinoResponse;
-import com.webduino.elements.TimeRange;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.adapters.HeaterDataRowItem;
@@ -58,7 +56,7 @@ public class ScenarioFragment extends Fragment implements
 
     public interface OnScenarioFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onSaveTimeInterval(Scenario scenario);
+        void onSave(Scenario scenario);
     }
 
     public void setListener(OnScenarioFragmentInteractionListener listener) {
@@ -151,8 +149,9 @@ public class ScenarioFragment extends Fragment implements
                 scenario.enabled = optionCard_Enabled.value.getBoolValue();
                 scenario.priority = optionCard_Enabled.value.getIntValue();
 
+                saveScenario();
                 if (mListener != null) {
-                    mListener.onSaveTimeInterval(scenario);
+                    mListener.onSave(scenario);
                 }
                 getActivity().getFragmentManager().popBackStack();
             }
@@ -365,14 +364,17 @@ public class ScenarioFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        //String strtext = getArguments().getString("shieldid");
-        //shieldId = Integer.valueOf(strtext);
         String strtext = getArguments().getString("id");
+
         int id = Integer.valueOf(strtext);
         if (id == 0)
             scenario = new Scenario();
         else
             scenario = Scenarios.getFromId(id);
+
+        strtext = getArguments().getString("webduinosystemid");
+        int webduinosystemid = Integer.valueOf(strtext);
+        scenario.webduinosystemid = webduinosystemid;
     }
 
 

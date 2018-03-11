@@ -23,10 +23,11 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_weight="1"
-            android:text="Antifurto"
+            android:text="Riscaldamento"
             android:textSize="@dimen/scenario_title_textsize" />
 
     </LinearLayout>
+
 
     <ScrollView
         android:id="@+id/scrollView"

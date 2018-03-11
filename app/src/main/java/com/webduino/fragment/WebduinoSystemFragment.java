@@ -2,7 +2,8 @@ package com.webduino.fragment;
 
 
 import android.app.Fragment;
-import android.content.Context;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,14 +15,11 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
+import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.elements.HeaterActuator;
 import com.webduino.fragment.adapters.CardAdapter;
-import com.webduino.fragment.adapters.HeaterDataRowItem;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.ScenarioCardInfo;
@@ -31,6 +29,7 @@ import com.webduino.scenarios.Scenario;
 import com.webduino.scenarios.Scenarios;
 import com.webduino.webduinosystems.WebduinoSystem;
 import com.webduino.webduinosystems.WebduinoSystemActuator;
+import com.webduino.webduinosystems.WebduinoSystemService;
 import com.webduino.webduinosystems.WebduinoSystemZone;
 
 import java.util.ArrayList;
@@ -40,27 +39,34 @@ public class WebduinoSystemFragment extends Fragment {
 
     public WebduinoSystem webduinoSystem;
 
-    private CardAdapter cardAdapter;
+    private CardAdapter scenarioCardAdapter, actuatorCardAdapter, zoneCardAdapter;
 
-    // Container Activity must implement this interface
-    public interface OnWebduinoSystemUpdatedListener {
-        public void OnWebduinoSystemUpdated(HeaterActuator heaterActuator);
+    public void update() {
+        if (scenarioCardAdapter != null) {
+            List<CardInfo> list = createScenarioList();
+            scenarioCardAdapter.swap(list);
+        }
+
+        if (actuatorCardAdapter != null) {
+            List<CardInfo> list = createActuatorList();
+            actuatorCardAdapter.swap(list);
+        }
+
+        if (zoneCardAdapter != null) {
+            List<CardInfo> list = createZoneList();
+            zoneCardAdapter.swap(list);
+        }
     }
 
-    OnWebduinoSystemUpdatedListener listener;
+    // Container Activity must implement this interface
+    public interface OnWebduinoSystemFragmentListener {
+        public void onWebduinoSystemRefresh();
+    }
 
-    /*@Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        try {
-            listener = (OnWebduinoSystemUpdatedListener) context;
-        } catch (ClassCastException e) {
-            throw new ClassCastException(context.toString() + " must implement OnArticleSelectedListener");
-        }
-    }*/
+    private List<OnWebduinoSystemFragmentListener> listeners = new ArrayList<>();
 
-    public void setListener(OnWebduinoSystemUpdatedListener listener) {
-        this.listener = listener;
+    public void addListener(OnWebduinoSystemFragmentListener listener) {
+        this.listeners.add(listener);
     }
 
     @Override
@@ -94,9 +100,9 @@ public class WebduinoSystemFragment extends Fragment {
         StaggeredGridLayoutManager gridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         // Attach the layout manager to the recycler view
         zoneRecList.setLayoutManager(gridLayoutManager);
-        cardAdapter = new CardAdapter(this, createZoneList());
-        zoneRecList.setAdapter(cardAdapter);
-        cardAdapter.setListener(new CardAdapter.OnListener() {
+        zoneCardAdapter = new CardAdapter(this, createZoneList());
+        zoneRecList.setAdapter(zoneCardAdapter);
+        zoneCardAdapter.setListener(new CardAdapter.OnListener() {
             @Override
             public void onClick(int position, CardInfo cardInfo) {
                 onClickZone(cardInfo);
@@ -110,9 +116,9 @@ public class WebduinoSystemFragment extends Fragment {
         gridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         // Attach the layout manager to the recycler view
         actuatorRecList.setLayoutManager(gridLayoutManager);
-        cardAdapter = new CardAdapter(this, createActuatorList());
-        actuatorRecList.setAdapter(cardAdapter);
-        cardAdapter.setListener(new CardAdapter.OnListener() {
+        actuatorCardAdapter = new CardAdapter(this, createActuatorList());
+        actuatorRecList.setAdapter(actuatorCardAdapter);
+        actuatorCardAdapter.setListener(new CardAdapter.OnListener() {
             @Override
             public void onClick(int position, CardInfo cardInfo) {
                 onClickActuator(cardInfo);
@@ -126,9 +132,9 @@ public class WebduinoSystemFragment extends Fragment {
         gridLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         // Attach the layout manager to the recycler view
         scenarioRecList.setLayoutManager(gridLayoutManager);
-        cardAdapter = new CardAdapter(this, createScenarioList());
-        scenarioRecList.setAdapter(cardAdapter);
-        cardAdapter.setListener(new CardAdapter.OnListener() {
+        scenarioCardAdapter = new CardAdapter(this, createScenarioList());
+        scenarioRecList.setAdapter(scenarioCardAdapter);
+        scenarioCardAdapter.setListener(new CardAdapter.OnListener() {
             @Override
             public void onClick(int position, CardInfo cardInfo) {
                 onClickScenario(cardInfo);
@@ -165,6 +171,8 @@ public class WebduinoSystemFragment extends Fragment {
         List<CardInfo> result = new ArrayList<CardInfo>();
 
         for (Scenario scenario : Scenarios.list) {
+            if (scenario.webduinosystemid != webduinoSystem.id)
+                continue;
             try {
                 CardInfo ci = scenario.getCardInfo();
                 result.add(ci);
@@ -185,13 +193,36 @@ public class WebduinoSystemFragment extends Fragment {
 
         List<CardInfo> result = new ArrayList<CardInfo>();
         for (WebduinoSystemActuator actuator : webduinoSystem.actuators) {
-            WebduinoSystemActuatorCardInfo cardinfo = new WebduinoSystemActuatorCardInfo();
-            cardinfo.id = actuator.id;
-            cardinfo.name = actuator.name;
-            cardinfo.actuator = actuator;
-            cardinfo.setEnabled(true);
-            result.add(cardinfo);
+
+            CardInfo cardinfo;
+            if (actuator.actuator instanceof HeaterActuator) {
+                cardinfo = actuator.actuator.getCardInfo(this);
+                result.add(cardinfo);
+
+            } else {
+
+                /*cardinfo = new WebduinoSystemActuatorCardInfo();
+                cardinfo.id = actuator.id;
+                cardinfo.name = actuator.name;
+                cardinfo.actuator = actuator;
+                cardinfo.setEnabled(true);
+                result.add(cardinfo);*/
+            }
         }
+
+        for (WebduinoSystemService service : webduinoSystem.services) {
+
+            CardInfo cardinfo;
+
+                cardinfo = new WebduinoSystemActuatorCardInfo();
+                cardinfo.id = service.id;
+                cardinfo.name = service.name;
+                //cardinfo.actuator = actuator;
+                cardinfo.setEnabled(true);
+                result.add(cardinfo);
+
+        }
+
         return result;
     }
 
@@ -209,7 +240,42 @@ public class WebduinoSystemFragment extends Fragment {
         return result;
     }
 
+    private void showScenarioFragment(ScenarioCardInfo scenarioCardInfo) {
+        Bundle bundle = new Bundle();
+        bundle.putString("id", "" + scenarioCardInfo.id);
+        bundle.putString("webduinosystemid", "" + webduinoSystem.id);
+
+        ScenarioFragment scenarioFragment = new ScenarioFragment();
+        scenarioFragment.setListener(new ScenarioFragment.OnScenarioFragmentInteractionListener() {
+            @Override
+            public void onSave(Scenario scenario) {
+                for(OnWebduinoSystemFragmentListener listener: listeners) {
+                    listener.onWebduinoSystemRefresh();
+                }
+
+            }
+        });
+
+        scenarioFragment.setArguments(bundle);
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        ft.replace(R.id.content_frame, (Fragment) scenarioFragment);
+        ft.addToBackStack(null);
+        ft.commit();
+    }
+
     public void onClickScenario(CardInfo cardInfo) {
+
+        if (cardInfo instanceof ScenarioCardInfo) {
+
+            ScenarioCardInfo scenarioCardInfordInfo = (ScenarioCardInfo) cardInfo;
+            showScenarioFragment(scenarioCardInfordInfo);
+
+        } else if (cardInfo instanceof ActionButtonCardInfo) {
+
+            ScenarioCardInfo scenarioCardInfordInfo = new ScenarioCardInfo();
+            showScenarioFragment(scenarioCardInfordInfo);
+        }
 
     }
 

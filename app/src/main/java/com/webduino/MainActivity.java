@@ -47,6 +47,7 @@ import com.webduino.elements.Trigger;
 import com.webduino.elements.Triggers;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.HistoryFragment;
+import com.webduino.fragment.WebduinoSystemFragment;
 import com.webduino.fragment.WebduinoSystemsFragment;
 import com.webduino.fragment.NextProgramsFragment;
 import com.webduino.fragment.PanelFragment;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         HeaterFragment.OnHeaterUpdatedListener,
+        WebduinoSystemsFragment.OnWebduinoSystemsFragmentListener,
         ResultCallback<Status> {
 
     static final public int notificationId_ChangeStatus = 1;
@@ -113,6 +115,7 @@ public class MainActivity extends AppCompatActivity
     ScenariosFragment scenariosFragment;
     WebduinoSystemsFragment webduinoSystemsFragment;
 
+
     NextProgramsFragment nextProgramFragment;
     HistoryFragment historyFragment;
     PrefsFragment preferencesFragment;
@@ -139,6 +142,12 @@ public class MainActivity extends AppCompatActivity
 
         fab.setImageResource(drawable/*android.R.drawable.ic_media_pause*/);
     }
+
+    @Override
+    public void onWebduinoSystemsRefresh() {
+        refreshData();
+    }
+
     private class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -263,6 +272,7 @@ public class MainActivity extends AppCompatActivity
         sensorsFragment = new SensorsFragment();
         scenariosFragment = new ScenariosFragment();
         webduinoSystemsFragment = new WebduinoSystemsFragment();
+        webduinoSystemsFragment.addListener(this);
 
         nextProgramFragment = new NextProgramsFragment();
         historyFragment = new HistoryFragment();
@@ -346,11 +356,12 @@ public class MainActivity extends AppCompatActivity
 
     // end geofence
 
-    private void refreshData() {
+    public void refreshData() {
         getSensorData();
         getZoneData();
-        getWebduinoSystemData();
         getScenarioData();
+        getWebduinoSystemData();
+
 
     }
 
@@ -545,6 +556,7 @@ public class MainActivity extends AppCompatActivity
                 for (Object webduinosystem : list) {
                     WebduinoSystems.add((WebduinoSystem) webduinosystem);
                 }
+                webduinoSystemsFragment.update();
             }
         }, requestDataTask.REQUEST_WEBDUINOSYSTEMS).execute();
     }
@@ -560,6 +572,7 @@ public class MainActivity extends AppCompatActivity
                 for (Object scenario : list) {
                     Scenarios.add((Scenario) scenario);
                 }
+                //webduinoSystemsFragment.update();
             }
         }, requestDataTask.REQUEST_SCENARIOS).execute();
     }

@@ -27,6 +27,7 @@ public class CardInfo {
     public static final int TYPE_WEBDUINOSYSTEM = 14;
     public static final int TYPE_WEBDUINOSYSTEMZONE = 15;
     public static final int TYPE_WEBDUINOSYSTEMACTUATOR = 16;
+    public static final int TYPE_HORNSENSOR = 2;
 
     public String label;
     public String name;

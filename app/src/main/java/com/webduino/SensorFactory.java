@@ -3,6 +3,7 @@ package com.webduino;
 import com.webduino.elements.CurrentSensor;
 import com.webduino.elements.DoorSensor;
 import com.webduino.elements.HeaterActuator;
+import com.webduino.elements.HornSensor;
 import com.webduino.elements.HumiditySensor;
 import com.webduino.elements.OnewireSensor;
 import com.webduino.elements.PIRSensor;
@@ -49,6 +50,8 @@ public class SensorFactory {
                 sensor = (Sensor) new PressureSensor(json);
             } else if (type.equals("heatersensor")) {
                 sensor = (Sensor) new HeaterActuator(json);
+            } else if (type.equals("hornsensor")) {
+                sensor = (Sensor) new HornSensor(json);
             } else {
                 return null;
             }

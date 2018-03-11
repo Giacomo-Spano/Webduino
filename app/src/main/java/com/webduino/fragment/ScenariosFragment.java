@@ -109,7 +109,7 @@ public class ScenariosFragment extends Fragment implements CardAdapter.OnListene
         scenarioFragment = new ScenarioFragment();
         scenarioFragment.setListener(new ScenarioFragment.OnScenarioFragmentInteractionListener() {
             @Override
-            public void onSaveTimeInterval(Scenario scenario) {
+            public void onSave(Scenario scenario) {
 
             }
         });

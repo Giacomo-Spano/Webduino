@@ -24,11 +24,29 @@ import java.util.List;
 import static com.webduino.webduinosystems.WebduinoSystemFactory.HEATERSYSTEM;
 import static com.webduino.webduinosystems.WebduinoSystemFactory.SECURITYSYSTEM;
 
-public class WebduinoSystemsFragment extends Fragment  {
+public class WebduinoSystemsFragment extends Fragment implements WebduinoSystemFragment.OnWebduinoSystemFragmentListener {
 
     private List<CardInfo> list;
     private CardAdapter cardAdapter;
 
+    WebduinoSystemFragment webduinoSystemFragment = null;
+
+    @Override
+    public void onWebduinoSystemRefresh() {
+        for (WebduinoSystemsFragment.OnWebduinoSystemsFragmentListener listener: listeners) {
+            listener.onWebduinoSystemsRefresh();
+        }
+    }
+
+    public interface OnWebduinoSystemsFragmentListener {
+        public void onWebduinoSystemsRefresh();
+    }
+
+    private List<OnWebduinoSystemsFragmentListener> listeners = new ArrayList<>();
+
+    public void addListener(OnWebduinoSystemsFragmentListener listener) {
+        this.listeners.add(listener);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -62,8 +80,15 @@ public class WebduinoSystemsFragment extends Fragment  {
 
     public void update() {
 
+        if (cardAdapter == null)
+            return;
+
         list = createWebduinoSystemList();
         cardAdapter.swap(list);
+
+        if (webduinoSystemFragment != null) {
+            webduinoSystemFragment.update();
+        }
 
     }
 
@@ -83,20 +108,23 @@ public class WebduinoSystemsFragment extends Fragment  {
 
     private void showWebduinoSystemFragment(WebduinoSystemCardInfo webduinoSystemCardInfo) {
 
-        Fragment webduinoSystemFragment = null;
+        //WebduinoSystemFragment webduinoSystemFragment = null;
 
         Bundle bundle = new Bundle();
         bundle.putString("id", "" + webduinoSystemCardInfo.id);
 
         if (webduinoSystemCardInfo.webduionoSystemType.equals(HEATERSYSTEM)) {
             webduinoSystemFragment = new HeaterSystemFragment();
+            webduinoSystemFragment.webduinoSystem = webduinoSystemCardInfo.webduionoSystem;
 
         } else if (webduinoSystemCardInfo.webduionoSystemType.equals(SECURITYSYSTEM)) {
             webduinoSystemFragment = new SecuritySystemFragment();
-            ((SecuritySystemFragment)webduinoSystemFragment).webduinoSystem = webduinoSystemCardInfo.webduionoSystem;
+            webduinoSystemFragment.webduinoSystem = webduinoSystemCardInfo.webduionoSystem;
         } else {
             return;
         }
+
+        webduinoSystemFragment.addListener(this);
 
         webduinoSystemFragment.setArguments(bundle);
         FragmentManager fragmentManager = getFragmentManager();

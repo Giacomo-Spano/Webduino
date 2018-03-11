@@ -21,6 +21,7 @@ public class WebduinoSystem {
     private String name;
     public List<WebduinoSystemZone> zones = new ArrayList<>();
     public List<WebduinoSystemActuator> actuators = new ArrayList<>();
+    public List<WebduinoSystemService> services = new ArrayList<>();
     public String webduinoSystemType;
 
     public WebduinoSystem(JSONObject json) throws JSONException {
@@ -59,6 +60,14 @@ public class WebduinoSystem {
             for (int i = 0; i < jsonArray.length(); i++) {
                 WebduinoSystemActuator actuator = new WebduinoSystemActuator(jsonArray.getJSONObject(i));
                 actuators.add(actuator);
+            }
+        }
+        services.clear();
+        if (jObject.has("services")) {
+            JSONArray jsonArray = jObject.getJSONArray("services");
+            for (int i = 0; i < jsonArray.length(); i++) {
+                WebduinoSystemService service = new WebduinoSystemService(jsonArray.getJSONObject(i));
+                services.add(service);
             }
         }
     }

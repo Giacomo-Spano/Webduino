@@ -32,8 +32,8 @@ public class WebduinoSystemZone {
         if (jObject.has("name"))
             name = jObject.getString("name");
         if (jObject.has("zoneid")) {
-            int zoneid = jObject.getInt("id");
-            zone = Zones.getFromId(id);
+            int zoneid = jObject.getInt("zoneid");
+            zone = Zones.getFromId(zoneid);
         }
     }
 }
