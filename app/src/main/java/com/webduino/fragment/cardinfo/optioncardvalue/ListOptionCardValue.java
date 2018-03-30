@@ -51,7 +51,7 @@ public class ListOptionCardValue extends OptionCardValue {
                     public void onClick(DialogInterface dialog, int which) {
                         // The 'which' argument contains the index position
                         // of the selected item
-                        //value = which;
+                        value = which;
                         if (listener != null)
                             listener.onSetValue(itemValues[which]);
                     }

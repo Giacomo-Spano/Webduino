@@ -8,6 +8,9 @@ import android.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -19,6 +22,8 @@ import android.widget.TextView;
 
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.WebduinoResponse;
+import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
@@ -49,6 +54,7 @@ public class TimeIntervalFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
         }
     }
@@ -80,7 +86,7 @@ public class TimeIntervalFragment extends Fragment {
         });
 
         Button okbutton = view.findViewById(R.id.confirmButton);
-        MainActivity.setImageButton(okbutton,getResources().getColor(R.color.colorPrimary),true,getResources().getDrawable(R.drawable.check));
+        MainActivity.setImageButton(okbutton, getResources().getColor(R.color.colorPrimary), true, getResources().getDrawable(R.drawable.check));
         okbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,8 +95,9 @@ public class TimeIntervalFragment extends Fragment {
                 timeInterval.description = optionCard_Description.value.getStringValue();
                 Object val = optionCard_Enabled.value;
                 timeInterval.enabled = optionCard_Enabled.value.getBoolValue();
-
-                MultiChoiceOptionCardValue multichioce = (MultiChoiceOptionCardValue)optionCard_daysofweek.value;
+                timeInterval.startDateTime = optionCard_StartDate.value.getDateValue();
+                timeInterval.endDateTime = optionCard_EndDate.value.getDateValue();
+                MultiChoiceOptionCardValue multichioce = (MultiChoiceOptionCardValue) optionCard_daysofweek.value;
                 timeInterval.monday = multichioce.getValue(0);
                 timeInterval.tuesday = multichioce.getValue(1);
                 timeInterval.wednesday = multichioce.getValue(2);
@@ -98,17 +105,12 @@ public class TimeIntervalFragment extends Fragment {
                 timeInterval.friday = multichioce.getValue(4);
                 timeInterval.saturday = multichioce.getValue(5);
                 timeInterval.sunday = multichioce.getValue(6);
-
-                if (mListener != null) {
-                    mListener.onSaveTimeInterval(timeInterval);
-
-                }
-                getActivity().getFragmentManager().popBackStack();
+                saveTimeInterval();
             }
         });
 
         Button cancelbutton = view.findViewById(R.id.cancelButton);
-        MainActivity.setImageButton(cancelbutton,getResources().getColor(R.color.colorPrimary),false,getResources().getDrawable(R.drawable.uncheck));
+        MainActivity.setImageButton(cancelbutton, getResources().getColor(R.color.colorPrimary), false, getResources().getDrawable(R.drawable.uncheck));
         cancelbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -116,7 +118,50 @@ public class TimeIntervalFragment extends Fragment {
             }
         });
 
+        ((MainActivity)getActivity()).enableDeleteMenuItem(true);
         return view;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_delete) {
+            deleteTimeInterval();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
+    public void saveTimeInterval() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+                if (!error) {
+                    timeInterval = (ScenarioTimeInterval) result;
+                    if (mListener != null) {
+                        mListener.onSaveTimeInterval(timeInterval);
+                    }
+                    getActivity().getFragmentManager().popBackStack();
+                }
+            }
+        }, requestDataTask.POST_SCENARIOTIMEINTERVAL).execute(timeInterval, false);
+    }
+
+    public void deleteTimeInterval() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+                if (!error) {
+                    mListener.onDeleteTimeInterval(timeInterval);
+                    getActivity().getFragmentManager().popBackStack();
+                    ((MainActivity) getActivity()).getScenarioData();
+                }
+            }
+        }, requestDataTask.POST_SCENARIOTIMEINTERVAL).execute(timeInterval, true);
     }
 
     @Override
@@ -137,36 +182,37 @@ public class TimeIntervalFragment extends Fragment {
     public interface OnTimeIntervalFragmentInteractionListener {
         // TODO: Update argument type and name
         void onSaveTimeInterval(ScenarioTimeInterval timeInterval);
+        void onDeleteTimeInterval(ScenarioTimeInterval timeInterval);
     }
 
     public List<CardInfo> createOptionList() {
         List<CardInfo> result = new ArrayList<CardInfo>();
 
         optionCard_Enabled = new OptionCardInfo();
-        optionCard_Enabled.value = new BooleanOptionCardValue(getString(R.string.status),timeInterval.enabled,"Abilitato","Disabilitato");
+        optionCard_Enabled.value = new BooleanOptionCardValue(getString(R.string.status), timeInterval.enabled, "Abilitato", "Disabilitato");
         result.add(optionCard_Enabled);
 
         optionCard_Name = new OptionCardInfo();
-        optionCard_Name.value = new StringOptionCardValue(getString(R.string.name),timeInterval.name);
+        optionCard_Name.value = new StringOptionCardValue(getString(R.string.name), timeInterval.name);
         result.add(optionCard_Name);
 
         optionCard_Description = new OptionCardInfo();
-        optionCard_Description.value = new StringOptionCardValue(getString(R.string.description),timeInterval.description);
+        optionCard_Description.value = new StringOptionCardValue(getString(R.string.description), timeInterval.description);
         result.add(optionCard_Description);
 
         optionCard_StartDate = new OptionCardInfo();
-        optionCard_StartDate.value = new DateOptionCardValue(getString(R.string.startdate),timeInterval.startDateTime);
+        optionCard_StartDate.value = new DateOptionCardValue(getString(R.string.startdate), timeInterval.startDateTime);
         result.add(optionCard_StartDate);
 
         optionCard_EndDate = new OptionCardInfo();
-        optionCard_EndDate.value = new DateOptionCardValue(getString(R.string.enddate),timeInterval.endDateTime);
+        optionCard_EndDate.value = new DateOptionCardValue(getString(R.string.enddate), timeInterval.endDateTime);
         result.add(optionCard_EndDate);
 
         boolean[] itemValues = {
                 timeInterval.monday, timeInterval.tuesday, timeInterval.wednesday, timeInterval.thursday, timeInterval.friday, timeInterval.saturday, timeInterval.sunday
         };
         optionCard_daysofweek = new OptionCardInfo();
-        optionCard_daysofweek.value = new MultiChoiceOptionCardValue(getString(R.string.dayofweek),getResources().getStringArray(R.array.dayshortlist),itemValues);
+        optionCard_daysofweek.value = new MultiChoiceOptionCardValue(getString(R.string.dayofweek), getResources().getStringArray(R.array.dayshortlist), itemValues);
         result.add(optionCard_daysofweek);
 
         return result;

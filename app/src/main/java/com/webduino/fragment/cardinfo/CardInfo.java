@@ -15,6 +15,7 @@ public class CardInfo {
     public static final int TYPE_TEMPERATURESENSOR = 1;
     public static final int TYPE_DOORSENSOR = 2;
     public static final int TYPE_ONEWIRESENSOR = 3;
+    public static final int TYPE_HORNSENSOR = 4;
     public static final int TYPE_ACTIONBUTTON = 5;
     public static final int TYPE_HEATER = 6;
     public static final int TYPE_SCENARIO = 7;
@@ -27,7 +28,7 @@ public class CardInfo {
     public static final int TYPE_WEBDUINOSYSTEM = 14;
     public static final int TYPE_WEBDUINOSYSTEMZONE = 15;
     public static final int TYPE_WEBDUINOSYSTEMACTUATOR = 16;
-    public static final int TYPE_HORNSENSOR = 2;
+
 
     public String label;
     public String name;

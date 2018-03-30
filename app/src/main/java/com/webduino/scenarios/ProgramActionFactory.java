@@ -25,8 +25,8 @@ public class ProgramActionFactory {
         } else if (type.equals("immediatealarm") || type.equals("perimetrale") || type.equals("path") || type.equals("24hours")) {
             programActions = new ProgramAction(id, programtimerangeid, type, name, description, priority, actuatorid, targevalue, thresholdvalue,
                     zoneId, seconds, enabled);
-        } else if (type.equals("instruction")) { // istruzione generica vuota per inserimento nuoiva
-            programActions = new ProgramAction(id, programtimerangeid, type, name, description, priority, actuatorid, targevalue, thresholdvalue,
+        } else if (type.equals("voipcall")) { // istruzione generica vuota per inserimento nuoiva
+            programActions = new VoIPProgramActions(id, programtimerangeid, type, name, description, priority, actuatorid, targevalue, thresholdvalue,
                     zoneId, seconds, enabled);
         } else {
             throw new Exception("type:" + type + "does not exist");

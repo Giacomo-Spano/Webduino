@@ -195,11 +195,17 @@ public class WebduinoSystemFragment extends Fragment {
         for (WebduinoSystemActuator actuator : webduinoSystem.actuators) {
 
             CardInfo cardinfo;
-            if (actuator.actuator instanceof HeaterActuator) {
+            if (actuator.actuator != null) {
+                cardinfo = actuator.actuator.getCardInfo(this);
+                result.add(cardinfo);
+            }
+
+
+            /*if (actuator.actuator instanceof HeaterActuator) {
                 cardinfo = actuator.actuator.getCardInfo(this);
                 result.add(cardinfo);
 
-            } else {
+            } else {*/
 
                 /*cardinfo = new WebduinoSystemActuatorCardInfo();
                 cardinfo.id = actuator.id;
@@ -207,7 +213,7 @@ public class WebduinoSystemFragment extends Fragment {
                 cardinfo.actuator = actuator;
                 cardinfo.setEnabled(true);
                 result.add(cardinfo);*/
-            }
+            //}
         }
 
         for (WebduinoSystemService service : webduinoSystem.services) {

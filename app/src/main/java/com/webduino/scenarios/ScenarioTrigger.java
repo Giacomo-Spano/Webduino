@@ -24,6 +24,13 @@ public class ScenarioTrigger {
 
     public boolean active = false;
 
+    public ScenarioTrigger(JSONObject json) throws JSONException {
+        fromJson(json);
+    }
+
+    public ScenarioTrigger() {
+    }
+
     public void fromJson(JSONObject json) throws JSONException {
 
         if (json.has("id")) id = json.getInt("id");

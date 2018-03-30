@@ -22,6 +22,7 @@ import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.DoorSensorCardInfo;
 import com.webduino.fragment.cardinfo.HeaterCardInfo;
+import com.webduino.fragment.cardinfo.HornSensorCardInfo;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
 import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
 import com.webduino.fragment.cardinfo.TimeRangeCardInfo;
@@ -153,6 +154,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             return (RecyclerView.ViewHolder) new CardAdapter.TemperatureSensorViewHolder(LayoutInflater.from(context).inflate(R.layout.card_temperature, parent, false));
         } else if (viewType == CardInfo.TYPE_DOORSENSOR) {
             return (RecyclerView.ViewHolder) new DoorSensorViewHolder(LayoutInflater.from(context).inflate(R.layout.card_door, parent, false));
+        } else if (viewType == CardInfo.TYPE_HORNSENSOR) {
+            return (RecyclerView.ViewHolder) new HornSensorViewHolder(LayoutInflater.from(context).inflate(R.layout.card_door, parent, false));
         } else if (viewType == CardInfo.TYPE_ONEWIRESENSOR) {
             return (RecyclerView.ViewHolder) new OnewireViewHolder(LayoutInflater.from(context).inflate(R.layout.card_door, parent, false));
         } else if (viewType == CardInfo.TYPE_SENSOR) {
@@ -357,6 +360,39 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
         public int getStatusColor(CardInfo ci) {
             if (((DoorSensorCardInfo) ci).openStatus)
+                return Color.RED;
+            else
+                return Color.GREEN;
+        }
+    }
+
+    public class HornSensorViewHolder extends CardViewHolder {
+
+        public HornSensorViewHolder(View v) {
+            super(v);
+        }
+
+        public Drawable getIcon(CardInfo ci) {
+
+            if (((HornSensorCardInfo) ci).openStatus)
+                return ResourcesCompat.getDrawable(context.getResources(), R.drawable.opendoor, null);
+            else
+                return ResourcesCompat.getDrawable(context.getResources(), R.drawable.closeddoor, null);
+        }
+
+        public int getIconColor(CardInfo ci) {
+            return getStatusColor(ci);
+        }
+
+        public String getStatusText(CardInfo ci) {
+            if (!((HornSensorCardInfo) ci).openStatus)
+                return "Sirena non attiva";
+            else
+                return "Sirena atttiva";
+        }
+
+        public int getStatusColor(CardInfo ci) {
+            if (((HornSensorCardInfo) ci).openStatus)
                 return Color.RED;
             else
                 return Color.GREEN;

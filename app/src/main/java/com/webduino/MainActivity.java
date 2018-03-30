@@ -47,7 +47,6 @@ import com.webduino.elements.Trigger;
 import com.webduino.elements.Triggers;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.HistoryFragment;
-import com.webduino.fragment.WebduinoSystemFragment;
 import com.webduino.fragment.WebduinoSystemsFragment;
 import com.webduino.fragment.NextProgramsFragment;
 import com.webduino.fragment.PanelFragment;
@@ -147,6 +146,34 @@ public class MainActivity extends AppCompatActivity
     public void onWebduinoSystemsRefresh() {
         refreshData();
     }
+
+    public void enableDeleteMenuItem(boolean enable) {
+        enableMenuItem(R.id.action_delete, enable);
+    }
+
+    /*public void enableDeleteScenarioMenuItem(boolean enable) {
+        enableMenuItem(R.id.action_delete_scenario, enable);
+    }
+
+    public void enableDeleteProgramMenuItem(boolean enable) {
+        enableMenuItem(R.id.action_delete_program, enable);
+    }
+
+    public void enableDeleteTimeIntervalMenuItem(boolean enable) {
+        enableMenuItem(R.id.action_delete_timeinterval, enable);
+    }
+
+    public void enableDeleteTriggerMenuItem(boolean enable) {
+        enableMenuItem(R.id.action_delete_trigger, enable);
+    }
+
+    public void enableDeleteTimerangeMenuItem(boolean enable) {
+        enableMenuItem(R.id.action_delete_timerange, enable);
+    }
+
+    public void enableDeleteProgramActionMenuItem(boolean enable) {
+        enableMenuItem(R.id.action_delete_action, enable);
+    }*/
 
     private class MyReceiver extends BroadcastReceiver {
         @Override
@@ -404,12 +431,6 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        } else if (id == R.id.action_create_program) {
-            //programsFragment.createProgram();
-            return true;
-        } else if (id == R.id.action_delete_program) {
-            //programsFragment.deleteProgram();
-            return true;
         } else if (id == R.id.action_get_location) {
             getLocation();
             return true;
@@ -572,7 +593,8 @@ public class MainActivity extends AppCompatActivity
                 for (Object scenario : list) {
                     Scenarios.add((Scenario) scenario);
                 }
-                //webduinoSystemsFragment.update();
+                webduinoSystemsFragment.update();
+
             }
         }, requestDataTask.REQUEST_SCENARIOS).execute();
     }
@@ -622,18 +644,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void enableProgramListFragmentMenuItem(boolean enable) {
-        enableMenuItem(R.id.action_create_program, enable);
-    }
-
-    public void enableProgramFragmentMenuItem(boolean enable) {
-        enableMenuItem(R.id.action_create_program, enable);
-        enableMenuItem(R.id.action_delete_program, enable);
-    }
-
-    /*@NonNull
-    private AsyncRequestDataResponse getAsyncResponse() {
-        return new AsyncRequestDataResponse() {*/
     @NonNull
     private WebduinoResponse getAsyncResponse() {
         return new WebduinoResponse() {

@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -50,7 +51,7 @@ public class ScenarioFragment extends Fragment implements
     ArrayList<HeaterDataRowItem> list = new ArrayList<>();
     OnScenarioFragmentInteractionListener mListener;
     private Scenario scenario;
-    private CardAdapter optionsAdapter, calendarsAdapter, triggersAdapter, programsAdaptes;
+    private CardAdapter optionsAdapter, calendarsAdapter, triggersAdapter, programsAdapter;
 
     OptionCardInfo optionCard_Name, optionCard_Description, optionCard_Priority, optionCard_Enabled;
 
@@ -128,9 +129,9 @@ public class ScenarioFragment extends Fragment implements
         RecyclerView programList = (RecyclerView) view.findViewById(R.id.programList);
         programList.setHasFixedSize(false);
         programList.setLayoutManager(linearLayoutManager);
-        programsAdaptes = new CardAdapter(this, createProgramList());
-        programList.setAdapter(programsAdaptes);
-        programsAdaptes.setListener(new CardAdapter.OnListener() {
+        programsAdapter = new CardAdapter(this, createProgramList());
+        programList.setAdapter(programsAdapter);
+        programsAdapter.setListener(new CardAdapter.OnListener() {
             @Override
             public void onClick(int position, CardInfo cardInfo) {
                 onProgramClick(position,cardInfo);
@@ -153,7 +154,7 @@ public class ScenarioFragment extends Fragment implements
                 if (mListener != null) {
                     mListener.onSave(scenario);
                 }
-                getActivity().getFragmentManager().popBackStack();
+
             }
         });
 
@@ -169,6 +170,7 @@ public class ScenarioFragment extends Fragment implements
 
         ((MainActivity) getActivity()).hideFloatingActionButton();
 
+        ((MainActivity)getActivity()).enableDeleteMenuItem(true);
 
         return view;
     }
@@ -206,13 +208,10 @@ public class ScenarioFragment extends Fragment implements
 
         if (cardInfo instanceof ProgramCardInfo) {
 
-            ProgramCardInfo programCardInfo = (ProgramCardInfo) cardInfo;
-            showProgramFragment(programCardInfo);
+            showProgramFragment(((ProgramCardInfo)cardInfo).program);
 
         } else if (cardInfo instanceof ActionButtonCardInfo) {
-
-            ProgramCardInfo timeIntervalCardInfo = new ProgramCardInfo();
-            showProgramFragment(timeIntervalCardInfo);
+            createNewProgram();
         }
     }
 
@@ -257,14 +256,26 @@ public class ScenarioFragment extends Fragment implements
         }
     }
 
-    private void showProgramFragment(ProgramCardInfo programCardInfo) {
+    private void createNewProgram() {
+        ScenarioProgram program = new ScenarioProgram();
+        program.scenarioId = scenario.id;
+
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+
+                ScenarioProgram program = (ScenarioProgram) result;
+                scenario.programs.add(program);
+                updateProgramList();
+                showProgramFragment(program);
+
+            }
+        }, requestDataTask.POST_SCENARIOPROGRAM).execute(program,false);
+    }
+
+    private void showProgramFragment(ScenarioProgram program) {
         ProgramFragment programFragment = new ProgramFragment();
         programFragment.addListener(this);
-        ScenarioProgram program;
-        if (programCardInfo.id == 0)
-            program = new ScenarioProgram();
-        else
-            program = programCardInfo.program;
 
         if (program != null) {
             programFragment.program = program;
@@ -297,6 +308,15 @@ public class ScenarioFragment extends Fragment implements
         result.add(optionCard_Enabled);
 
         return result;
+    }
+
+    public void updateProgramList() {
+
+        List<CardInfo> list = createProgramList();
+        programsAdapter.swap(list);
+        /*if (scenarioFragment != null) {
+            //scenarioFragment.refreshData();
+        }*/
     }
 
     public List<CardInfo> createCalendarList() {
@@ -360,6 +380,19 @@ public class ScenarioFragment extends Fragment implements
         return result;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_delete) {
+            deleteScenario();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
@@ -383,11 +416,7 @@ public class ScenarioFragment extends Fragment implements
         super.onResume();
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Do something that differs the Activity's menu here
-        super.onCreateOptionsMenu(menu, inflater);
-    }
+
 
     public void createAdapter() {
         adaptercreated = true;
@@ -404,10 +433,24 @@ public class ScenarioFragment extends Fragment implements
             @Override
             public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
                scenario = (Scenario) result;
+               mListener.onSave(scenario);
+               getActivity().getFragmentManager().popBackStack();
             }
 
-        }, requestDataTask.POST_SCENARIO).execute(scenario);
+        }, requestDataTask.POST_SCENARIO).execute(scenario,false);
+    }
 
+    public void deleteScenario()  {
+
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+                getActivity().getFragmentManager().popBackStack();
+                ((MainActivity)getActivity()).getScenarioData();
+            }
+
+        }, requestDataTask.POST_SCENARIO).execute(scenario,true);
     }
 
     @Override
@@ -415,7 +458,7 @@ public class ScenarioFragment extends Fragment implements
 
         if (timeInterval.id == 0) {
             scenario.calendar.timeIntervals.add(timeInterval);
-            saveScenario();
+            //saveScenario();
         } else {
             for (ScenarioTimeInterval ti : scenario.calendar.timeIntervals) {
                 if (ti.id == timeInterval.id) {
@@ -423,11 +466,16 @@ public class ScenarioFragment extends Fragment implements
                     if (itemIndex != -1) {
                         scenario.calendar.timeIntervals.set(itemIndex, timeInterval);
                     }
-                    saveScenario();
+                    //saveScenario();
                     return;
                 }
             }
         }
+    }
+
+    @Override
+    public void onDeleteTimeInterval(ScenarioTimeInterval timeInterval) {
+        scenario.calendar.timeIntervals.remove(timeInterval);
     }
 
     @Override
@@ -435,7 +483,7 @@ public class ScenarioFragment extends Fragment implements
 
         if (trigger.id == 0) {
             scenario.triggers.add(trigger);
-            saveScenario();
+            //saveScenario();
         } else {
             for (ScenarioTrigger trgr : scenario.triggers) {
                 if (trgr.id == trigger.id) {
@@ -443,7 +491,7 @@ public class ScenarioFragment extends Fragment implements
                     if (itemIndex != -1) {
                         scenario.triggers.set(itemIndex, trigger);
                     }
-                    saveScenario();
+                    //saveScenario();
                     return;
                 }
             }
@@ -451,11 +499,15 @@ public class ScenarioFragment extends Fragment implements
     }
 
     @Override
+    public void onDeleteTrigger(ScenarioTrigger trigger) {
+        scenario.triggers.remove(trigger);
+    }
+
+    @Override
     public void onSaveProgram(ScenarioProgram program) {
 
         if (program.id == 0) {
             scenario.programs.add(program);
-            saveScenario();
         } else {
             for (ScenarioProgram prgm : scenario.programs) {
                 if (prgm.id == program.id) {
@@ -463,11 +515,17 @@ public class ScenarioFragment extends Fragment implements
                     if (itemIndex != -1) {
                         scenario.programs.set(itemIndex, program);
                     }
-                    saveScenario();
                     return;
                 }
             }
         }
+    }
+
+    @Override
+    public void onDeleteProgram(ScenarioProgram program) {
+
+        scenario.programs.remove(program);
+
     }
 
     @Override
@@ -479,7 +537,7 @@ public class ScenarioFragment extends Fragment implements
         if (timerange != null) {
             if (action.id == 0) {
                 timerange.programActionList.add(action);
-                saveScenario();
+                //saveScenario();
             } else {
                 for (ProgramAction actn : timerange.programActionList) {
                     if (actn.id == action.id) {
@@ -487,12 +545,19 @@ public class ScenarioFragment extends Fragment implements
                         if (itemIndex != -1) {
                             timerange.programActionList.set(itemIndex, action);
                         }
-                        saveScenario();
+                        //saveScenario();
                         return;
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public void onDeleteProgramAction(ProgramAction action) {
+        /*ScenarioProgram prgm = scenario.getProgramFromTimerangeId(action.timerangeid);
+        ScenarioProgramTimeRange tr = prgm.getTimeRangeFromId(action.timerangeid);
+        tr.programActionList.remove(action);*/
     }
 
     @Override
@@ -504,7 +569,7 @@ public class ScenarioFragment extends Fragment implements
         if (timerange != null && program != null) {
             if (timerange.id == 0) {
                 program.timeRanges.add(timeRange);
-                saveScenario();
+                //saveScenario();
             } else {
                 for (ScenarioProgramTimeRange trng : program.timeRanges) {
                     if (trng.id == timeRange.id) {
@@ -512,11 +577,17 @@ public class ScenarioFragment extends Fragment implements
                         if (itemIndex != -1) {
                             program.timeRanges.set(itemIndex, timeRange);
                         }
-                        saveScenario();
+                        //saveScenario();
                         return;
                     }
                 }
             }
         }
+    }
+
+    @Override
+    public void onDeleteProgramTimeRange(ScenarioProgramTimeRange timeRange) {
+        ScenarioProgram prgm = scenario.getProgramFromTimerangeId(timeRange.id);
+        prgm.timeRanges.remove(timeRange);
     }
 }

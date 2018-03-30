@@ -30,6 +30,12 @@ public class ScenarioTimeInterval {
     public boolean friday = false;
     public boolean saturday = false;
 
+    public ScenarioTimeInterval(JSONObject json) throws JSONException {
+        fromJson(json);
+    }
+
+    public ScenarioTimeInterval() {
+    }
 
     public void fromJson(JSONObject json) throws JSONException {
 

@@ -9,12 +9,20 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.WebduinoResponse;
+import com.webduino.elements.ProgramActionType;
+import com.webduino.elements.ProgramActionTypes;
+import com.webduino.elements.TimeRange;
+import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
@@ -25,6 +33,7 @@ import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.TimeOptionCardValue;
 import com.webduino.scenarios.ProgramAction;
+import com.webduino.scenarios.ScenarioProgram;
 import com.webduino.scenarios.ScenarioProgramTimeRange;
 
 import java.util.ArrayList;
@@ -44,6 +53,7 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
         }
     }
@@ -83,13 +93,13 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         actionsAdapter.setListener(new CardAdapter.OnListener() {
             @Override
             public void onClick(int position, CardInfo cardInfo) {
-                onActionClick(position,cardInfo);
+                onActionClick(position, cardInfo);
             }
         });
 
 
         Button okbutton = view.findViewById(R.id.confirmButton);
-        MainActivity.setImageButton(okbutton,getResources().getColor(R.color.colorPrimary),true,getResources().getDrawable(R.drawable.check));
+        MainActivity.setImageButton(okbutton, getResources().getColor(R.color.colorPrimary), true, getResources().getDrawable(R.drawable.check));
         okbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,16 +110,12 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
                 timeRange.startTime = optionCard_StartTime.value.getDateValue();
                 timeRange.endTime = optionCard_EndTime.value.getDateValue();
 
-                if (mListener != null) {
-                    mListener.onSaveProgramTimeRange(timeRange);
-
-                }
-                getActivity().getFragmentManager().popBackStack();
+                saveProgramTimeRange();
             }
         });
 
         Button cancelbutton = view.findViewById(R.id.cancelButton);
-        MainActivity.setImageButton(cancelbutton,getResources().getColor(R.color.colorPrimary),false,getResources().getDrawable(R.drawable.uncheck));
+        MainActivity.setImageButton(cancelbutton, getResources().getColor(R.color.colorPrimary), false, getResources().getDrawable(R.drawable.uncheck));
         cancelbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -117,12 +123,55 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
             }
         });
 
+        ((MainActivity)getActivity()).enableDeleteMenuItem(true);
         return view;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_delete) {
+            deleteProgramTimeRange();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    public void saveProgramTimeRange() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+
+                if (!error) {
+                    timeRange = (ScenarioProgramTimeRange) result;
+                    if (mListener != null) {
+                        mListener.onSaveProgramTimeRange(timeRange);
+                    }
+                    getActivity().getFragmentManager().popBackStack();
+                }
+            }
+        }, requestDataTask.POST_SCENARIOPROGRAMTIMERANGE).execute(timeRange, false);
+    }
+
+    public void deleteProgramTimeRange() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+                if (!error) {
+                    mListener.onDeleteProgramTimeRange(timeRange);
+                    getActivity().getFragmentManager().popBackStack();
+                    ((MainActivity) getActivity()).getScenarioData();
+                }
+            }
+        }, requestDataTask.POST_SCENARIOPROGRAMTIMERANGE).execute(timeRange, true);
     }
 
     private List<CardInfo> createActionList() {
         List<CardInfo> result = new ArrayList<CardInfo>();
-        for(ProgramAction action:timeRange.programActionList) {
+        for (ProgramAction action : timeRange.programActionList) {
             ProgramActionCardInfo actioncardinfo = new ProgramActionCardInfo();
             actioncardinfo.id = action.id;
             actioncardinfo.name = action.name;
@@ -144,23 +193,23 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         List<CardInfo> result = new ArrayList<CardInfo>();
 
         optionCard_Enabled = new OptionCardInfo();
-        optionCard_Enabled.value = new BooleanOptionCardValue("Stato",timeRange.enabled,"Abilitato","Disabilitato");
+        optionCard_Enabled.value = new BooleanOptionCardValue("Stato", timeRange.enabled, "Abilitato", "Disabilitato");
         result.add(optionCard_Enabled);
 
         optionCard_Name = new OptionCardInfo();
-        optionCard_Name.value = new StringOptionCardValue("Nome",timeRange.name);
+        optionCard_Name.value = new StringOptionCardValue("Nome", timeRange.name);
         result.add(optionCard_Name);
 
         optionCard_Description = new OptionCardInfo();
-        optionCard_Description.value = new StringOptionCardValue("Descrizione",timeRange.description);
+        optionCard_Description.value = new StringOptionCardValue("Descrizione", timeRange.description);
         result.add(optionCard_Description);
 
         optionCard_StartTime = new OptionCardInfo();
-        optionCard_StartTime.value = new TimeOptionCardValue("Ora inizio",timeRange.startTime);
+        optionCard_StartTime.value = new TimeOptionCardValue("Ora inizio", timeRange.startTime);
         result.add(optionCard_StartTime);
 
         optionCard_EndTime = new OptionCardInfo();
-        optionCard_EndTime.value = new TimeOptionCardValue("Ora fine",timeRange.endTime);
+        optionCard_EndTime.value = new TimeOptionCardValue("Ora fine", timeRange.endTime);
         result.add(optionCard_EndTime);
         return result;
     }
@@ -182,26 +231,46 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
 
     public void onActionClick(int position, CardInfo cardInfo) {
         if (cardInfo instanceof ProgramActionCardInfo) {
-
-            ProgramActionCardInfo programActionCardInfo = (ProgramActionCardInfo) cardInfo;
-            showActionFragment(programActionCardInfo);
+            showActionFragment(((ProgramActionCardInfo) cardInfo).action);
         } else if (cardInfo instanceof ActionButtonCardInfo) {
-
-            ProgramActionCardInfo programActionCardInfo = new ProgramActionCardInfo();
-            showActionFragment(programActionCardInfo);
+            createNewProgramAction();
         }
     }
 
-    private void showActionFragment(ProgramActionCardInfo programActionCardInfo) {
+    private void createNewProgramAction() {
+        ProgramAction action = new ProgramAction();
+        action.timerangeid = timeRange.id;
+
+        if (ProgramActionTypes.list == null || ProgramActionTypes.list.size() == 0)
+            return;
+
+        action.type = ProgramActionTypes.list.get(0).instruction; // questo serve per inizializzare il tipo di action altrimenti
+        // il salvataggio fallisce
+
+
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+
+                ProgramAction action = (ProgramAction) result;
+                timeRange.programActionList.add(action);
+                updateProgramActionList();
+                showActionFragment(action);
+            }
+
+        }, requestDataTask.POST_SCENARIOPROGRAMACTION).execute(action, false);
+    }
+
+    private void updateProgramActionList() {
+        List<CardInfo> list = createActionList();
+        actionsAdapter.swap(list);
+    }
+
+    private void showActionFragment(ProgramAction action) {
         ProgramActionFragment programActionFragment = new ProgramActionFragment();
         programActionFragment.addListener(this);
-        ProgramAction action;
-        if (programActionCardInfo.id == 0)
-            action = new ProgramAction();
-        else
-            action = programActionCardInfo.action;
 
-        if (timeRange != null) {
+        if (action != null) {
             programActionFragment.action = action;
 
             FragmentManager fragmentManager = getFragmentManager();
@@ -213,12 +282,35 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
     }
 
     @Override
-    public void onSaveProgramAction(ProgramAction action) {
+    public void onSaveProgramAction(ProgramAction savedaction) {
 
+        ProgramAction action = timeRange.getProgramActionFromId(savedaction.id);
+
+        if (savedaction.id == 0) {
+            timeRange.programActionList.add(savedaction);
+        } else if (action != null) {
+            for (ProgramAction programAction : timeRange.programActionList) {
+                if (programAction.id == savedaction.id) {
+                    int itemIndex = timeRange.programActionList.indexOf(programAction);
+                    if (itemIndex != -1) {
+                        timeRange.programActionList.set(itemIndex, savedaction);
+                    }
+                    return;
+                }
+            }
+        }
+        mListener.onSaveProgramTimeRange(timeRange);
     }
+
+    @Override
+    public void onDeleteProgramAction(ProgramAction action) {
+        timeRange.programActionList.remove(action);
+    }
+
 
     public interface OnProgramTimeRangeFragmentInteractionListener {
         // TODO: Update argument type and name
         void onSaveProgramTimeRange(ScenarioProgramTimeRange timeRange);
+        void onDeleteProgramTimeRange(ScenarioProgramTimeRange timeRange);
     }
 }

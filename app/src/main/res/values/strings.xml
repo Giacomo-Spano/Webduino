@@ -5,8 +5,8 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
-    <string name="action_createprogram">Create</string>
-    <string name="action_deleteprogram">Delete</string>
+
+    <string name="action_delete">Cancella</string>
 
     <string name="server_url_preference">server_url</string>
     <string name="server_url_preference_key">server_url_key</string>
@@ -59,6 +59,12 @@
     <string name="Scenarios">Scenari</string>
     <string name="Zones">Zone</string>
     <string name="Actuators">Attuatori</string>
+    <string name="delete_scenario">Cancella scenario</string>
+
+    <string name="program">Programma</string>
+    <string name="timerange">Fascia oraria</string>
+    <string name="action">Azione</string>
+    <string name="Timeinterval">Calendario</string>
     <string-array name="dayshortlist">
         <item>Lu</item>
         <item>Ma</item>

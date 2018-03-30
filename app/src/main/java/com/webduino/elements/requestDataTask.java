@@ -13,10 +13,15 @@ import android.support.v7.preference.PreferenceManager;
 import com.webduino.AsyncRequestDataResponse;
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.scenarios.ProgramAction;
 import com.webduino.scenarios.Scenario;
 import com.webduino.SensorFactory;
 import com.webduino.ZoneFactory;
 import com.webduino.chart.HistoryData;
+import com.webduino.scenarios.ScenarioProgram;
+import com.webduino.scenarios.ScenarioProgramTimeRange;
+import com.webduino.scenarios.ScenarioTimeInterval;
+import com.webduino.scenarios.ScenarioTrigger;
 import com.webduino.webduinosystems.WebduinoSystem;
 import com.webduino.webduinosystems.WebduinoSystemFactory;
 import com.webduino.zones.Zone;
@@ -54,7 +59,7 @@ public class requestDataTask extends
     //public static final int REQUEST_PROGRAMS = 6;
     public static final int REQUEST_NEXTPROGRAMS = 7;
     public static final int POST_ACTUATOR_COMMAND = 8;
-    public static final int POST_PROGRAM = 9;
+    public static final int POST_PROGRAM = 9; // da eliminare
     public static final int POST_DELETEPROGRAM = 10;
     public static final int REQUEST_SENSORDATALOG = 11;
     public static final int REQUEST_ZONES = 12;
@@ -64,7 +69,12 @@ public class requestDataTask extends
     public static final int REQUEST_TRIGGERS = 16;
     public static final int REQUEST_ACTIONTYPES = 17;
     public static final int POST_SCENARIO = 18;
-    public static final int REQUEST_WEBDUINOSYSTEMS = 19;
+    public static final int POST_SCENARIOTIMEINTERVAL = 19;
+    public static final int POST_SCENARIOTRIGGER = 20;
+    public static final int POST_SCENARIOPROGRAM = 21;
+    public static final int POST_SCENARIOPROGRAMTIMERANGE = 22;
+    public static final int POST_SCENARIOPROGRAMACTION = 23;
+    public static final int REQUEST_WEBDUINOSYSTEMS = 24;
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -114,7 +124,8 @@ public class requestDataTask extends
             result = performGetRequest(params);
             return result;
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM
-                || requestType == POST_SCENARIO || requestType == POST_SCENARIO) {
+                || requestType == POST_SCENARIO || requestType == POST_SCENARIOTIMEINTERVAL || requestType == POST_SCENARIOTRIGGER || requestType == POST_SCENARIOPROGRAM
+                || requestType == POST_SCENARIOPROGRAMTIMERANGE || requestType == POST_SCENARIOPROGRAMACTION) {
             try {
                 result = performPostCall(params);
                 return result;
@@ -387,7 +398,6 @@ public class requestDataTask extends
         String title = "Attendere prego";
         String message = "";
         if (requestType == REQUEST_REGISTERDEVICE)
-            //message = "Richiesta registrazione inviata";
             return;
         else if (requestType == REQUEST_SENSORS)
             message = "Aggiornamnento";
@@ -399,11 +409,11 @@ public class requestDataTask extends
             message = "Aggiornamnento";
         else if (requestType == REQUEST_SHIELD)
             message = "Aggiornamnento";
-        else if (requestType == POST_SCENARIO)
-            message = activity.getResources().getString(R.string.scenariosaveinprogress);
         else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_DELETEPROGRAM)
             message = "Comando inviato";
         else if (requestType == REQUEST_SENSORDATALOG)
+            message = "Aggiornamnento";
+        else
             message = "Aggiornamnento";
 
         ringProgressDialog.setMessage(message);
@@ -454,9 +464,8 @@ public class requestDataTask extends
 
         if (requestType == REQUEST_REGISTERDEVICE) {
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
-        } /*else if (requestType == POST_ACTUATOR_COMMAND) {
-            delegate.processFinishSendCommand(result.resultString, error, errorMessage);
-        }*/else if (requestType == POST_SCENARIO || requestType == POST_ACTUATOR_COMMAND) {
+        } else if (requestType == POST_SCENARIO || requestType == POST_SCENARIOTRIGGER || requestType == POST_SCENARIOTIMEINTERVAL || requestType == POST_SCENARIOPROGRAM
+                || requestType == POST_SCENARIOPROGRAMTIMERANGE || requestType == POST_SCENARIOPROGRAMTIMERANGE) {
             delegate.processFinish(result.resultObject, requestType, error, errorMessage);
         } else if (requestType == POST_DELETEPROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);
@@ -499,86 +508,151 @@ public class requestDataTask extends
 
     protected Result performPostCall(Object[] params) throws Exception {
 
-        String path = "";
-        if (requestType == POST_ACTUATOR_COMMAND) {
-            path = "/shield?";
+        try {
 
-            String serverUrl = getServerUrl();
-            String url = serverUrl + path;
 
-            int shieldId = (int) params[0];
-            int actuatorId = (int) params[1];
-            String command = (String) params[2];
-            int duration = (int) params[3] * 60;
-            Date endtime = (Date) params[4];
-            ;
-            boolean nexttimerange = (boolean) params[5];
-            ;
-            double target = (double) params[6];
-            int zoneId = (int) params[7];
-            //boolean remote = (boolean) params[5];
-            JSONObject json = new JSONObject();
-            try {
-                json.put("shieldid", "" + shieldId);
-                json.put("actuatorid", "" + actuatorId);
-                json.put("command", command);
+            String path = "";
+            if (requestType == POST_ACTUATOR_COMMAND) {
+                path = "/shield?";
 
-                if (nexttimerange) {
-                    json.put("nexttimerange", nexttimerange);
-                } else if (endtime != null && !endtime.equals("")) {
-                    SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                    json.put("endtime", df.format(endtime));
-                } else {
-                    json.put("duration", "" + duration);
+                String serverUrl = getServerUrl();
+                String url = serverUrl + path;
+
+                int shieldId = (int) params[0];
+                int actuatorId = (int) params[1];
+                String command = (String) params[2];
+                int duration = (int) params[3] * 60;
+                Date endtime = (Date) params[4];
+                ;
+                boolean nexttimerange = (boolean) params[5];
+                ;
+                double target = (double) params[6];
+                int zoneId = (int) params[7];
+                //boolean remote = (boolean) params[5];
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("shieldid", "" + shieldId);
+                    json.put("actuatorid", "" + actuatorId);
+                    json.put("command", command);
+
+                    if (nexttimerange) {
+                        json.put("nexttimerange", nexttimerange);
+                    } else if (endtime != null && !endtime.equals("")) {
+                        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                        json.put("endtime", df.format(endtime));
+                    } else {
+                        json.put("duration", "" + duration);
+                    }
+
+
+                    json.put("target", "" + target);
+                    json.put("zone", "" + zoneId);
+                    //json.put("remote", "" + remote);
+                    Result result = new Result();
+                    String str = postCall(url, json.toString());
+                    result.resultObject = new JSONObject(str);
+                    return result;
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    throw e;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw e;
                 }
 
-
-                json.put("target", "" + target);
-                json.put("zone", "" + zoneId);
-                //json.put("remote", "" + remote);
+            } else if (requestType == POST_SCENARIO) {
+                Scenario scenario = (Scenario) params[0];
+                boolean delete = (boolean) params[1];
+                String str = save("scenario", scenario.toJson(), delete);
+                JSONObject json = new JSONObject(str);
+                Scenario updatedscenario = new Scenario(json);
                 Result result = new Result();
-                String str = postCall(url, json.toString());
-                result.resultObject = new JSONObject(str);
-                return result;
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-                throw e;
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw e;
-            }
-
-        } else if (requestType == POST_SCENARIO) {
-            path = "/system?data=scenario";
-
-            String serverUrl = getServerUrl();
-            String url = serverUrl + path;
-
-            Scenario scenario = (Scenario) params[0];
-
-            JSONObject json = scenario.toJson();
-
-            try {
-                json.put("scenario", "" + json.toString());
-
-                Result result = new Result();
-                String strresult = postCall(url, json.toString());
-                Scenario updatedscenario = new Scenario(new JSONObject(strresult));
+                result.response = true;
                 result.resultObject = updatedscenario;
                 return result;
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-                throw e;
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw e;
+            } else if (requestType == POST_SCENARIOTIMEINTERVAL) {
+                ScenarioTimeInterval scenario = (ScenarioTimeInterval) params[0];
+                boolean delete = (boolean) params[1];
+                String str = save("timeinterval", scenario.toJson(), delete);
+                JSONObject json = new JSONObject(str);
+                ScenarioTimeInterval updatetimeinterval = new ScenarioTimeInterval(json);
+                Result result = new Result();
+                result.response = true;
+                result.resultObject = updatetimeinterval;
+                return result;
+            } else if (requestType == POST_SCENARIOTRIGGER) {
+                ScenarioTrigger scenario = (ScenarioTrigger) params[0];
+                boolean delete = (boolean) params[1];
+                String str = save("scenariotrigger", scenario.toJson(), delete);
+                JSONObject json = new JSONObject(str);
+                ScenarioTrigger updatedtrigger = new ScenarioTrigger(json);
+                Result result = new Result();
+                result.response = true;
+                result.resultObject = updatedtrigger;
+                return result;
+            } else if (requestType == POST_SCENARIOPROGRAM) {
+                ScenarioProgram scenario = (ScenarioProgram) params[0];
+                boolean delete = (boolean) params[1];
+                String str = save("program", scenario.toJson(), delete);
+                JSONObject json = new JSONObject(str);
+                ScenarioProgram updatedscenarioprogram = new ScenarioProgram(json);
+                Result result = new Result();
+                result.response = true;
+                result.resultObject = updatedscenarioprogram;
+                return result;
+            } else if (requestType == POST_SCENARIOPROGRAMTIMERANGE) {
+                ScenarioProgramTimeRange scenariotimerange = (ScenarioProgramTimeRange) params[0];
+                boolean delete = (boolean) params[1];
+                String str = save("timerange", scenariotimerange.toJson(), delete);
+                JSONObject json = new JSONObject(str);
+                ScenarioProgramTimeRange updatedscenariotimerange = new ScenarioProgramTimeRange(json);
+                Result result = new Result();
+                result.response = true;
+                result.resultObject = updatedscenariotimerange;
+                return result;
+            } else if (requestType == POST_SCENARIOPROGRAMACTION) {
+                ProgramAction action = (ProgramAction) params[0];
+                boolean delete = (boolean) params[1];
+                String str = save("instruction", action.toJson(), delete);
+                JSONObject json = new JSONObject(str);
+                ProgramAction updatedaction = new ProgramAction(json);
+                Result result = new Result();
+                result.response = true;
+                result.resultObject = updatedaction;
+                return result;
             }
 
+        } catch (Exception e) {
+            throw e;
         }
 
         throw new Exception("invalid command");
+    }
+
+    @NonNull
+    private String save(String datatype, JSONObject json, boolean delete) throws Exception {
+
+        String path;
+        path = "/system?data=" + datatype;
+        if (delete) {
+            path += "&param=delete";
+        }
+        String serverUrl = getServerUrl();
+        String url = serverUrl + path;
+
+        try {
+            json.put(datatype, "" + json.toString());
+            String result = postCall(url, json.toString());
+            return result;
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw e;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public Result getResult(String response) {
@@ -630,8 +704,7 @@ public class requestDataTask extends
             if (responseCode >= 200 && responseCode < 400) {
                 // Create an InputStream in order to extract the response object
                 is = conn.getInputStream();
-            }
-            else {
+            } else {
                 is = conn.getErrorStream();
 
                 for (int i = 0; i < is.available(); i++) {

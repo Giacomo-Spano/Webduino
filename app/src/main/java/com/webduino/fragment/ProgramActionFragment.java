@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -15,11 +18,13 @@ import android.widget.Spinner;
 
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.WebduinoResponse;
 import com.webduino.elements.Actuator;
 import com.webduino.elements.ProgramActionType;
 import com.webduino.elements.ProgramActionTypes;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
+import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
@@ -56,6 +61,7 @@ public class ProgramActionFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
         }
     }
@@ -98,7 +104,7 @@ public class ProgramActionFragment extends Fragment {
 
 
         Button okbutton = view.findViewById(R.id.confirmButton);
-        MainActivity.setImageButton(okbutton,getResources().getColor(R.color.colorPrimary),true,getResources().getDrawable(R.drawable.check));
+        MainActivity.setImageButton(okbutton, getResources().getColor(R.color.colorPrimary), true, getResources().getDrawable(R.drawable.check));
         okbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -107,23 +113,25 @@ public class ProgramActionFragment extends Fragment {
                 action.name = optionCard_Name.value.getStringValue();
                 action.description = optionCard_Description.value.getStringValue();
                 action.type = actionItems[optionCard_ActionType.value.getIntValue()].toString();
-                action.zoneid = optionCard_Zone.value.getIntValue();
-                action.thresholdvalue = optionCard_Threshold.value.getDoubleValue();
-                action.actuatorid = optionCard_Actuator.value.getIntValue();
-                action.targetvalue = optionCard_Target.value.getDoubleValue();
-                action.seconds = optionCard_Duration.value.getIntValue();
+                if (optionCard_Zone != null)
+                    action.zoneid = optionCard_Zone.value.getIntValue();
+                if (optionCard_Threshold != null)
+                    action.thresholdvalue = optionCard_Threshold.value.getDoubleValue();
+                if (optionCard_Actuator != null)
+                    action.actuatorid = optionCard_Actuator.value.getIntValue();
+                if (optionCard_Target != null)
+                    action.targetvalue = optionCard_Target.value.getDoubleValue();
+                if (optionCard_Duration != null)
+                    action.seconds = optionCard_Duration.value.getIntValue();
                 action.priority = optionCard_Priority.value.getIntValue();
 
-                if (mListener != null) {
-                    mListener.onSaveProgramAction(action);
+                saveProgramAction();
 
-                }
-                getActivity().getFragmentManager().popBackStack();
             }
         });
 
         Button cancelbutton = view.findViewById(R.id.cancelButton);
-        MainActivity.setImageButton(cancelbutton,getResources().getColor(R.color.colorPrimary),false,getResources().getDrawable(R.drawable.uncheck));
+        MainActivity.setImageButton(cancelbutton, getResources().getColor(R.color.colorPrimary), false, getResources().getDrawable(R.drawable.uncheck));
         cancelbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -131,7 +139,50 @@ public class ProgramActionFragment extends Fragment {
             }
         });
 
+        ((MainActivity) getActivity()).enableDeleteMenuItem(true);
         return view;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_delete) {
+            deleteProgramAction();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
+    public void saveProgramAction() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+                if (!error) {
+                    action = (ProgramAction) result;
+                    if (mListener != null) {
+                        mListener.onSaveProgramAction(action);
+                    }
+                    getActivity().getFragmentManager().popBackStack();
+                }
+            }
+        }, requestDataTask.POST_SCENARIOPROGRAMACTION).execute(action, false);
+    }
+
+    public void deleteProgramAction() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+                if (!error) {
+                    mListener.onDeleteProgramAction(action);
+                    getActivity().getFragmentManager().popBackStack();
+                    ((MainActivity) getActivity()).getScenarioData();
+                }
+            }
+        }, requestDataTask.POST_SCENARIOPROGRAMACTION).execute(action, true);
     }
 
     @Override
@@ -152,27 +203,30 @@ public class ProgramActionFragment extends Fragment {
     public interface OnProgramActionFragmentInteractionListener {
         // TODO: Update argument type and name
         void onSaveProgramAction(ProgramAction action);
+
+        void onDeleteProgramAction(ProgramAction action);
+
     }
 
     public List<CardInfo> createOptionList() {
         List<CardInfo> result = new ArrayList<CardInfo>();
 
         optionCard_Enabled = new OptionCardInfo();
-        optionCard_Enabled.value = new BooleanOptionCardValue("Stato",action.enabled,"Abilitato","Disabilitato");
+        optionCard_Enabled.value = new BooleanOptionCardValue("Stato", action.enabled, "Abilitato", "Disabilitato");
         result.add(optionCard_Enabled);
 
         optionCard_Name = new OptionCardInfo();
-        optionCard_Name.value = new StringOptionCardValue("Nome",action.name);
+        optionCard_Name.value = new StringOptionCardValue("Nome", action.name);
         result.add(optionCard_Name);
 
         optionCard_Description = new OptionCardInfo();
-        optionCard_Description.value = new StringOptionCardValue("Descrizione",action.description);
+        optionCard_Description.value = new StringOptionCardValue("Descrizione", action.description);
         result.add(optionCard_Description);
 
         // action type
         int i = 0;
         int currentValue = 0;
-        for (ProgramActionType actionType: ProgramActionTypes.list) {
+        for (ProgramActionType actionType : ProgramActionTypes.list) {
             actionItems[i] = actionType.instruction;
             actionItemValues[i] = i;
             if (actionType.instruction.equals(action.type))
@@ -180,7 +234,7 @@ public class ProgramActionFragment extends Fragment {
             i++;
         }
         optionCard_ActionType = new OptionCardInfo();
-        optionCard_ActionType.value = new ListOptionCardValue("Tipo",currentValue, actionItems, actionItemValues);
+        optionCard_ActionType.value = new ListOptionCardValue("Tipo", currentValue, actionItems, actionItemValues);
         result.add(optionCard_ActionType);
 
         if (action.hasZone()) {
@@ -215,8 +269,8 @@ public class ProgramActionFragment extends Fragment {
             for (Sensor sensor : Sensors.list) {
                 //if (sensor instanceof Actuator) {
                 //if (sensor instanceof Actuator) {
-                    items[i] = sensor.getName();
-                    itemValues[i] = sensor.getId();
+                items[i] = sensor.getName();
+                itemValues[i] = sensor.getId();
                 //}
                 //}
                 i++;

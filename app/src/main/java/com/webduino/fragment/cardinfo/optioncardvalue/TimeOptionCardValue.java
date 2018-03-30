@@ -40,9 +40,10 @@ public class TimeOptionCardValue extends OptionCardValue {
         new TimePickerDialog(MainActivity.activity, new TimePickerDialog.OnTimeSetListener() {
             @Override
             public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                Date time = (Date) value;
+                Date time = new Date();
                 time.setHours(hourOfDay);
                 time.setMinutes(minute);
+                value = time;
                 if (listener != null)
                     listener.onSetValue(value);
             }

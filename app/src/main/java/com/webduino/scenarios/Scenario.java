@@ -34,7 +34,7 @@ public class Scenario {
     public List<ScenarioProgram> programs = new ArrayList<>();
     public int priority = 0;
 
-    public boolean status = false;
+    public String status = "";
 
     public Scenario() {
     }
@@ -116,7 +116,7 @@ public class Scenario {
                 enabled = jObject.getBoolean("enabled");
 
             if (jObject.has("status"))
-                status = jObject.getBoolean("status");
+                status = jObject.getString("status");
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -130,10 +130,7 @@ public class Scenario {
         ((ScenarioCardInfo)cardInfo).scenario = this;
         cardInfo.name = name;
         cardInfo.enabled = enabled;
-        if (status)
-            cardInfo.label = "Attivo";
-        else
-            cardInfo.label = "Non attivo";
+        cardInfo.label = "Non attivo";
 
         cardInfo.online = false;
         cardInfo.setEnabled(true);

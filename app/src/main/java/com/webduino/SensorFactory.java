@@ -38,8 +38,6 @@ public class SensorFactory {
                 sensor = (Sensor) new CurrentSensor(json);
             } else if (type.equals("doorsensor")) {
                 sensor = (Sensor) new DoorSensor(json);
-            } else if (type.equals("doorsensor")) {
-                sensor = (Sensor) new DoorSensor(json);
             } else if (type.equals("onewiresensor")) {
                 sensor = (Sensor) new OnewireSensor(json);
             } else if (type.equals("humiditysensor")) {

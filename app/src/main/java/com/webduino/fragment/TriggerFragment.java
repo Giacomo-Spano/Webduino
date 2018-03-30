@@ -5,6 +5,9 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -15,8 +18,10 @@ import android.widget.Spinner;
 
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.WebduinoResponse;
 import com.webduino.elements.Trigger;
 import com.webduino.elements.Triggers;
+import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
@@ -27,6 +32,7 @@ import com.webduino.fragment.cardinfo.optioncardvalue.ListOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.MultiChoiceOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
+import com.webduino.scenarios.ScenarioProgram;
 import com.webduino.scenarios.ScenarioTimeInterval;
 import com.webduino.scenarios.ScenarioTrigger;
 
@@ -49,6 +55,7 @@ public class TriggerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
         if (getArguments() != null) {
         }
     }
@@ -80,7 +87,7 @@ public class TriggerFragment extends Fragment {
         });
 
         Button okbutton = view.findViewById(R.id.confirmButton);
-        MainActivity.setImageButton(okbutton,getResources().getColor(R.color.colorPrimary),true,getResources().getDrawable(R.drawable.check));
+        MainActivity.setImageButton(okbutton, getResources().getColor(R.color.colorPrimary), true, getResources().getDrawable(R.drawable.check));
         okbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -90,16 +97,12 @@ public class TriggerFragment extends Fragment {
                 trigger.triggerid = optionCard_TriggerId.value.getIntValue();
                 trigger.priority = optionCard_Priority.value.getIntValue();
                 trigger.enabled = optionCard_Enabled.value.getBoolValue();
-
-                if (mListener != null) {
-                    mListener.onSaveTrigger(trigger);
-                }
-                getActivity().getFragmentManager().popBackStack();
+                saveTrigger();
             }
         });
 
         Button cancelbutton = view.findViewById(R.id.cancelButton);
-        MainActivity.setImageButton(cancelbutton,getResources().getColor(R.color.colorPrimary),false,getResources().getDrawable(R.drawable.uncheck));
+        MainActivity.setImageButton(cancelbutton, getResources().getColor(R.color.colorPrimary), false, getResources().getDrawable(R.drawable.uncheck));
         cancelbutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -107,7 +110,49 @@ public class TriggerFragment extends Fragment {
             }
         });
 
+        ((MainActivity) getActivity()).enableDeleteMenuItem(true);
         return view;
+    }
+
+    public void saveTrigger() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+                if (!error) {
+                    trigger = (ScenarioTrigger) result;
+                    if (mListener != null) {
+                        mListener.onSaveTrigger(trigger);
+                    }
+                    getActivity().getFragmentManager().popBackStack();
+                }
+            }
+        }, requestDataTask.POST_SCENARIOTRIGGER).execute(trigger, false);
+    }
+
+    public void deleteTrigger() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+                if (!error) {
+                    mListener.onDeleteTrigger(trigger);
+                    getActivity().getFragmentManager().popBackStack();
+                    ((MainActivity) getActivity()).getScenarioData();
+                }
+            }
+        }, requestDataTask.POST_SCENARIOTRIGGER).execute(trigger, false);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_delete) {
+            deleteTrigger();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -128,37 +173,39 @@ public class TriggerFragment extends Fragment {
     public interface OnTriggerFragmentInteractionListener {
         // TODO: Update argument type and name
         void onSaveTrigger(ScenarioTrigger trigger);
+
+        void onDeleteTrigger(ScenarioTrigger trigger);
     }
 
     public List<CardInfo> createOptionList() {
         List<CardInfo> result = new ArrayList<CardInfo>();
 
         optionCard_Enabled = new OptionCardInfo();
-        optionCard_Enabled.value = new BooleanOptionCardValue(getString(R.string.status),trigger.enabled,getString(R.string.enabled),getString(R.string.disabled));
+        optionCard_Enabled.value = new BooleanOptionCardValue(getString(R.string.status), trigger.enabled, getString(R.string.enabled), getString(R.string.disabled));
         result.add(optionCard_Enabled);
 
         optionCard_Name = new OptionCardInfo();
-        optionCard_Name.value = new StringOptionCardValue(getString(R.string.name),trigger.name);
+        optionCard_Name.value = new StringOptionCardValue(getString(R.string.name), trigger.name);
         result.add(optionCard_Name);
 
         optionCard_Description = new OptionCardInfo();
-        optionCard_Description.value = new StringOptionCardValue(getString(R.string.description),trigger.description);
+        optionCard_Description.value = new StringOptionCardValue(getString(R.string.description), trigger.description);
         result.add(optionCard_Description);
 
         optionCard_Priority = new OptionCardInfo();
-        optionCard_Priority.value = new IntegerOptionCardValue(getString(R.string.priority),trigger.priority);
+        optionCard_Priority.value = new IntegerOptionCardValue(getString(R.string.priority), trigger.priority);
         result.add(optionCard_Priority);
 
         CharSequence[] items = new CharSequence[Triggers.list.size()];
         int[] itemValues = new int[Triggers.list.size()];
         int i = 0;
-        for (Trigger trigger: Triggers.list) {
+        for (Trigger trigger : Triggers.list) {
             items[i] = trigger.name;
             itemValues[i] = trigger.id;
             i++;
         }
         optionCard_TriggerId = new OptionCardInfo();
-        optionCard_TriggerId.value = new ListOptionCardValue(getString(R.string.trigger),trigger.triggerid, items, itemValues);
+        optionCard_TriggerId.value = new ListOptionCardValue(getString(R.string.trigger), trigger.triggerid, items, itemValues);
         result.add(optionCard_TriggerId);
 
         return result;

@@ -38,6 +38,13 @@ public class ScenarioProgram {
 
     public List<ScenarioProgramTimeRange> timeRanges = new ArrayList<>();
 
+    public ScenarioProgram(JSONObject json) throws Exception {
+        fromJson(json);
+    }
+
+    public ScenarioProgram() {
+    }
+
     public void fromJson(JSONObject json) throws Exception {
 
         if (json.has("id")) id = json.getInt("id");
@@ -60,8 +67,8 @@ public class ScenarioProgram {
                 ScenarioProgramTimeRange timeRange = new ScenarioProgramTimeRange(jo);
                 if (timeRange != null) {
 
-                    if (i > 0 && timeRanges.get(timeRanges.size() - 1).endTime.compareTo(timeRange.startTime) > 0)
-                        throw new Exception("time range " + i + "cannot start before time range " + (i - 1));
+                    /*if (i > 0 && timeRanges.get(timeRanges.size() - 1).endTime.compareTo(timeRange.startTime) > 0)
+                        throw new Exception("time range " + i + "cannot start before time range " + (i - 1));*/
                     timeRanges.add(timeRange);
                 }
             }

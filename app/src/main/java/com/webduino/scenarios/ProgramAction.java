@@ -55,6 +55,26 @@ public class ProgramAction {
         this.enabled = enabled;
     }
 
+    public ProgramAction(JSONObject json) throws JSONException {
+        fromJson(json);
+    }
+
+    public void fromJson(JSONObject json) throws JSONException {
+
+        if (json.has("id")) id = json.getInt("id");
+        if (json.has("timerangeid")) timerangeid = json.getInt("timerangeid");
+        if (json.has("type")) type = json.getString("type");
+        if (json.has("name")) name = json.getString("name");
+        if (json.has("description")) description = json.getString("description");
+        if (json.has("actuatorid")) actuatorid = json.getInt("actuatorid");
+        if (json.has("targetvalue")) targetvalue = json.getDouble("targetvalue");
+        if (json.has("thresholdvalue")) thresholdvalue = json.getDouble("thresholdvalue");
+        if (json.has("zoneid")) zoneid = json.getInt("zoneid");
+        if (json.has("seconds")) seconds = json.getInt("seconds");
+        if (json.has("enabled")) enabled = json.getBoolean("enabled");
+        if (json.has("priority")) priority = json.getInt("priority");
+    }
+
     public boolean hasZone() {
         return hasZone;
     }

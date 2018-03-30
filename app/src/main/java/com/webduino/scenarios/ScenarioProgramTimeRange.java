@@ -20,8 +20,8 @@ public class ScenarioProgramTimeRange {
     public int programid;
     public String name;
     public String description;
-    public Date startTime;
-    public Date endTime;
+    public Date startTime = new Date();
+    public Date endTime = new Date();
     public boolean enabled;
     public int index;
 
@@ -50,8 +50,8 @@ public class ScenarioProgramTimeRange {
             startTime = df.parse(str);
             str = json.getString("endtime");
             endTime = df.parse(str);
-            if (endTime.compareTo(startTime) < 0)
-                throw new Exception("start time " + startTime.toString() + "must be before end time " + endTime.toString());
+            /*if (endTime.compareTo(startTime) < 0)
+                throw new Exception("start time " + startTime.toString() + "must be before end time " + endTime.toString());*/
         } else {
             throw new Exception("missing start/end time");
         }
@@ -108,5 +108,13 @@ public class ScenarioProgramTimeRange {
         }
 
         return json;
+    }
+
+    public ProgramAction getProgramActionFromId(int id) {
+        for (ProgramAction action : programActionList) {
+            if (action.id == id)
+                return action;
+        }
+        return null;
     }
 }

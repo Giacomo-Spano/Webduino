@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.elements.HeaterActuator;
 import com.webduino.fragment.adapters.CardAdapter;
@@ -53,7 +54,15 @@ public class ScenariosFragment extends Fragment implements CardAdapter.OnListene
         recList.setAdapter(cardAdapter);
         cardAdapter.setListener(this);
 
+
+
         return v;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        ((MainActivity)getActivity()).enableDeleteMenuItem(false);
     }
 
     public void update() {
