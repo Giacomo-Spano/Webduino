@@ -36,6 +36,8 @@ public class ProgramAction {
     protected boolean hasTarget = false;
     protected boolean hasDuration = false;
 
+    protected boolean hasZoneSensorId = false;
+
     public ProgramAction() {
 
     }
