@@ -42,6 +42,8 @@ import com.webduino.elements.HeaterActuator;
 import com.webduino.elements.ProgramActionType;
 import com.webduino.elements.ProgramActionTypes;
 import com.webduino.elements.Sensor;
+import com.webduino.elements.SensorType;
+import com.webduino.elements.SensorTypes;
 import com.webduino.elements.Sensors;
 import com.webduino.elements.Trigger;
 import com.webduino.elements.Triggers;
@@ -59,6 +61,7 @@ import com.webduino.scenarios.Scenario;
 import com.webduino.scenarios.Scenarios;
 import com.webduino.webduinosystems.WebduinoSystem;
 import com.webduino.webduinosystems.WebduinoSystems;
+import com.webduino.webduinosystems.services.Service;
 import com.webduino.zones.Zone;
 import com.webduino.zones.Zones;
 
@@ -308,6 +311,8 @@ public class MainActivity extends AppCompatActivity
         showFragment(sensorsFragment);
         getTriggers();
         getActionTypes();
+        getSensorTypes();
+        getServicesData();
         refreshData();
         getScenarioData();
 
@@ -388,8 +393,6 @@ public class MainActivity extends AppCompatActivity
         getZoneData();
         getScenarioData();
         getWebduinoSystemData();
-
-
     }
 
     @Override
@@ -615,6 +618,39 @@ public class MainActivity extends AppCompatActivity
         }, requestDataTask.REQUEST_ACTIONTYPES).execute();
     }
 
+    public void getSensorTypes() {
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
+
+            @Override
+            public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
+                if (error)
+                    return;
+                SensorTypes.list.clear();
+                for (Object status : list) {
+                    SensorTypes.add((SensorType) status);
+                }
+            }
+        }, requestDataTask.REQUEST_SENSORTYPE).execute();
+    }
+
+    public void getServicesData() {
+        //new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORS).execute();
+
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
+
+            @Override
+            public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
+                if (error)
+                    return;
+                Services.list.clear();
+                for (Object service : list) {
+                    Services.add((Service) service);
+                }
+                //sensorsFragment.update();
+            }
+        }, requestDataTask.REQUEST_SERVICES).execute();
+
+    }
     public void getTriggers() {
         new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
 

@@ -43,8 +43,9 @@ public class StringOptionCardValue extends OptionCardValue {
                     public void onClick(DialogInterface dialog, int id) {
                         CharSequence str = et.getText();
                         value = str.toString();
-                        if (listener != null)
-                            listener.onSetValue(value);
+                        if (listeners != null)
+                            for (OptionCardListener listener:listeners)
+                                listener.onSetValue(value);
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

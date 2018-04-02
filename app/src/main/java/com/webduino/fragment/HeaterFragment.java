@@ -164,7 +164,7 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
             public void onClick(View v) {
                 ListOptionCardValue value = new ListOptionCardValue("Zona", zoneid, zoneIdList, zoneIdValues);
                 value.showPicker();
-                value.setListener(new OptionCardValue.OptionCardListener() {
+                value.addListener(new OptionCardValue.OptionCardListener() {
                     @Override
                     public void onSetValue(Object value) {
                         zoneid = (int) value;

@@ -34,6 +34,15 @@ public class Zone {
         return id;
     }
 
+    public ZoneSensor getZoneSensorFromId(int id) {
+        for(ZoneSensor zonesensor : zoneSensors) {
+            if (zonesensor.id == id) {
+                return zonesensor;
+            }
+        }
+        return null;
+    }
+
     public String getName() {
         return name;
     }
@@ -41,18 +50,17 @@ public class Zone {
     void fromJson(JSONObject json) {
 
         try {
-
             if (json.has("id"))
                 id = json.getInt("id");
             if (json.has("name"))
                 name = json.getString("name");
             if (json.has("type"))
                 type = json.getString("type");
-
-
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
+
+
 }

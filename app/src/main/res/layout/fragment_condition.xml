@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:text="@string/action"
+        android:text="@string/condition"
         android:textSize="@dimen/scenario_title_textsize" />
 
     <ScrollView

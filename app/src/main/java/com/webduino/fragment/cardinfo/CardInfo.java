@@ -28,6 +28,8 @@ public class CardInfo {
     public static final int TYPE_WEBDUINOSYSTEM = 14;
     public static final int TYPE_WEBDUINOSYSTEMZONE = 15;
     public static final int TYPE_WEBDUINOSYSTEMACTUATOR = 16;
+    public static final int TYPE_ACTION = 17;
+    public static final int TYPE_CONDITION = 18;
 
 
     public String label;

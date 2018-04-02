@@ -13,6 +13,8 @@ import android.support.v7.preference.PreferenceManager;
 import com.webduino.AsyncRequestDataResponse;
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.scenarios.Action;
+import com.webduino.scenarios.Condition;
 import com.webduino.scenarios.ProgramAction;
 import com.webduino.scenarios.Scenario;
 import com.webduino.SensorFactory;
@@ -24,6 +26,7 @@ import com.webduino.scenarios.ScenarioTimeInterval;
 import com.webduino.scenarios.ScenarioTrigger;
 import com.webduino.webduinosystems.WebduinoSystem;
 import com.webduino.webduinosystems.WebduinoSystemFactory;
+import com.webduino.webduinosystems.services.Service;
 import com.webduino.zones.Zone;
 
 import org.json.JSONArray;
@@ -75,6 +78,11 @@ public class requestDataTask extends
     public static final int POST_SCENARIOPROGRAMTIMERANGE = 22;
     public static final int POST_SCENARIOPROGRAMACTION = 23;
     public static final int REQUEST_WEBDUINOSYSTEMS = 24;
+    public static final int REQUEST_SENSORTYPE =  25;
+    public static final int POST_CONDITION= 26;
+    public static final int POST_ACTION = 27;
+    public static final int REQUEST_SERVICES =  28;
+
     private final Activity activity;
 
     public AsyncRequestDataResponse delegate = null;//Call back interface
@@ -120,12 +128,14 @@ public class requestDataTask extends
                 || requestType == REQUEST_ZONES || requestType == REQUEST_SCENARIOS
                 || requestType == REQUEST_SENSORDATALOG
                 || requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS || requestType == REQUEST_COMMANDDATALOG
-                || requestType == REQUEST_TRIGGERS || requestType == REQUEST_ACTIONTYPES || requestType == REQUEST_WEBDUINOSYSTEMS) {
+                || requestType == REQUEST_TRIGGERS || requestType == REQUEST_ACTIONTYPES || requestType == REQUEST_WEBDUINOSYSTEMS
+                || requestType == REQUEST_SENSORTYPE || requestType == REQUEST_SERVICES) {
             result = performGetRequest(params);
             return result;
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM
                 || requestType == POST_SCENARIO || requestType == POST_SCENARIOTIMEINTERVAL || requestType == POST_SCENARIOTRIGGER || requestType == POST_SCENARIOPROGRAM
-                || requestType == POST_SCENARIOPROGRAMTIMERANGE || requestType == POST_SCENARIOPROGRAMACTION) {
+                || requestType == POST_SCENARIOPROGRAMTIMERANGE || requestType == POST_SCENARIOPROGRAMACTION
+                || requestType == POST_CONDITION || requestType == POST_ACTION) {
             try {
                 result = performPostCall(params);
                 return result;
@@ -204,6 +214,14 @@ public class requestDataTask extends
             } else if (requestType == REQUEST_ACTIONTYPES) {
 
                 path = "/system?requestcommand=instructiontypes";
+
+            } else if (requestType == REQUEST_SENSORTYPE) {
+
+                path = "/system?requestcommand=sensortypes";
+
+            }  else if (requestType == REQUEST_SERVICES) {
+
+                path = "/system?requestcommand=services";
 
             }
 
@@ -346,6 +364,36 @@ public class requestDataTask extends
                         list.add(data);
                     }
                     result.objectList = list;
+                } else if (requestType == REQUEST_SENSORTYPE) {
+
+                    List<Object> list = new ArrayList<Object>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        Object data = new SensorType();
+                        try {
+                            ((SensorType) data).fromJson(jObject);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        list.add(data);
+                    }
+                    result.objectList = list;
+                } else if (requestType == REQUEST_SERVICES) {
+
+                    List<Object> list = new ArrayList<Object>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+
+                        try {
+                            Object service = new Service(jObject);
+                            list.add(service);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    result.objectList = list;
                 }
 
 
@@ -465,13 +513,15 @@ public class requestDataTask extends
         if (requestType == REQUEST_REGISTERDEVICE) {
             delegate.processFinishRegister(result.shieldId, error, errorMessage);
         } else if (requestType == POST_SCENARIO || requestType == POST_SCENARIOTRIGGER || requestType == POST_SCENARIOTIMEINTERVAL || requestType == POST_SCENARIOPROGRAM
-                || requestType == POST_SCENARIOPROGRAMTIMERANGE || requestType == POST_SCENARIOPROGRAMTIMERANGE) {
+                || requestType == POST_SCENARIOPROGRAMTIMERANGE || requestType == POST_SCENARIOPROGRAMTIMERANGE
+                ) {
             delegate.processFinish(result.resultObject, requestType, error, errorMessage);
         } else if (requestType == POST_DELETEPROGRAM) {
             delegate.processFinishPostProgram(result.response, POST_DELETEPROGRAM, error, errorMessage);
         } else if (requestType == REQUEST_SENSORDATALOG || requestType == REQUEST_SCENARIOS || requestType == REQUEST_TRIGGERS
                 || requestType == REQUEST_ACTIONTYPES || requestType == REQUEST_ZONES || requestType == REQUEST_SENSORS
-                || requestType == REQUEST_WEBDUINOSYSTEMS) {
+                || requestType == REQUEST_WEBDUINOSYSTEMS || requestType == REQUEST_SENSORTYPE
+                || requestType == REQUEST_SERVICES) {
             delegate.processFinishObjectList(result.objectList, requestType, error, errorMessage);
         } else {
             delegate.processFinish(result.resultObject, requestType, error, errorMessage);
@@ -614,12 +664,32 @@ public class requestDataTask extends
             } else if (requestType == POST_SCENARIOPROGRAMACTION) {
                 ProgramAction action = (ProgramAction) params[0];
                 boolean delete = (boolean) params[1];
-                String str = save("instruction", action.toJson(), delete);
+                String str = save("programaction", action.toJson(), delete);
                 JSONObject json = new JSONObject(str);
                 ProgramAction updatedaction = new ProgramAction(json);
                 Result result = new Result();
                 result.response = true;
                 result.resultObject = updatedaction;
+                return result;
+            } else if (requestType == POST_ACTION) {
+                Action action = (Action) params[0];
+                boolean delete = (boolean) params[1];
+                String str = save("action", action.toJson(), delete);
+                JSONObject json = new JSONObject(str);
+                Action updatedaction = new Action(json);
+                Result result = new Result();
+                result.response = true;
+                result.resultObject = updatedaction;
+                return result;
+            } else if (requestType == POST_CONDITION) {
+                Condition condition = (Condition) params[0];
+                boolean delete = (boolean) params[1];
+                String str = save("condition", condition.toJson(), delete);
+                JSONObject json = new JSONObject(str);
+                Condition updatedcondition = new Condition(json);
+                Result result = new Result();
+                result.response = true;
+                result.resultObject = updatedcondition;
                 return result;
             }
 

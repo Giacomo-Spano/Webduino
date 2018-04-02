@@ -184,6 +184,10 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             return (RecyclerView.ViewHolder) new WebduinoSystemZoneViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
         } else if (viewType == CardInfo.TYPE_WEBDUINOSYSTEMACTUATOR) {
             return (RecyclerView.ViewHolder) new WebduinoSystemActuatorViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
+        } else if (viewType == CardInfo.TYPE_ACTION) {
+            return (RecyclerView.ViewHolder) new ActionViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
+        } else if (viewType == CardInfo.TYPE_CONDITION) {
+            return (RecyclerView.ViewHolder) new ConditionViewHolder(LayoutInflater.from(context).inflate(R.layout.card_scenario, parent, false));
         }
 
         return null;
@@ -300,7 +304,8 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             OptionCardInfo oci = (OptionCardInfo) ci;
             if (oci != null && oci.value != null) {
                 nameTextView.setText(oci.value.getName());
-                valueTextView.setText(oci.value.getStringValue());
+               //valueTextView.setText(oci.value.getStringValue());
+                valueTextView.setText(oci.value.getValueDescription());
             }
         }
     }
@@ -443,6 +448,9 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
 
         public String getStatusText(CardInfo ci) {
             HeaterCardInfo hci = (HeaterCardInfo) ci;
+            if (hci.status == null)
+                return "";
+
             if (hci.status.equals("keeptemperature")) {
                 return "keep " + hci.target + "°C";
             } else if (hci.status.equals("manual")) {
@@ -583,6 +591,20 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
     public class ProgramActionViewHolder extends ScenarioInfoViewHolder {
 
         public ProgramActionViewHolder(View v) {
+            super(v);
+        }
+    }
+
+    public class ActionViewHolder extends ScenarioInfoViewHolder {
+
+        public ActionViewHolder(View v) {
+            super(v);
+        }
+    }
+
+    public class ConditionViewHolder extends ScenarioInfoViewHolder {
+
+        public ConditionViewHolder(View v) {
             super(v);
         }
     }

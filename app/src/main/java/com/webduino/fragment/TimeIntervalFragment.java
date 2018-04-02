@@ -75,7 +75,7 @@ public class TimeIntervalFragment extends Fragment {
             @Override
             public void onClick(int position, CardInfo cardInfo) {
                 OptionCardInfo optionCardInfo = (OptionCardInfo) cardInfo;
-                optionCardInfo.value.setListener(new OptionCardValue.OptionCardListener() {
+                optionCardInfo.value.addListener(new OptionCardValue.OptionCardListener() {
                     @Override
                     public void onSetValue(Object value) {
                         optionsAdapter.notifyDataSetChanged();

@@ -60,16 +60,16 @@ public class ScenarioProgramTimeRange {
         if (json.has("index"))
             index = json.getInt("index");
 
-        if (json.has("actions")) {
+        if (json.has("programactions")) {
 
             ProgramActionFactory factory = new ProgramActionFactory();
-            JSONArray jsonArray = json.getJSONArray("actions");
+            JSONArray jsonArray = json.getJSONArray("programactions");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jo = jsonArray.getJSONObject(i);
-                ProgramAction action = null;
+                ProgramAction programaction = null;
                 try {
-                    action = factory.fromJson(jo);
-                    programActionList.add(action);
+                    programaction = factory.fromJson(jo);
+                    programActionList.add(programaction);
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw new Exception(e.toString());

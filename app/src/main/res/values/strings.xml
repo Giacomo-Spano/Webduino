@@ -65,6 +65,8 @@
     <string name="timerange">Fascia oraria</string>
     <string name="action">Azione</string>
     <string name="Timeinterval">Calendario</string>
+    <string name="programaction">Azioni</string>
+    <string name="condition">Condizione</string>
     <string-array name="dayshortlist">
         <item>Lu</item>
         <item>Ma</item>

@@ -78,8 +78,9 @@ public class MultiChoiceOptionCardValue extends OptionCardValue {
                 // Set the action buttons
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        if (listener != null)
-                            listener.onSetValue(value);
+                        if (listeners != null)
+                            for (OptionCardListener listener:listeners)
+                                listener.onSetValue(value);
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

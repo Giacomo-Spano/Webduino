@@ -45,8 +45,9 @@ public class IntegerOptionCardValue extends OptionCardValue {
                         CharSequence str = tv.getText();
                         value = Integer.valueOf(str.toString());
 
-                        if (listener != null)
-                            listener.onSetValue(value);
+                        if (listeners != null)
+                            for (OptionCardListener listener:listeners)
+                                listener.onSetValue(value);
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

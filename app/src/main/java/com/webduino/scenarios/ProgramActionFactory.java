@@ -36,7 +36,46 @@ public class ProgramActionFactory {
         return programActions;
     }
 
+    public ProgramAction createProgramAction(JSONObject json) throws Exception {
+
+        String type = "";
+        if (json.has("type"))
+            type = json.getString("type");
+        else
+            throw new JSONException("type key missing");
+
+
+        ProgramAction programActions = null;
+        if (type.equals("delayalarm")) {
+            programActions = new DelayAlarmProgramActions(json);
+        } else if (type.equals("keeptemperature")) {
+            programActions = new KeepTemperatureProgramAction(json);
+        } else if (type.equals("keepoff")) {
+            programActions = new KeepOffProgramActions(json);
+        } else if (type.equals("immediatealarm") || type.equals("perimetrale") || type.equals("path") || type.equals("24hours")) {
+            programActions = new ProgramAction(json);
+        } else if (type.equals("voipcall")) { // istruzione generica vuota per inserimento nuoiva
+            programActions = new VoIPProgramActions(json);
+        } else {
+            throw new Exception("type:" + type + "does not exist");
+        }
+
+        //programActions.init();
+        return programActions;
+    }
+
     public ProgramAction fromJson(JSONObject json) throws Exception {
+        ProgramAction programAction = null;
+        try {
+            programAction = createProgramAction(json);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return programAction;
+    }
+
+    public ProgramAction _fromJson(JSONObject json) throws Exception {
 
         String type = "";
         if (json.has("type"))

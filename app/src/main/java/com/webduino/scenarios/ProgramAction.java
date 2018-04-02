@@ -1,10 +1,6 @@
 package com.webduino.scenarios;
 
-import com.webduino.elements.Sensor;
-import com.webduino.elements.Sensors;
-import com.webduino.fragment.cardinfo.optioncardvalue.ListOptionCardValue;
-import com.webduino.zones.Zone;
-
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,6 +25,12 @@ public class ProgramAction {
     public int zoneid = 0;
     public int seconds = 0;
     public boolean enabled = true;
+    public int serviceid;
+    public String param;
+    public int zonesensorid;
+    public String zonesensorstatus;
+    public List<Condition> conditions = new ArrayList<>();
+    public List<Action> actions = new ArrayList<>();
 
     protected boolean hasZone = false;
     protected boolean hasThreshold = false;
@@ -37,6 +39,10 @@ public class ProgramAction {
     protected boolean hasDuration = false;
 
     protected boolean hasZoneSensorId = false;
+    protected boolean hasZoneSensorStatus = false;
+    protected boolean hasZoneSensorEnabled = false;
+    protected boolean hasParam = false;
+    protected boolean hasServiceId = false;
 
     public ProgramAction() {
 
@@ -75,6 +81,32 @@ public class ProgramAction {
         if (json.has("seconds")) seconds = json.getInt("seconds");
         if (json.has("enabled")) enabled = json.getBoolean("enabled");
         if (json.has("priority")) priority = json.getInt("priority");
+        if (json.has("serviceid")) serviceid = json.getInt("serviceid");
+        if (json.has("param")) param = json.getString("param");
+        if (json.has("zonesensorid")) zonesensorid = json.getInt("zonesensorid");
+        if (json.has("zonesensorstatus")) zonesensorstatus = json.getString("zonesensorstatus");
+        if (json.has("actions")) {
+            JSONArray jsonArray = json.getJSONArray("actions");
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonAction = jsonArray.getJSONObject(i);
+                    Action action = new Action(jsonAction);
+                    if (action != null)
+                        actions.add(action);
+                }
+            }
+        }
+        if (json.has("conditions")) {
+            JSONArray jsonArray = json.getJSONArray("conditions");
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonCondition = jsonArray.getJSONObject(i);
+                    Condition condition = new Condition(jsonCondition);
+                    if (condition != null)
+                        conditions.add(condition);
+                }
+            }
+        }
     }
 
     public boolean hasZone() {
@@ -97,6 +129,18 @@ public class ProgramAction {
         return hasDuration;
     }
 
+    public boolean hasZoneSensorId() {
+        return hasZoneSensorId;
+    }
+
+    public boolean hasZoneSensorStatus() {
+        return hasZoneSensorStatus;
+    }
+
+    public boolean isHasServiceId() {
+        return hasServiceId;
+    }
+
     public JSONObject toJson() throws JSONException {
         JSONObject json = new JSONObject();
 
@@ -112,6 +156,10 @@ public class ProgramAction {
         json.put("seconds", seconds);
         json.put("enabled", enabled);
         json.put("priority", priority);
+        json.put("serviceid", serviceid);
+        json.put("param", param);
+        json.put("zonesensorid", zonesensorid);
+        json.put("zonesensorstatus", zonesensorstatus);
 
         return json;
     }

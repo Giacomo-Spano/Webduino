@@ -1,7 +1,10 @@
 package com.webduino.webduinosystems.services;
 
+import com.webduino.ActionCommand;
 import com.webduino.zones.ZoneSensor;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -17,12 +20,13 @@ public class Service {
     public String name;
     private String type;
     public List<ZoneSensor> zoneSensors = new ArrayList<>();
+    public List<ActionCommand> actioncommandlist = new ArrayList<>();
 
     private double temperature = 0.0;
     private boolean doorStatusOpen = false;
     public Date lastTemperatureUpdate = null;
 
-    public Service(JSONObject json) {
+    public Service(JSONObject json) throws JSONException {
         fromJson(json);
     }
 
@@ -34,21 +38,24 @@ public class Service {
         return name;
     }
 
-    void fromJson(JSONObject json) {
+    void fromJson(JSONObject json) throws JSONException {
 
-        try {
+        if (json.has("id"))
+            id = json.getInt("id");
+        if (json.has("name"))
+            name = json.getString("name");
+        if (json.has("type"))
+            type = json.getString("type");
 
-            if (json.has("id"))
-                id = json.getInt("id");
-            if (json.has("name"))
-                name = json.getString("name");
-            if (json.has("type"))
-                type = json.getString("type");
-
-
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        if (json.has("actioncommandlist")) {
+            JSONArray jsonArray = json.getJSONArray("actioncommandlist");
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    ActionCommand actioncommand = new ActionCommand(jsonObject);
+                    actioncommandlist.add(actioncommand);
+                }
+            }
         }
     }
 }

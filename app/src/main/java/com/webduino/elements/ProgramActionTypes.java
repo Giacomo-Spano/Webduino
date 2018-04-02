@@ -22,7 +22,7 @@ public class ProgramActionTypes {
         list.get(index);
     }
 
-    /*public static ProgramActionType getFromId(int id) {
+    /*public static ProgramActionType getZoneSensorFromId(int id) {
         for(ProgramActionType actiontype : list) {
             if (actiontype.id == id) {
                 return actiontype;

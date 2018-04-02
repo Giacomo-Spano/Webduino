@@ -22,6 +22,10 @@ public class BooleanOptionCardValue extends OptionCardValue {
         super(name,value);
         this.trueDescription = trueDescription;
         this.falseDescription = falseDescription;
+        if (value)
+            valueDescription = trueDescription;
+        else
+            valueDescription = falseDescription;
     }
 
     public boolean getValue() {
@@ -60,13 +64,17 @@ public class BooleanOptionCardValue extends OptionCardValue {
         builder.setView(view)
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        if (cb.isChecked())
+                        if (cb.isChecked()) {
                             value = new Boolean(true);
-                        else
+                            valueDescription = trueDescription;
+                        } else {
                             value = new Boolean(false);
+                            valueDescription = falseDescription;
+                        }
 
-                        if (listener != null)
-                            listener.onSetValue(value);
+                        if (listeners != null)
+                            for (OptionCardListener listener:listeners)
+                                listener.onSetValue(value);
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

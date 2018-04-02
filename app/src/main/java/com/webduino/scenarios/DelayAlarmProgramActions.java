@@ -1,5 +1,8 @@
 package com.webduino.scenarios;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by gs163400 on 10/02/2018.
  */
@@ -13,5 +16,14 @@ class DelayAlarmProgramActions extends ProgramAction {
         hasTarget = false;
         hasDuration = true;
         //actuatorType.add("doorsensor");
+    }
+
+    public DelayAlarmProgramActions(JSONObject json) throws JSONException {
+        super(json);
+        hasZone = true;
+        hasThreshold = false;
+        hasActuator = true;
+        hasTarget = false;
+        hasDuration = true;
     }
 }

@@ -19,9 +19,7 @@ import android.widget.Button;
 import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.WebduinoResponse;
-import com.webduino.elements.ProgramActionType;
 import com.webduino.elements.ProgramActionTypes;
-import com.webduino.elements.TimeRange;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
@@ -33,7 +31,6 @@ import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.TimeOptionCardValue;
 import com.webduino.scenarios.ProgramAction;
-import com.webduino.scenarios.ScenarioProgram;
 import com.webduino.scenarios.ScenarioProgramTimeRange;
 
 import java.util.ArrayList;
@@ -42,7 +39,7 @@ import java.util.List;
 public class ProgramTimeRangeFragment extends Fragment implements ProgramActionFragment.OnProgramActionFragmentInteractionListener {
 
     ScenarioProgramTimeRange timeRange;
-    private CardAdapter actionsAdapter, optionsAdapter;
+    private CardAdapter programActionsAdapter, optionsAdapter;
     OptionCardInfo optionCard_Name, optionCard_Description, optionCard_StartTime, optionCard_EndTime, optionCard_Enabled;
 
     private OnProgramTimeRangeFragmentInteractionListener mListener;
@@ -73,7 +70,7 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
             @Override
             public void onClick(int position, CardInfo cardInfo) {
                 OptionCardInfo optionCardInfo = (OptionCardInfo) cardInfo;
-                optionCardInfo.value.setListener(new OptionCardValue.OptionCardListener() {
+                optionCardInfo.value.addListener(new OptionCardValue.OptionCardListener() {
                     @Override
                     public void onSetValue(Object value) {
                         optionsAdapter.notifyDataSetChanged();
@@ -88,12 +85,12 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         RecyclerView actionRecyclerView = (RecyclerView) view.findViewById(R.id.actionList);
         actionRecyclerView.setHasFixedSize(false);
         actionRecyclerView.setLayoutManager(linearLayoutManager);
-        actionsAdapter = new CardAdapter(this, createActionList());
-        actionRecyclerView.setAdapter(actionsAdapter);
-        actionsAdapter.setListener(new CardAdapter.OnListener() {
+        programActionsAdapter = new CardAdapter(this, createProgramActionList());
+        actionRecyclerView.setAdapter(programActionsAdapter);
+        programActionsAdapter.setListener(new CardAdapter.OnListener() {
             @Override
             public void onClick(int position, CardInfo cardInfo) {
-                onActionClick(position, cardInfo);
+                onProgramActionClick(position, cardInfo);
             }
         });
 
@@ -169,7 +166,7 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         }, requestDataTask.POST_SCENARIOPROGRAMTIMERANGE).execute(timeRange, true);
     }
 
-    private List<CardInfo> createActionList() {
+    private List<CardInfo> createProgramActionList() {
         List<CardInfo> result = new ArrayList<CardInfo>();
         for (ProgramAction action : timeRange.programActionList) {
             ProgramActionCardInfo actioncardinfo = new ProgramActionCardInfo();
@@ -229,7 +226,7 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         mListener = null;
     }
 
-    public void onActionClick(int position, CardInfo cardInfo) {
+    public void onProgramActionClick(int position, CardInfo cardInfo) {
         if (cardInfo instanceof ProgramActionCardInfo) {
             showActionFragment(((ProgramActionCardInfo) cardInfo).action);
         } else if (cardInfo instanceof ActionButtonCardInfo) {
@@ -247,11 +244,9 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         action.type = ProgramActionTypes.list.get(0).instruction; // questo serve per inizializzare il tipo di action altrimenti
         // il salvataggio fallisce
 
-
         new requestDataTask(MainActivity.activity, new WebduinoResponse() {
             @Override
             public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
-
                 ProgramAction action = (ProgramAction) result;
                 timeRange.programActionList.add(action);
                 updateProgramActionList();
@@ -262,16 +257,16 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
     }
 
     private void updateProgramActionList() {
-        List<CardInfo> list = createActionList();
-        actionsAdapter.swap(list);
+        List<CardInfo> list = createProgramActionList();
+        programActionsAdapter.swap(list);
     }
 
-    private void showActionFragment(ProgramAction action) {
+    private void showActionFragment(ProgramAction programAction) {
         ProgramActionFragment programActionFragment = new ProgramActionFragment();
         programActionFragment.addListener(this);
 
-        if (action != null) {
-            programActionFragment.action = action;
+        if (programAction != null) {
+            programActionFragment.programAction = programAction;
 
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();

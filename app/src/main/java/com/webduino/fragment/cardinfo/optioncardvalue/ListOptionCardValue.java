@@ -5,8 +5,6 @@ import android.content.DialogInterface;
 
 import com.webduino.MainActivity;
 
-import java.util.ArrayList;
-
 /**
  * Created by giaco on 15/02/2018.
  */
@@ -14,32 +12,62 @@ import java.util.ArrayList;
 public class ListOptionCardValue extends OptionCardValue {
 
     private CharSequence[] items;
-    private int[] itemValues;
+    private int[] itemIntValues;
+    private String[] itemStringValues;
 
-    @Override
-    public int getIntValue() {
-        if (value == null) return 0;
-        return (int)value;
-    }
 
-    public ListOptionCardValue(String name, Integer value, CharSequence[] items, int[] itemValues) {
+
+    public ListOptionCardValue(String name, Integer value, CharSequence[] items, int[] itemIntValues) {
         super(name, value);
         if (items == null)
             return;
         this.items = items;
-        this.itemValues = itemValues;
+        this.itemIntValues = itemIntValues;
+        itemStringValues = null;
+
+        valueDescription = "---";
+        for (int i = 0; i < itemIntValues.length; i++) {
+            if (itemIntValues[i]==value)
+                valueDescription = (String) items[i];
+        }
+    }
+
+    public ListOptionCardValue(String name, String value, CharSequence[] items, String[] itemStringValues) {
+        super(name, value);
+        if (items == null)
+            return;
+        this.items = items;
+        this.itemStringValues = itemStringValues;
+        itemIntValues = null;
+    }
+
+    @Override
+    public int getIntValue() {
+
+        if (itemIntValues == null)
+            return -1;
+
+        if (value == null) return 0;
+        return (int)value;
     }
 
     @Override
     public String getStringValue() {
 
-        if (items == null || value == null )
-            return "";
-        int n = (Integer) value;
-        if (n >= items.length)
-            return "";
-        return items[n].toString();
+
+            if (items == null || value == null)
+                return "";
+        if (itemIntValues != null) {
+            int n = (Integer) value;
+            if (n >= items.length)
+                return "";
+            return "" + itemIntValues[n];
+        } else {
+            return (String) value;
+        }
     }
+
+
 
     public Object showPicker() {
 
@@ -52,8 +80,16 @@ public class ListOptionCardValue extends OptionCardValue {
                         // The 'which' argument contains the index position
                         // of the selected item
                         value = which;
-                        if (listener != null)
-                            listener.onSetValue(itemValues[which]);
+                        valueDescription = (String) items[which];
+                        if (listeners != null) {
+                            if (itemIntValues != null) {
+                                for (OptionCardListener listener:listeners)
+                                    listener.onSetValue(itemIntValues[which]);
+                            } else {
+                                for (OptionCardListener listener:listeners)
+                                    listener.onSetValue(itemStringValues[which]);
+                            }
+                        }
                     }
                 });
 

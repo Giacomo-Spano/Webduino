@@ -10,7 +10,7 @@ import org.json.JSONObject;
 public class Actuator extends Sensor {
 
 
-    private String status;
+    private String status = "";
 
     public Actuator(JSONObject json) {
         super(json);

@@ -17,6 +17,7 @@ public class DecimalOptionCardValue extends OptionCardValue {
 
     public DecimalOptionCardValue(String name, Double value) {
         super(name,value);
+        valueDescription = "" + value;
     }
 
     @Override
@@ -38,16 +39,17 @@ public class DecimalOptionCardValue extends OptionCardValue {
 
         LayoutInflater inflater = MainActivity.activity.getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_decimaloptionvalue, null);
-        final TextView tv = view.findViewById(R.id.numberTextView);
+        final TextView tv = view.findViewById(R.id.decimalTextView);
 
         builder.setView(view)
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         CharSequence str = tv.getText();
-                        value = Integer.valueOf(str.toString());
-
-                        if (listener != null)
-                            listener.onSetValue(value);
+                        value = Double.valueOf(str.toString());
+                        valueDescription = "" + value;
+                        if (listeners != null)
+                            for (OptionCardListener listener:listeners)
+                                listener.onSetValue(value);
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

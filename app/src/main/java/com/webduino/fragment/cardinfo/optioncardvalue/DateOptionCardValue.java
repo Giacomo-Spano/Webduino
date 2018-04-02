@@ -37,8 +37,9 @@ public class DateOptionCardValue extends OptionCardValue {
             @Override
             public void setDate(Date date) {
                 value = date;
-                if (listener != null)
-                    listener.onSetValue(value);
+                if (listeners != null)
+                    for (OptionCardListener listener:listeners)
+                        listener.onSetValue(value);
             }
             @Override
             public void cancel() {

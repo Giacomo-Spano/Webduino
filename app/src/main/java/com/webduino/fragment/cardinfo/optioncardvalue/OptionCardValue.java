@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import com.webduino.MainActivity;
 import com.webduino.R;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by giaco on 15/02/2018.
@@ -16,7 +18,8 @@ import java.util.Date;
 public class OptionCardValue {
     protected Object value;
     protected String name;
-    OptionCardListener listener = null;
+    List<OptionCardListener> listeners = new ArrayList<>();
+    public String valueDescription = "";
 
     public OptionCardValue(String name, Object value) {
         this.value = value;
@@ -27,9 +30,9 @@ public class OptionCardValue {
         return name;
     }
 
-    /*public Object getValue() {
-        return value;
-    }*/
+    public String getValueDescription() {
+        return valueDescription;
+    }
 
     public String getStringValue() {
         if (value == null) return "";
@@ -52,8 +55,8 @@ public class OptionCardValue {
         return null;
     }
 
-    public void setListener(OptionCardListener listener) {
-        this.listener = listener;
+    public void addListener(OptionCardListener listener) {
+        this.listeners.add(listener);
     }
 
     public interface OptionCardListener {
@@ -68,8 +71,9 @@ public class OptionCardValue {
             public void onClick(DialogInterface dialog, int id) {
                 // User clicked OK button
                 //Integer value = new Integer(3);
-                if (listener != null)
-                    listener.onSetValue(value);
+                if (listeners != null)
+                    for(OptionCardListener listener:listeners)
+                        listener.onSetValue(value);
             }
         });
         builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {

@@ -9,8 +9,8 @@ import org.json.JSONObject;
 public class ZoneSensor {
 
     public String name;
-    int id;
-    private int sensorId;
+    public int id;
+    public int sensorId;
 
     public ZoneSensor(JSONObject json) {
         fromJson(json);
@@ -24,8 +24,8 @@ public class ZoneSensor {
                 id = json.getInt("id");
             if (json.has("name"))
                 name = json.getString("name");
-            if (json.has("sensor"))
-                sensorId = json.getInt("sensor");
+            if (json.has("sensorid"))
+                sensorId = json.getInt("sensorid");
 
         } catch (Exception e) {
             // TODO Auto-generated catch block

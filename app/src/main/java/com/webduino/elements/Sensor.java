@@ -3,10 +3,12 @@ package com.webduino.elements;
 import android.app.Fragment;
 import android.content.Context;
 
+import com.webduino.ActionCommand;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.SensorCardInfo;
 import com.webduino.fragment.cardinfo.TemperatureSensorCardInfo;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -19,16 +21,19 @@ import java.util.List;
  */
 public class Sensor {
 
-    protected int id;
+    public int id;
     protected int shieldid;
     protected boolean online;
     protected String subaddress;
-    protected String name;
+    public String name;
     protected Date lastUpdate;
+    protected String type;
 
     public List<Sensor> childsensors = new ArrayList<>();
 
-    //protected SensorCardInfo cardInfo;
+    public List<String> statuslist = new ArrayList<>();
+    public List<ActionCommand> actioncommandlist = new ArrayList<>();
+
 
     public Sensor(JSONObject json) {
         fromJson(json);
@@ -63,6 +68,10 @@ public class Sensor {
         return name;
     }
 
+    public String getType() {
+        return type;
+    }
+
     public boolean getOnLine() {
         return online;
     }
@@ -81,11 +90,33 @@ public class Sensor {
                 subaddress = json.getString("subaddress");
             if (json.has("name"))
                 name = json.getString("name");
+            if (json.has("type"))
+                type = json.getString("type");
             if (json.has("lastupdate")) {
                 String strDate = json.getString("lastupdate");
                 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 if (strDate != null)
                     lastUpdate = df.parse(strDate);
+            }
+
+            if (json.has("statuslist")) {
+                JSONArray jsonArray = json.getJSONArray("statuslist");
+                if (jsonArray !=  null) {
+                    for (int i = 0; i < jsonArray.length();i++) {
+                        statuslist.add((String)jsonArray.get(i));
+                    }
+                }
+            }
+
+            if (json.has("actioncommandlist")) {
+                JSONArray jsonArray = json.getJSONArray("actioncommandlist");
+                if (jsonArray !=  null) {
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        ActionCommand actioncommand = new ActionCommand(jsonObject);
+                        actioncommandlist.add(actioncommand);
+                    }
+                }
             }
 
         } catch (Exception e) {
