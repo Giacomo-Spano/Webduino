@@ -14,12 +14,18 @@ public class Action {
 
     public int id = 0;
     public int programactionid = 0;
-    public String type = "";
-    public String actioncommand = "";
+    public String type = "actuator";
+    public String actuatorcommand = "";
+    public String servicecommand = "";
+    public boolean triggerenable = true;
     public double targetvalue = 0;
     public int seconds = 0;
     public int actuatorid = 0;
     public int serviceid = 0;
+    public int zoneid = 0;
+    public int zonesensorid = 0;
+    public int triggerid = 0;
+    public String param;
 
     protected boolean hasZone = false;
     protected boolean hasThreshold = false;
@@ -33,6 +39,7 @@ public class Action {
     protected boolean hasParam = false;
     protected boolean hasServiceId = false;
 
+
     public Action() {
     }
 
@@ -44,12 +51,17 @@ public class Action {
 
         if (json.has("id")) id = json.getInt("id");
         if (json.has("programactionid")) programactionid = json.getInt("programactionid");
-        if (json.has("actioncommand")) actioncommand = json.getString("actioncommand");
+        if (json.has("actioncommand")) actuatorcommand = json.getString("actioncommand");
+        if (json.has("servicecommand")) servicecommand = json.getString("servicecommand");
         if (json.has("type")) type = json.getString("type");
         if (json.has("actuatorid")) actuatorid = json.getInt("actuatorid");
         if (json.has("serviceid")) serviceid = json.getInt("serviceid");
         if (json.has("targetvalue")) targetvalue = json.getDouble("targetvalue");
         if (json.has("seconds")) seconds = json.getInt("seconds");
+        if (json.has("zoneid")) zoneid = json.getInt("zoneid");
+        if (json.has("zonesensorid")) zonesensorid = json.getInt("zonesensorid");
+        if (json.has("triggerid")) triggerid = json.getInt("triggerid");
+        if (json.has("param")) param = json.getString("param");
     }
 
     public boolean hasZone() {
@@ -92,9 +104,14 @@ public class Action {
         json.put("actuatorid", actuatorid);
         json.put("serviceid", serviceid);
         json.put("targetvalue", targetvalue);
-        json.put("actioncommand", actioncommand);
+        json.put("actioncommand", actuatorcommand);
+        json.put("servicecommand", servicecommand);
         json.put("seconds", seconds);
         json.put("type", type);
+        json.put("zoneid", zoneid);
+        json.put("zonesensorid", zonesensorid);
+        json.put("param", param);
+        json.put("triggerid", triggerid);
         return json;
     }
 }

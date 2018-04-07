@@ -7,8 +7,37 @@ import org.json.JSONObject;
 public class ActionCommand {
     public String command;
     public String name;
-    public String paramType;
-    public String paramDescription;
+
+    boolean hastarget = false;
+    double mintargetvalue;
+    double maxtargetvalue;
+    String targetname = "Target";
+
+    boolean haszone = false;
+    String zonename;
+
+    boolean hasparam = false;
+    String paramname;
+    double paramlen;
+
+    boolean hasstatus = false;
+    String statusname = "stato";
+
+    public boolean hasZone() {
+        return haszone;
+    }
+
+    public boolean hasParam() {
+        return hasparam;
+    }
+
+    public boolean hasStatus() {
+        return hasstatus;
+    }
+
+    public boolean hasTarget() {
+        return hastarget;
+    }
 
     public ActionCommand(JSONObject json) throws JSONException {
         fromJson(json);
@@ -19,10 +48,35 @@ public class ActionCommand {
             command = json.getString("command");
         if (json.has("name"))
             name = json.getString("name");
-        if (json.has("paramType"))
-            paramType = json.getString("paramType");
-        if (json.has("paramDescription"))
-            paramType = json.getString("paramDescription");
-    }
 
+        if (json.has("targetvalue")) {
+            hastarget = true;
+            if (json.has("targetname"))
+                targetname = json.getString("targetname");
+            if (json.has("mintargetvalue"))
+                mintargetvalue = json.getDouble("mintargetvalue");
+            if (json.has("maxtargetvalue"))
+                maxtargetvalue = json.getDouble("maxtargetvalue");
+        }
+
+        if (json.has("zone")) {
+            haszone = true;
+            if (json.has("zonename"))
+                zonename = json.getString("zonename");
+        }
+
+        if (json.has("param")) {
+            hasparam = true;
+            if (json.has("paramname"))
+                paramname = json.getString("paramname");
+            if (json.has("paramlen"))
+                paramlen = json.getDouble("paramlen");
+        }
+
+        if (json.has("hasstatus")) {
+            hasstatus = true;
+            if (json.has("statusname"))
+                statusname = json.getString("statusname");
+        }
+    }
 }

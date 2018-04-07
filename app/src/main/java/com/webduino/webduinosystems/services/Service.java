@@ -58,4 +58,12 @@ public class Service {
             }
         }
     }
+
+    public ActionCommand getActionCommand(String command) {
+        for(ActionCommand actioncommand:actioncommandlist) {
+            if (actioncommand.command.equals(command))
+                return actioncommand;
+        }
+        return null;
+    }
 }

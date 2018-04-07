@@ -63,7 +63,6 @@ public class OptionCardValue {
         void onSetValue(Object value);
     }
 
-
     public Object showPicker() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.activity);
         // Add the buttons
@@ -85,17 +84,6 @@ public class OptionCardValue {
 
         LayoutInflater inflater = MainActivity.activity.getLayoutInflater();
         builder.setView(inflater.inflate(R.layout.dialog_stringoptionvalue, null));
-
-        /*final CharSequence[] items = {
-                "Rajesh", "Mahesh", "Vijayakumar"
-        };
-
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                // The 'which' argument contains the index position
-                // of the selected item
-            }
-        });*/
 
         // Create the AlertDialog
         AlertDialog dialog = builder.create();

@@ -210,13 +210,14 @@ public class ConditionFragment extends Fragment {
             CharSequence[] cs2 = new CharSequence[condition.valueOperatorList.size()];
             String[] csvalue2 = new String[condition.valueOperatorList.size()];
             i = 0;
+            int value = 0;
             for (String operator : condition.valueOperatorList) {
                 cs2[i] = operator;
                 csvalue2[i] = operator;
                 i++;
             }
             optionCard_ValueOperator = new OptionCardInfo();
-            optionCard_ValueOperator.value = new ListOptionCardValue("Confronto", cs2[0].toString(), cs2, csvalue2);
+            optionCard_ValueOperator.value = new ListOptionCardValue("Confronto", value, cs2, csvalue2);
         }
         // sensor value
         optionCard_Value = new OptionCardInfo();
@@ -239,12 +240,12 @@ public class ConditionFragment extends Fragment {
             itemStringValues = new String[0];
         }
         optionCard_ZoneSensorStatus = new OptionCardInfo();
-        optionCard_ZoneSensorStatus.value = new ListOptionCardValue("Stato", condition.status, items, itemStringValues);
+        optionCard_ZoneSensorStatus.value = new ListOptionCardValue("Stato", 0, items, itemStringValues);
         // value or status
         CharSequence[] cs = {"Valore", "Stato"};
         String[] csvalue = {"value", "status"};
         optionCard_ConditionType = new OptionCardInfo();
-        optionCard_ConditionType.value = new ListOptionCardValue("Controlla", cs[0].toString(), cs, csvalue);
+        optionCard_ConditionType.value = new ListOptionCardValue("Controlla", 0, cs, csvalue);
         optionCard_ConditionType.value.addListener(new OptionCardValue.OptionCardListener() {
             @Override
             public void onSetValue(Object value) {

@@ -15,8 +15,6 @@ public class ListOptionCardValue extends OptionCardValue {
     private int[] itemIntValues;
     private String[] itemStringValues;
 
-
-
     public ListOptionCardValue(String name, Integer value, CharSequence[] items, int[] itemIntValues) {
         super(name, value);
         if (items == null)
@@ -27,12 +25,12 @@ public class ListOptionCardValue extends OptionCardValue {
 
         valueDescription = "---";
         for (int i = 0; i < itemIntValues.length; i++) {
-            if (itemIntValues[i]==value)
+            if (itemIntValues[i] == value)
                 valueDescription = (String) items[i];
         }
     }
 
-    public ListOptionCardValue(String name, String value, CharSequence[] items, String[] itemStringValues) {
+    public ListOptionCardValue(String name, Integer value, CharSequence[] items, String[] itemStringValues) {
         super(name, value);
         if (items == null)
             return;
@@ -48,25 +46,35 @@ public class ListOptionCardValue extends OptionCardValue {
             return -1;
 
         if (value == null) return 0;
-        return (int)value;
+        return (int) value;
     }
 
     @Override
     public String getStringValue() {
 
+        if (!(value instanceof Integer))
+            return "errore";
 
-            if (items == null || value == null)
-                return "";
+        if (items == null || value == null)
+            return "";
+
+        int n = (Integer) value;
+        if (n >= items.length)
+            return "errore";
+
         if (itemIntValues != null) {
-            int n = (Integer) value;
-            if (n >= items.length)
-                return "";
-            return "" + itemIntValues[n];
+            return "" + items[n];
+        } else if (itemStringValues != null) {
+            return itemStringValues[n];
         } else {
-            return (String) value;
+            return "errore";
         }
     }
 
+    @Override
+    public String getValueDescription() {
+        return getStringValue();
+    }
 
 
     public Object showPicker() {
@@ -83,10 +91,10 @@ public class ListOptionCardValue extends OptionCardValue {
                         valueDescription = (String) items[which];
                         if (listeners != null) {
                             if (itemIntValues != null) {
-                                for (OptionCardListener listener:listeners)
+                                for (OptionCardListener listener : listeners)
                                     listener.onSetValue(itemIntValues[which]);
                             } else {
-                                for (OptionCardListener listener:listeners)
+                                for (OptionCardListener listener : listeners)
                                     listener.onSetValue(itemStringValues[which]);
                             }
                         }
