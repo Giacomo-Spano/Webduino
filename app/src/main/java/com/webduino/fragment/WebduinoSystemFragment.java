@@ -248,8 +248,8 @@ public class WebduinoSystemFragment extends Fragment {
 
     private void showScenarioFragment(ScenarioCardInfo scenarioCardInfo) {
         Bundle bundle = new Bundle();
-        bundle.putString("id", "" + scenarioCardInfo.id);
-        bundle.putString("webduinosystemid", "" + webduinoSystem.id);
+        bundle.putInt("scenarioid", scenarioCardInfo.scenario.id);
+        bundle.putInt("webduinosystemid", webduinoSystem.id);
 
         ScenarioFragment scenarioFragment = new ScenarioFragment();
         scenarioFragment.setListener(new ScenarioFragment.OnScenarioFragmentInteractionListener() {

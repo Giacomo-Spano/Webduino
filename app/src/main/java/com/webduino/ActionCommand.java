@@ -15,6 +15,7 @@ public class ActionCommand {
 
     boolean haszone = false;
     String zonename;
+    String zonesensortype;
 
     boolean hasparam = false;
     String paramname;
@@ -43,6 +44,10 @@ public class ActionCommand {
         fromJson(json);
     }
 
+    public String getZoneSensorType() {
+        return zonesensortype;
+    }
+
     void fromJson(JSONObject json) throws JSONException {
         if (json.has("command"))
             command = json.getString("command");
@@ -63,6 +68,8 @@ public class ActionCommand {
             haszone = true;
             if (json.has("zonename"))
                 zonename = json.getString("zonename");
+            if (json.has("zonesensortype"))
+                zonesensortype = json.getString("zonesensortype");
         }
 
         if (json.has("param")) {

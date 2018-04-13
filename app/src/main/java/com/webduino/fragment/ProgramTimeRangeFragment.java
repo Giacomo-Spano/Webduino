@@ -41,6 +41,7 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
     ScenarioProgramTimeRange timeRange;
     private CardAdapter programActionsAdapter, optionsAdapter;
     OptionCardInfo optionCard_Name, optionCard_Description, optionCard_StartTime, optionCard_EndTime, optionCard_Enabled;
+    int webduinosystemid;
 
     private OnProgramTimeRangeFragmentInteractionListener mListener;
 
@@ -53,6 +54,7 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         setHasOptionsMenu(true);
         if (getArguments() != null) {
         }
+        webduinosystemid = getArguments().getInt("webduinosystemid");
     }
 
     @Override
@@ -267,7 +269,9 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
 
         if (programAction != null) {
             programActionFragment.programAction = programAction;
-
+            Bundle bundle = new Bundle();
+            bundle.putInt("webduinosystemid", webduinosystemid);
+            programActionFragment.setArguments(bundle);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
             ft.replace(R.id.content_frame, (Fragment) programActionFragment);

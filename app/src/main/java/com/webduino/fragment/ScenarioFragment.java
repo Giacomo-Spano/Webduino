@@ -39,6 +39,8 @@ import com.webduino.scenarios.ScenarioProgramTimeRange;
 import com.webduino.scenarios.ScenarioTimeInterval;
 import com.webduino.scenarios.ScenarioTrigger;
 import com.webduino.scenarios.Scenarios;
+import com.webduino.webduinosystems.WebduinoSystem;
+import com.webduino.webduinosystems.WebduinoSystems;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +54,7 @@ public class ScenarioFragment extends Fragment implements
     OnScenarioFragmentInteractionListener mListener;
     private Scenario scenario;
     private CardAdapter optionsAdapter, calendarsAdapter, triggersAdapter, programsAdapter;
+    private int webduinosystemid;
 
     OptionCardInfo optionCard_Name, optionCard_Description, optionCard_Priority, optionCard_Enabled;
 
@@ -279,7 +282,9 @@ public class ScenarioFragment extends Fragment implements
 
         if (program != null) {
             programFragment.program = program;
-
+            Bundle bundle = new Bundle();
+            bundle.putInt("webduinosystemid", webduinosystemid);
+            programFragment.setArguments(bundle);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
             ft.replace(R.id.content_frame, (Fragment) programFragment);
@@ -397,17 +402,12 @@ public class ScenarioFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        String strtext = getArguments().getString("id");
-
-        int id = Integer.valueOf(strtext);
-        if (id == 0)
-            scenario = new Scenario();
+        int scenarioid = getArguments().getInt("scenarioid");
+        webduinosystemid = getArguments().getInt("webduinosystemid");
+        if (scenarioid == 0)
+            scenario = new Scenario(webduinosystemid);
         else
-            scenario = Scenarios.getFromId(id);
-
-        strtext = getArguments().getString("webduinosystemid");
-        int webduinosystemid = Integer.valueOf(strtext);
-        scenario.webduinosystemid = webduinosystemid;
+            scenario = Scenarios.getFromId(scenarioid);
     }
 
 

@@ -61,6 +61,7 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
 
     CharSequence[] actionItems = new CharSequence[ProgramActionTypes.list.size()];
     int[] actionItemValues = new int[ProgramActionTypes.list.size()];
+    int webduinosystemid;
 
     private OnProgramActionFragmentInteractionListener mListener;
 
@@ -73,6 +74,7 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
         setHasOptionsMenu(true);
         if (getArguments() != null) {
         }
+        webduinosystemid = getArguments().getInt("webduinosystemid");
     }
 
     @Override
@@ -218,7 +220,9 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
 
         if (action != null) {
             actionFragment.action = action;
-
+            Bundle bundle = new Bundle();
+            bundle.putInt("webduinosystemid", webduinosystemid);
+            actionFragment.setArguments(bundle);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
             ft.replace(R.id.content_frame, (Fragment) actionFragment);

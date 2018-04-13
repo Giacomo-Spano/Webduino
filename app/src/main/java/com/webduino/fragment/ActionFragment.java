@@ -27,6 +27,8 @@ import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
 import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.scenarios.Action;
+import com.webduino.webduinosystems.WebduinoSystem;
+import com.webduino.webduinosystems.WebduinoSystems;
 import com.webduino.webduinosystems.services.Service;
 
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ public class ActionFragment extends Fragment {
             optionCard_IntegerValue,
             optionCard_ParamValue;
     OptionLoader loader = new OptionLoader();
+    private WebduinoSystem webduinoSystem;
 
     private OnActionFragmentListener mListener;
 
@@ -65,7 +68,6 @@ public class ActionFragment extends Fragment {
         optionCard_TargetValue = new OptionCardInfo();
         optionCard_IntegerValue = new OptionCardInfo();
         optionCard_ParamValue = new OptionCardInfo();
-
     }
 
     @Override
@@ -74,6 +76,8 @@ public class ActionFragment extends Fragment {
         setHasOptionsMenu(true);
         if (getArguments() != null) {
         }
+        int webduinosystemid = getArguments().getInt("webduinosystemid");
+        webduinoSystem = WebduinoSystems.getFromId(webduinosystemid);
     }
 
     @Override
@@ -198,37 +202,21 @@ public class ActionFragment extends Fragment {
 
     public List<CardInfo> createOptionList() {
         final List<CardInfo> result = new ArrayList<CardInfo>();
-
-        /*optionCard_ActuatorCommand = null;
-        optionCard_ServiceCommand = null;
-        optionCard_TriggerCommand = null;
-        optionCard_ActuatorId = null;
-        optionCard_ServiceId = null;
-        optionCard_ActionType = null;
-        optionCard_ZoneId = null;
-        optionCard_ZoneSensorId = null;
-        optionCard_TriggerId = null;
-        optionCard_TargetValue = null;
-        optionCard_IntegerValue = null;
-        optionCard_ParamValue = null;*/
-
         loadOptions(action.type, result);
-
-
         return result;
     }
 
     private void loadOptions(Object value, final List<CardInfo> result) {
+
+        if (webduinoSystem == null) return;
+
         result.clear();
 
-        // actuator or service or trigger
-        //optionCard_ActionType = new OptionCardInfo();
         loader.loadCommandType(optionCard_ActionType, action.type);
         result.add(optionCard_ActionType);
         optionCard_ActionType.value.addListener(new OptionCardValue.OptionCardListener() {
             @Override
             public void onSetValue(Object value) {
-
                 action.type = (String) value;
                 loadOptions(value, result);
             }
@@ -236,109 +224,107 @@ public class ActionFragment extends Fragment {
 
         ActionCommand actionCommand = null;
         if (action.type.equals("actuator")) {
-            Sensor actuator = Sensors.getFromId(action.actuatorid);
+            final Sensor actuator = Sensors.getFromId(action.actuatorid);
             if (actuator != null) {
                 actionCommand = actuator.getActionCommand(action.actuatorcommand);
             }
-            //optionCard_ActuatorId = new OptionCardInfo();
-            loader.loadActuatorId(optionCard_ActuatorId, action.actuatorid);
+            loader.loadActuatorId(optionCard_ActuatorId, action.actuatorid,webduinoSystem);
             result.add(optionCard_ActuatorId);
             optionCard_ActuatorId.value.addListener(new OptionCardValue.OptionCardListener() {
                 @Override
                 public void onSetValue(Object value) {
-                    loader.loadActuatorCommand(optionCard_ActuatorCommand, action.actuatorid, action.actuatorcommand);
+                    action.actuatorid = (int) value;
+                    loadOptions(value, result);
                 }
             });
-            //optionCard_ActuatorCommand = new OptionCardInfo();
-            loader.loadActuatorCommand(optionCard_ActuatorCommand, action.actuatorid, action.actuatorcommand);
-            result.add(optionCard_ActuatorCommand);
+            if (loader.loadActuatorCommand(optionCard_ActuatorCommand, action.actuatorid, action.actuatorcommand)) {
+                optionCard_ActuatorCommand.value.addListener(new OptionCardValue.OptionCardListener() {
+                    @Override
+                    public void onSetValue(Object value) {
+                        action.actuatorcommand = (String) value;
+                        loadOptions(value, result);
+                    }
+                });
+                result.add(optionCard_ActuatorCommand);
+                loadCommandParams(result, actionCommand);
+
+            }
 
         } else if (action.type.equals("service")) {
+
+            int serviceid = action.serviceid;
+            if (serviceid <= 0) {
+
+            }
+
             Service service = Services.getFromId(action.serviceid);
             if (service != null) {
                 actionCommand = service.getActionCommand(action.actuatorcommand);
-            }
-            //optionCard_ServiceId = new OptionCardInfo();
-            loader.loadServiceId(optionCard_ServiceId, action.serviceid);
-            result.add(optionCard_ServiceId);
-            optionCard_ServiceId.value.addListener(new OptionCardValue.OptionCardListener() {
-                @Override
-                public void onSetValue(Object value) {
-                    loader.loadServiceCommand(optionCard_ServiceCommand, action.serviceid, action.servicecommand);
-                }
-            });
-            //optionCard_ServiceCommand = new OptionCardInfo();
-            loader.loadServiceCommand(optionCard_ServiceCommand, action.serviceid, action.servicecommand);
-            result.add(optionCard_ServiceCommand);
 
+                loader.loadWebduinoSystemServiceId(optionCard_ServiceId, action.serviceid, webduinoSystem);
+                result.add(optionCard_ServiceId);
+                optionCard_ServiceId.value.addListener(new OptionCardValue.OptionCardListener() {
+                    @Override
+                    public void onSetValue(Object value) {
+                        action.serviceid = (int) value;
+                        loadOptions(value, result);
+                    }
+                });
+                if (loader.loadServiceCommand(optionCard_ServiceCommand, action.serviceid, action.servicecommand)) {
+                    optionCard_ServiceCommand.value.addListener(new OptionCardValue.OptionCardListener() {
+                        @Override
+                        public void onSetValue(Object value) {
+                            action.servicecommand = (String) value;
+                            loadOptions(value, result);
+                        }
+                    });
+                    loadCommandParams(result, actionCommand);
+                    result.add(optionCard_ServiceCommand);
+                }
+            }
         } else if (action.type.equals("trigger")) {
             Trigger trigger = Triggers.getFromId(action.triggerid);
             if (trigger != null) {
                 actionCommand = trigger.getActionCommand(action.actuatorcommand);
             }
-            //optionCard_TriggerId = new OptionCardInfo();
             loader.loadTriggerId(optionCard_TriggerId, action.triggerid);
             result.add(optionCard_TriggerId);
             optionCard_ServiceId.value.addListener(new OptionCardValue.OptionCardListener() {
                 @Override
                 public void onSetValue(Object value) {
-                    loader.loadTriggerCommand("Comando trigger", optionCard_TriggerCommand, action.triggerenable);
+                    action.triggerid = (int) value;
+                    loadOptions(value, result);
                 }
             });
-            //optionCard_TriggerCommand = new OptionCardInfo();
             loader.loadTriggerCommand("Comando trigger", optionCard_TriggerCommand, action.triggerenable);
             result.add(optionCard_TriggerCommand);
         }
+    }
 
-        if (actionCommand != null && actionCommand.hasZone()) {
-            //optionCard_ZoneId = new OptionCardInfo();
-            loader.loadZoneId(optionCard_ZoneId, action.zoneid);
-            result.add(optionCard_ZoneId);
-            optionCard_ZoneId.value.addListener(new OptionCardValue.OptionCardListener() {
-                @Override
-                public void onSetValue(Object value) {
-                    loader.loadZoneSensorId(optionCard_ZoneSensorId, action.zoneid, action.zonesensorid);
-                    result.add(optionCard_ZoneSensorId);
-                }
-            });
-            //optionCard_ZoneSensorId = new OptionCardInfo();
-            loader.loadZoneSensorId(optionCard_ZoneSensorId, action.zoneid, action.zonesensorid);
-        }
-
+    private void loadCommandParams(final List<CardInfo> result, ActionCommand actionCommand) {
         if (actionCommand != null && actionCommand.hasTarget()) {
-            //optionCard_TargetValue = new OptionCardInfo();
             loader.loadDecimalValue(actionCommand.name, optionCard_TargetValue, action.targetvalue);
             result.add(optionCard_TargetValue);
         }
+
         if (actionCommand != null && actionCommand.hasParam()) {
-            //optionCard_ParamValue = new OptionCardInfo();
             loader.loadStringValue(actionCommand.name, optionCard_ParamValue, action.param);
             result.add(optionCard_ParamValue);
         }
 
-
-        /*if (optionCard_ActionType != null)
-            result.add(optionCard_ActionType);
-        if (optionCard_ActuatorId != null)
-            result.add(optionCard_ActuatorId);
-        if (optionCard_ActuatorCommand != null)
-            result.add(optionCard_ActuatorCommand);
-        if (optionCard_ServiceId != null)
-            result.add(optionCard_ServiceId);
-        if (optionCard_ServiceCommand != null)
-            result.add(optionCard_ServiceCommand);
-        if (optionCard_TriggerId != null)
-            result.add(optionCard_TriggerId);
-        if (optionCard_TriggerCommand != null)
-            result.add(optionCard_TriggerCommand);
-
-        if (optionCard_ZoneId != null)
+        if (actionCommand != null && actionCommand.hasZone()) {
+            loader.loadZoneId(optionCard_ZoneId, action.zoneid);
             result.add(optionCard_ZoneId);
-        if (optionCard_ZoneSensorId != null)
+            final String type = actionCommand.getZoneSensorType();
+            optionCard_ZoneId.value.addListener(new OptionCardValue.OptionCardListener() {
+                @Override
+                public void onSetValue(Object value) {
+                    action.zoneid = (int) value;
+                    loadOptions(value, result);
+                }
+            });
+            loader.loadZoneSensorId(optionCard_ZoneSensorId, action.zoneid, action.zonesensorid, type);
             result.add(optionCard_ZoneSensorId);
-        if (optionCard_TargetValue != null)
-            result.add(optionCard_TargetValue);
-        if (optionCard_ParamValue != null)
-            result.add(optionCard_ParamValue);*/
+        }
     }
 }

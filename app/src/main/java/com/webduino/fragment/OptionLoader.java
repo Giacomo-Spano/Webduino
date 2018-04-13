@@ -1,36 +1,20 @@
 package com.webduino.fragment;
 
-import android.app.Fragment;
-import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-
 import com.webduino.ActionCommand;
-import com.webduino.MainActivity;
-import com.webduino.R;
 import com.webduino.Services;
-import com.webduino.WebduinoResponse;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
 import com.webduino.elements.Trigger;
 import com.webduino.elements.Triggers;
-import com.webduino.elements.requestDataTask;
-import com.webduino.fragment.adapters.CardAdapter;
-import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
 import com.webduino.fragment.cardinfo.optioncardvalue.DecimalOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.IntegerOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.ListOptionCardValue;
-import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
-import com.webduino.scenarios.Action;
+import com.webduino.webduinosystems.WebduinoSystem;
+import com.webduino.webduinosystems.WebduinoSystemActuator;
+import com.webduino.webduinosystems.WebduinoSystemService;
+import com.webduino.webduinosystems.WebduinoSystems;
 import com.webduino.webduinosystems.services.Service;
 import com.webduino.zones.Zone;
 import com.webduino.zones.ZoneSensor;
@@ -42,8 +26,8 @@ import java.util.List;
 public class OptionLoader {
 
     public void loadCommandType(OptionCardInfo optionCard, String type) {
-        CharSequence[] cs = {"Attuatore", "Servizio", "Trigger"};
-        String[] csvalue = {"actuator", "service", "trigger"};
+        CharSequence[] cs = {"actuator", "service", "trigger"};
+        String[] csvalue = {"Attuatore", "Servizio", "Trigger"};
         int value = 0;
         for (int i = 0; i < csvalue.length; i++) {
             if (csvalue[i].equals(type)) {
@@ -65,20 +49,20 @@ public class OptionLoader {
         optionCard.value = new ListOptionCardValue(text, current, cs, csvalue);
     }
 
-    public void loadServiceId(OptionCardInfo optionCard, int serviceid) {
+    public void loadWebduinoSystemServiceId(OptionCardInfo optionCard, int serviceid, WebduinoSystem webduinoSystem) {
 
-        if (Services.list.size() > 0) {
+        if (webduinoSystem.services.size() > 0) {
             CharSequence[] items;
             int[] itemValues;
             int i;
             int value = 0;
-            items = new CharSequence[Services.list.size()];
-            itemValues = new int[Services.list.size()];
+            items = new CharSequence[webduinoSystem.services.size()];
+            itemValues = new int[webduinoSystem.services.size()];
             i = 0;
-            for (Service service : Services.list) {
-                items[i] = service.name;
-                itemValues[i] = service.id;
-                if (serviceid == service.id)
+            for (WebduinoSystemService webduinoSystemService : webduinoSystem.services) {
+                items[i] = webduinoSystemService.service.name;
+                itemValues[i] = webduinoSystemService.service.id;
+                if (serviceid == webduinoSystemService.service.id)
                     value = i;
                 i++;
             }
@@ -88,19 +72,19 @@ public class OptionLoader {
         }
     }
 
-    public void loadActuatorId(OptionCardInfo optionCard, int actuatorid) {
+    public void loadActuatorId(OptionCardInfo optionCard, int actuatorid, WebduinoSystem webduinoSystem) {
 
 
-        if (Sensors.list.size() > 0) {
-            CharSequence[] items = new CharSequence[Sensors.list.size()];
-            int[] itemValues = new int[Sensors.list.size()];
-            String[] itemStringValues = new String[Sensors.list.size()];
+        if (webduinoSystem.actuators.size() > 0) {
+            CharSequence[] items = new CharSequence[webduinoSystem.actuators.size()];
+            int[] itemValues = new int[webduinoSystem.actuators.size()];
+            String[] itemStringValues = new String[webduinoSystem.actuators.size()];
             int i = 0;
             int value = 0;
-            for (Sensor sensor : Sensors.list) {
-                items[i] = sensor.name;
-                itemValues[i] = sensor.id;
-                if (actuatorid == sensor.id)
+            for (WebduinoSystemActuator webduinoSystemActuator : webduinoSystem.actuators) {
+                items[i] = webduinoSystemActuator.actuator.name;
+                itemValues[i] = webduinoSystemActuator.actuator.id;
+                if (actuatorid == webduinoSystemActuator.actuator.id)
                     value = i;
                 i++;
             }
@@ -150,28 +134,39 @@ public class OptionLoader {
         }
     }
 
-    public void loadZoneSensorId(OptionCardInfo optionCard, int zoneid, int zonesensorid) {
+    public void loadZoneSensorId(OptionCardInfo optionCard, int zoneid, int zonesensorid, String type) {
 
         Zone zone = Zones.getFromId(zoneid);
         if (zone != null && zone.zoneSensors.size() > 0) {
-            CharSequence[] items = new CharSequence[zone.zoneSensors.size()];
-            int[] itemValues = new int[zone.zoneSensors.size()];
+
+            List<ZoneSensor> list = new ArrayList<>();
+            for (ZoneSensor zoneSensor : zone.zoneSensors) {
+                Sensor sensor = Sensors.getFromId(zoneSensor.sensorId);
+                if (sensor != null && sensor.getType().equals(type))
+                    list.add(zoneSensor);
+            }
+
+            CharSequence[] items = new CharSequence[list.size()];
+            int[] itemValues = new int[list.size()];
             int i = 0;
             int value = 0;
-            for (ZoneSensor zoneSensor : zone.zoneSensors) {
+            for (ZoneSensor zoneSensor : list) {
                 items[i] = zoneSensor.name;
                 itemValues[i] = zoneSensor.id;
                 if (zonesensorid == zone.id)
                     value = i;
                 i++;
             }
-            optionCard.value = new ListOptionCardValue("Sensore zona", value, items, itemValues);
+            if (i == 0) // non c'è nessun sensore di tipo adeguato
+                optionCard.value = null;
+            else
+                optionCard.value = new ListOptionCardValue("Sensore zona", value, items, itemValues);
         } else {
             optionCard.value = null;
         }
     }
 
-    public void loadActuatorCommand(OptionCardInfo optionCard, int actuatorid, String actuatorcommand) {
+    public boolean loadActuatorCommand(OptionCardInfo optionCard, int actuatorid, String actuatorcommand) {
         CharSequence[] items;
         String[] itemStringValues;
         int i;
@@ -190,12 +185,14 @@ public class OptionLoader {
                 i++;
             }
             optionCard.value = new ListOptionCardValue("Comando attuatore", value, items, itemStringValues);
+            return true;
         } else {
             optionCard.value = null;
+            return false;
         }
     }
 
-    public void loadServiceCommand(OptionCardInfo optionCard, int serviceid, String servicecommand) {
+    public boolean loadServiceCommand(OptionCardInfo optionCard, int serviceid, String servicecommand) {
 
         CharSequence[] items;
         String[] itemStringValues;
@@ -213,8 +210,10 @@ public class OptionLoader {
                 i++;
             }
             optionCard.value = new ListOptionCardValue("Comando servizio", value, items, itemStringValues);
+            return true;
         } else {
             optionCard.value = null;
+            return false;
         }
     }
 

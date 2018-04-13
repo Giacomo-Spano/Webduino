@@ -6,6 +6,8 @@ import com.webduino.elements.Program;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.ScenarioCardInfo;
+import com.webduino.webduinosystems.WebduinoSystem;
+import com.webduino.webduinosystems.WebduinoSystems;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,20 +38,22 @@ public class Scenario {
 
     public String status = "";
 
-    public Scenario() {
+    public Scenario(int webduinosystemid) {
+        this.webduinosystemid = webduinosystemid;
     }
 
-    public Scenario(JSONObject jObject) {
+    public Scenario(JSONObject jObject) throws Exception {
         fromJson(jObject);
     }
 
-    public void fromJson(JSONObject jObject) {
+    public void fromJson(JSONObject jObject) throws Exception {
 
         try {
             if (jObject.has("id"))
                 id = jObject.getInt("id");
-            if (jObject.has("webduinosystemid"))
+            if (jObject.has("webduinosystemid")) {
                 webduinosystemid = jObject.getInt("webduinosystemid");
+            }
             if (jObject.has("name"))
                 name = jObject.getString("name");
             if (jObject.has("description"))

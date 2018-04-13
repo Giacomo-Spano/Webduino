@@ -288,8 +288,7 @@ public class requestDataTask extends
                     JSONArray jArray = new JSONArray(json);
                     for (int i = 0; i < jArray.length(); i++) {
                         JSONObject jObject = jArray.getJSONObject(i);
-                        Object data = new Scenario();
-                        ((Scenario) data).fromJson(jObject);
+                        Object data = new Scenario(jObject);
                         list.add(data);
                     }
                     result.objectList = list;
@@ -406,6 +405,8 @@ public class requestDataTask extends
                 error = true;
                 e.printStackTrace();
                 errorMessage = e.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } catch (MalformedURLException e) {
             error = true;

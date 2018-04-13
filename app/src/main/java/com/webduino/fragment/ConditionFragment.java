@@ -42,6 +42,7 @@ public class ConditionFragment extends Fragment {
                     optionCard_ZoneSensorStatus, // stato sensore
                     optionCard_Value, // valore sensore
                     optionCard_ValueOperator; // >, <, ==, etc
+    private int webduinosystemid;
 
     private OnConditionFragmentListener mListener;
 
@@ -54,6 +55,7 @@ public class ConditionFragment extends Fragment {
         setHasOptionsMenu(true);
         if (getArguments() != null) {
         }
+        webduinosystemid = getArguments().getInt("webduinosystemid");
     }
 
     @Override

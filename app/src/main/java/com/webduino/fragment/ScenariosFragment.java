@@ -113,8 +113,7 @@ public class ScenariosFragment extends Fragment implements CardAdapter.OnListene
     }
 
     private void showScenarioFragment(ScenarioCardInfo scenarioCardInfo) {
-        Bundle bundle = new Bundle();
-        bundle.putString("id", "" + scenarioCardInfo.id);
+
         scenarioFragment = new ScenarioFragment();
         scenarioFragment.setListener(new ScenarioFragment.OnScenarioFragmentInteractionListener() {
             @Override
@@ -122,7 +121,9 @@ public class ScenariosFragment extends Fragment implements CardAdapter.OnListene
 
             }
         });
-
+        Bundle bundle = new Bundle();
+        bundle.putInt("scenarioid", scenarioCardInfo.scenario.id);
+        bundle.putInt("webduinosystemid", scenarioCardInfo.scenario.webduinosystemid);
         scenarioFragment.setArguments(bundle);
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();

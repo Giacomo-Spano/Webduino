@@ -1,7 +1,9 @@
 package com.webduino.webduinosystems;
 
+import com.webduino.elements.Sensor;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.WebduinoSystemCardInfo;
+import com.webduino.scenarios.Scenario;
 import com.webduino.zones.Zone;
 
 import org.json.JSONArray;
@@ -22,6 +24,7 @@ public class WebduinoSystem {
     public List<WebduinoSystemZone> zones = new ArrayList<>();
     public List<WebduinoSystemActuator> actuators = new ArrayList<>();
     public List<WebduinoSystemService> services = new ArrayList<>();
+    public static List<Scenario> scenarios = new ArrayList<>();
     public String webduinoSystemType;
 
     public WebduinoSystem(JSONObject json) throws JSONException {
@@ -37,6 +40,14 @@ public class WebduinoSystem {
         cardInfo.webduionoSystem = this;
         cardInfo.setEnabled(true);
         return (CardInfo)cardInfo;
+    }
+
+    public List<WebduinoSystemActuator> getActuators() {
+        return actuators;
+    }
+
+    public List<WebduinoSystemService> getServices() {
+        return services;
     }
 
     public void fromJson(JSONObject jObject) throws JSONException {

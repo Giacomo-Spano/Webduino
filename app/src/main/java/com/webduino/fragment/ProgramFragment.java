@@ -35,6 +35,7 @@ import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
 import com.webduino.scenarios.ScenarioProgram;
 import com.webduino.scenarios.ScenarioProgramTimeRange;
+import com.webduino.webduinosystems.WebduinoSystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,7 @@ public class ProgramFragment extends Fragment implements ProgramTimeRangeFragmen
     ScenarioProgram program = new ScenarioProgram();
     private CardAdapter programTimeRangeAdapter, optionsAdapter;
     OptionCardInfo optionCard_Name, optionCard_Description, optionCard_daysofweek, optionCard_Priority, optionCard_Enabled;
+    int webduinosystemid;
 
     private OnProgramFragmentInteractionListener mListener;
 
@@ -56,6 +58,7 @@ public class ProgramFragment extends Fragment implements ProgramTimeRangeFragmen
         setHasOptionsMenu(true);
         if (getArguments() != null) {
         }
+        webduinosystemid = getArguments().getInt("webduinosystemid");
     }
 
     @Override
@@ -282,7 +285,9 @@ public class ProgramFragment extends Fragment implements ProgramTimeRangeFragmen
         programTimeRangeFragment.addListener(this);
         if (timeRange != null)
             programTimeRangeFragment.timeRange = timeRange;
-
+        Bundle bundle = new Bundle();
+        bundle.putInt("webduinosystemid", webduinosystemid);
+        programTimeRangeFragment.setArguments(bundle);
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction ft = fragmentManager.beginTransaction();
         ft.replace(R.id.content_frame, (Fragment) programTimeRangeFragment);

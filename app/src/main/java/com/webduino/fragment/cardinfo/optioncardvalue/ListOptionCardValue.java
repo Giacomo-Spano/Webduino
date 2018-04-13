@@ -95,7 +95,7 @@ public class ListOptionCardValue extends OptionCardValue {
                                     listener.onSetValue(itemIntValues[which]);
                             } else {
                                 for (OptionCardListener listener : listeners)
-                                    listener.onSetValue(itemStringValues[which]);
+                                    listener.onSetValue(items[which]);
                             }
                         }
                     }
