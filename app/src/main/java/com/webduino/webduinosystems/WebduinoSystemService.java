@@ -16,7 +16,7 @@ public class WebduinoSystemService {
 
     public int id;
     public String name;
-    public Service service;
+    public int serviceid;
 
     public WebduinoSystemService(JSONObject jsonObject) throws JSONException {
         fromJson(jsonObject);
@@ -28,9 +28,8 @@ public class WebduinoSystemService {
             id = jObject.getInt("id");
         if (jObject.has("name"))
             name = jObject.getString("name");
-        if (jObject.has("actuatorid")) {
-            int actuatorid = jObject.getInt("actuatorid");
-            service = Services.getFromId(actuatorid);
+        if (jObject.has("serviceid")) {
+            serviceid = jObject.getInt("serviceid");
         }
     }
 }

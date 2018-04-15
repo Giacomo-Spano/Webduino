@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 public class SecuritySystem extends WebduinoSystem {
 
-    public SecuritySystem(JSONObject json, String systemtype) throws JSONException {
+    public SecuritySystem(JSONObject json, String systemtype) throws Exception {
         super(json);
         this.webduinoSystemType = systemtype;
     }

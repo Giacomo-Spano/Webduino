@@ -19,6 +19,8 @@ import android.view.ViewGroup;
 import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.elements.HeaterActuator;
+import com.webduino.elements.Sensor;
+import com.webduino.elements.Sensors;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
@@ -192,28 +194,14 @@ public class WebduinoSystemFragment extends Fragment {
     public List<CardInfo> createActuatorList() {
 
         List<CardInfo> result = new ArrayList<CardInfo>();
-        for (WebduinoSystemActuator actuator : webduinoSystem.actuators) {
+        for (WebduinoSystemActuator webduinoSystemActuator : webduinoSystem.actuators) {
 
             CardInfo cardinfo;
-            if (actuator.actuator != null) {
-                cardinfo = actuator.actuator.getCardInfo(this);
+            Sensor actuator = Sensors.getFromId(webduinoSystemActuator.actuatorid);
+            if (actuator != null) {
+                cardinfo = actuator.getCardInfo(this);
                 result.add(cardinfo);
             }
-
-
-            /*if (actuator.actuator instanceof HeaterActuator) {
-                cardinfo = actuator.actuator.getCardInfo(this);
-                result.add(cardinfo);
-
-            } else {*/
-
-                /*cardinfo = new WebduinoSystemActuatorCardInfo();
-                cardinfo.id = actuator.id;
-                cardinfo.name = actuator.name;
-                cardinfo.actuator = actuator;
-                cardinfo.setEnabled(true);
-                result.add(cardinfo);*/
-            //}
         }
 
         for (WebduinoSystemService service : webduinoSystem.services) {

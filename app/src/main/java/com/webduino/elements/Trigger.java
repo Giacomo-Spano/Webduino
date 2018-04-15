@@ -20,6 +20,7 @@ public class Trigger {
     public java.util.Date date;
 
     public List<ActionCommand> actioncommandlist = new ArrayList<>();
+    public List<String> statuslist = new ArrayList<>();
 
     public void fromJson(JSONObject json) throws Exception {
 
@@ -29,6 +30,15 @@ public class Trigger {
             name = json.getString("name");
         if (json.has("status"))
             status = json.getBoolean("status");
+
+        if (json.has("statuslist")) {
+            JSONArray jsonArray = json.getJSONArray("statuslist");
+            if (jsonArray !=  null) {
+                for (int i = 0; i < jsonArray.length();i++) {
+                    statuslist.add((String)jsonArray.get(i));
+                }
+            }
+        }
 
         if (json.has("actioncommandlist")) {
             JSONArray jsonArray = json.getJSONArray("actioncommandlist");
@@ -45,10 +55,12 @@ public class Trigger {
     }
 
     public ActionCommand getActionCommand(String command) {
+        if (actioncommandlist == null || actioncommandlist.size() == 0)
+            return null;
         for(ActionCommand actioncommand:actioncommandlist) {
             if (actioncommand.command.equals(command))
                 return actioncommand;
         }
-        return null;
+        return actioncommandlist.get(0);
     }
 }

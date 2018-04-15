@@ -17,7 +17,7 @@ public class Action {
     public String type = "actuator";
     public String actuatorcommand = "";
     public String servicecommand = "";
-    public boolean triggerenable = true;
+    public String triggercommand = "";
     public double targetvalue = 0;
     public int seconds = 0;
     public int actuatorid = 0;

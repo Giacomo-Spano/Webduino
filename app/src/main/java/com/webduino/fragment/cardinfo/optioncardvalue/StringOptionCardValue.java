@@ -26,6 +26,11 @@ public class StringOptionCardValue extends OptionCardValue {
         return value.toString();
     }
 
+    @Override
+    public String getValueDescription() {
+        return (String) value;
+    }
+
     public Object showPicker() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.activity);
 

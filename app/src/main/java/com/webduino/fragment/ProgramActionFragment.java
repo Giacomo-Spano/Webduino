@@ -222,6 +222,7 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
             actionFragment.action = action;
             Bundle bundle = new Bundle();
             bundle.putInt("webduinosystemid", webduinosystemid);
+            bundle.putInt("programactionid", programAction.id);
             actionFragment.setArguments(bundle);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -237,7 +238,10 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
 
         if (condition != null) {
             conditionFragment.condition = condition;
-
+            Bundle bundle = new Bundle();
+            bundle.putInt("webduinosystemid", webduinosystemid);
+            bundle.putInt("programactionid", programAction.id);
+            conditionFragment.setArguments(bundle);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
             ft.replace(R.id.content_frame, (Fragment) conditionFragment);

@@ -15,21 +15,21 @@ public class WebduinoSystemActuator {
 
     public int id;
     public String name;
-    public Sensor actuator;
+    //public int actuator;
+    public int actuatorid;
 
-    public WebduinoSystemActuator(JSONObject jsonObject) throws JSONException {
+    public WebduinoSystemActuator(JSONObject jsonObject) throws Exception {
         fromJson(jsonObject);
     }
 
-    public void fromJson(JSONObject jObject) throws JSONException {
+    public void fromJson(JSONObject jObject) throws Exception {
 
         if (jObject.has("id"))
             id = jObject.getInt("id");
         if (jObject.has("name"))
             name = jObject.getString("name");
         if (jObject.has("actuatorid")) {
-            int actuatorid = jObject.getInt("actuatorid");
-            actuator = Sensors.getFromId(actuatorid);
+            actuatorid = jObject.getInt("actuatorid");
         }
     }
 }

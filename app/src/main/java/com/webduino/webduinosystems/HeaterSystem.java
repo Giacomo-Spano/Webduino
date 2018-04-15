@@ -16,7 +16,7 @@ import java.util.List;
 public class HeaterSystem extends WebduinoSystem {
 
 
-    public HeaterSystem(JSONObject json, String systemtype) throws JSONException {
+    public HeaterSystem(JSONObject json, String systemtype) throws Exception {
         super(json);
         this.webduinoSystemType = systemtype;
     }

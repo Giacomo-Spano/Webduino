@@ -18,7 +18,7 @@ public class ActionCommand {
     String zonesensortype;
 
     boolean hasparam = false;
-    String paramname;
+    public String paramname;
     double paramlen;
 
     boolean hasstatus = false;

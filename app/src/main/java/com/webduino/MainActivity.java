@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.LightingColorFilter;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -389,7 +390,7 @@ public class MainActivity extends AppCompatActivity
     // end geofence
 
     public void refreshData() {
-        getSensorData();
+        getSensorData(true);
         getZoneData();
         getScenarioData();
         getWebduinoSystemData();
@@ -532,10 +533,10 @@ public class MainActivity extends AppCompatActivity
         getDataLog(actuatorId);
     }
 
-    public void getSensorData() {
-        //new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORS).execute();
+    public void getSensorData(boolean wait) {
 
-        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
+        final boolean taskFinished = false;
+        requestDataTask task = (requestDataTask) new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
 
             @Override
             public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
@@ -547,8 +548,17 @@ public class MainActivity extends AppCompatActivity
                 }
                 sensorsFragment.update();
             }
-        }, requestDataTask.REQUEST_SENSORS).execute();
+        }, requestDataTask.REQUEST_SENSORS, new requestDataTask.OnFinishListener() {
+            @Override
+            public void onFinish(boolean res) {
 
+            }
+        }).execute();
+
+        /*while (!task.flagfinished) {
+            try { Thread.sleep(100); }
+            catch (InterruptedException e) { e.printStackTrace(); }
+        }*/
     }
 
     public void getZoneData() {

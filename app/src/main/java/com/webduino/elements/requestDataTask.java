@@ -55,6 +55,9 @@ import javax.net.ssl.HttpsURLConnection;
 public class requestDataTask extends
         AsyncTask<Object, Long, requestDataTask.Result> {
 
+
+    public boolean flagfinished = false;
+
     public static final int REQUEST_REGISTERDEVICE = 1;
     public static final int REQUEST_SENSORS = 3;
     //public static final int REQUEST_ACTUATORS = 4;
@@ -78,10 +81,10 @@ public class requestDataTask extends
     public static final int POST_SCENARIOPROGRAMTIMERANGE = 22;
     public static final int POST_SCENARIOPROGRAMACTION = 23;
     public static final int REQUEST_WEBDUINOSYSTEMS = 24;
-    public static final int REQUEST_SENSORTYPE =  25;
-    public static final int POST_CONDITION= 26;
+    public static final int REQUEST_SENSORTYPE = 25;
+    public static final int POST_CONDITION = 26;
     public static final int POST_ACTION = 27;
-    public static final int REQUEST_SERVICES =  28;
+    public static final int REQUEST_SERVICES = 28;
 
     private final Activity activity;
 
@@ -109,14 +112,30 @@ public class requestDataTask extends
         public Object resultObject;
     }
 
-    public requestDataTask(Activity activity, AsyncRequestDataResponse asyncResponse, int type) {
+    public interface OnFinishListener {
+        // TODO: Update argument type and name
+        void onFinish(boolean res);
+    }
+    private OnFinishListener listener;
+
+    public requestDataTask(Activity activity, AsyncRequestDataResponse asyncResponse, int type,OnFinishListener listener) {
+        this.listener = listener;
+        //requestDataTask(activity,asyncResponse,type);
         this.activity = activity;
-        //dialog = new ProgressDialog(activity);
         delegate = asyncResponse;//Assigning call back interfacethrough constructor
         requestType = type;
 
         if (requestType != REQUEST_REGISTERDEVICE)
-            ringProgressDialog = new ProgressDialog(/*MainActivity.activity*/activity);
+            ringProgressDialog = new ProgressDialog(activity);
+    }
+
+    public requestDataTask(Activity activity, AsyncRequestDataResponse asyncResponse, int type) {
+        this.activity = activity;
+        delegate = asyncResponse;//Assigning call back interfacethrough constructor
+        requestType = type;
+
+        if (requestType != REQUEST_REGISTERDEVICE)
+            ringProgressDialog = new ProgressDialog(activity);
     }
 
     protected requestDataTask.Result doInBackground(Object... params) {
@@ -219,7 +238,7 @@ public class requestDataTask extends
 
                 path = "/system?requestcommand=sensortypes";
 
-            }  else if (requestType == REQUEST_SERVICES) {
+            } else if (requestType == REQUEST_SERVICES) {
 
                 path = "/system?requestcommand=services";
 
@@ -502,6 +521,11 @@ public class requestDataTask extends
 
             processFinish(result);
         }
+
+
+        flagfinished = true;
+        if (listener != null)
+            listener.onFinish(true);
     }
 
     private void processFinish(Result result) {

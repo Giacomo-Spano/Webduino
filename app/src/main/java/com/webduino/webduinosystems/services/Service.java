@@ -60,10 +60,12 @@ public class Service {
     }
 
     public ActionCommand getActionCommand(String command) {
+        if (actioncommandlist == null || actioncommandlist.size() == 0)
+            return null;
         for(ActionCommand actioncommand:actioncommandlist) {
             if (actioncommand.command.equals(command))
                 return actioncommand;
         }
-        return null;
+        return actioncommandlist.get(0);
     }
 }

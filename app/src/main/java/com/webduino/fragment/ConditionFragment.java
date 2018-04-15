@@ -14,18 +14,24 @@ import android.widget.Button;
 
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.Services;
 import com.webduino.WebduinoResponse;
+import com.webduino.elements.Sensor;
 import com.webduino.elements.SensorTypes;
 import com.webduino.elements.Sensors;
+import com.webduino.elements.Trigger;
+import com.webduino.elements.Triggers;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
 import com.webduino.fragment.cardinfo.optioncardvalue.DecimalOptionCardValue;
-import com.webduino.fragment.cardinfo.optioncardvalue.IntegerOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.ListOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.scenarios.Condition;
+import com.webduino.webduinosystems.WebduinoSystem;
+import com.webduino.webduinosystems.WebduinoSystems;
+import com.webduino.webduinosystems.services.Service;
 import com.webduino.zones.Zone;
 import com.webduino.zones.ZoneSensor;
 import com.webduino.zones.Zones;
@@ -37,16 +43,26 @@ public class ConditionFragment extends Fragment {
 
     Condition condition;
     private CardAdapter optionsAdapter;
-    OptionCardInfo optionCard_Zone, optionCard_ZoneSensorId,
-                    optionCard_ConditionType, // valore sensore o stato sensore
-                    optionCard_ZoneSensorStatus, // stato sensore
-                    optionCard_Value, // valore sensore
-                    optionCard_ValueOperator; // >, <, ==, etc
-    private int webduinosystemid;
+    OptionCardInfo optionCard_ZoneId, optionCard_ZoneSensorId, optionCard_TriggerId, optionCard_TriggerStatus,
+            optionCard_ConditionType, // valore sensore o stato sensore
+            optionCard_ZoneSensorStatus, // stato sensore
+            optionCard_Value, // valore sensore
+            optionCard_ValueOperator; // >, <, ==, etc
+    OptionLoader loader = new OptionLoader();
+    private WebduinoSystem webduinoSystem;
 
     private OnConditionFragmentListener mListener;
 
     public ConditionFragment() {
+        optionCard_ZoneId = new OptionCardInfo();
+        ;
+        optionCard_ZoneSensorId = new OptionCardInfo();
+        optionCard_TriggerId = new OptionCardInfo();
+        optionCard_TriggerStatus = new OptionCardInfo();
+        optionCard_ConditionType = new OptionCardInfo();
+        optionCard_ZoneSensorStatus = new OptionCardInfo();
+        optionCard_Value = new OptionCardInfo();
+        optionCard_ValueOperator = new OptionCardInfo();
     }
 
     @Override
@@ -55,7 +71,9 @@ public class ConditionFragment extends Fragment {
         setHasOptionsMenu(true);
         if (getArguments() != null) {
         }
-        webduinosystemid = getArguments().getInt("webduinosystemid");
+        int webduinosystemid = getArguments().getInt("webduinosystemid");
+        webduinoSystem = WebduinoSystems.getFromId(webduinosystemid);
+        condition.programactionid = getArguments().getInt("programactionid");
     }
 
     @Override
@@ -90,12 +108,20 @@ public class ConditionFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                condition.zoneid = optionCard_ZoneSensorId.value.getIntValue();
-                condition.zonesensorid = optionCard_ZoneSensorId.value.getIntValue();
-                condition.type = optionCard_ConditionType.value.getStringValue();
-                condition.status = optionCard_ZoneSensorStatus.value.getStringValue();
-                condition.value = optionCard_Value.value.getDoubleValue();
-                condition.valueoperator = optionCard_ValueOperator.value.getStringValue();
+                if (optionCard_ConditionType.value != null)
+                    condition.type = optionCard_ConditionType.value.getStringValue();
+                if (optionCard_ZoneId.value != null)
+                    condition.zoneid = optionCard_ZoneId.value.getIntValue();
+                if (optionCard_ZoneSensorId.value != null)
+                    condition.zonesensorid = optionCard_ZoneSensorId.value.getIntValue();
+                if (optionCard_ZoneSensorStatus.value != null)
+                    condition.status = optionCard_ZoneSensorStatus.value.getStringValue();
+                if (optionCard_Value.value != null)
+                    condition.value = optionCard_Value.value.getDoubleValue();
+                if (optionCard_ValueOperator.value != null)
+                    condition.valueoperator = optionCard_ValueOperator.value.getStringValue();
+                if (optionCard_TriggerId.value != null)
+                    condition.triggerid = optionCard_TriggerId.value.getIntValue();
                 saveCondition();
             }
         });
@@ -178,92 +204,117 @@ public class ConditionFragment extends Fragment {
 
     public List<CardInfo> createOptionList() {
         final List<CardInfo> result = new ArrayList<CardInfo>();
+        loadOptions(condition.type, result);
+        return result;
+    }
 
-        // zona
-        Zone conditionzone = Zones.getFromId(condition.zoneid);
-        CharSequence[] items = new CharSequence[Zones.list.size()];
-        String[] itemStringValues;
-        int[] itemValues = new int[Zones.list.size()];
-        int i = 0;
-        for (Zone zone : Zones.list) {
-            items[i] = zone.name;
-            itemValues[i] = zone.id;
-            i++;
-        }
-        optionCard_Zone = new OptionCardInfo();
-        optionCard_Zone.value = new ListOptionCardValue("Zona", condition.zoneid, items, itemValues);
-        result.add(optionCard_Zone);
-        // zonesensorid
-        ZoneSensor conditionZoneSensor = conditionzone.getZoneSensorFromId(condition.zonesensorid);
-        items = new CharSequence[conditionzone.zoneSensors.size()];
-        itemValues = new int[conditionzone.zoneSensors.size()];
-        i = 0;
-        for (ZoneSensor zonesensor : conditionzone.zoneSensors) {
-            items[i] = zonesensor.name;
-            itemValues[i] = zonesensor.id;
-            i++;
-        }
-        optionCard_ZoneSensorId = new OptionCardInfo();
-        optionCard_ZoneSensorId.value = new ListOptionCardValue("Sensore", conditionZoneSensor.id, items, itemValues);
-        result.add(optionCard_ZoneSensorId);
+    private void loadOptions(Object value, final List<CardInfo> result) {
 
-        // sensor value operator
-        if (condition.valueOperatorList != null && condition.valueOperatorList.size() > 0) {
-            CharSequence[] cs2 = new CharSequence[condition.valueOperatorList.size()];
-            String[] csvalue2 = new String[condition.valueOperatorList.size()];
-            i = 0;
-            int value = 0;
-            for (String operator : condition.valueOperatorList) {
-                cs2[i] = operator;
-                csvalue2[i] = operator;
-                i++;
-            }
-            optionCard_ValueOperator = new OptionCardInfo();
-            optionCard_ValueOperator.value = new ListOptionCardValue("Confronto", value, cs2, csvalue2);
-        }
-        // sensor value
-        optionCard_Value = new OptionCardInfo();
-        optionCard_Value.value = new DecimalOptionCardValue("Valore",0.0);
-        // status
-        com.webduino.elements.Sensor sensor = Sensors.getFromId(conditionZoneSensor.sensorId);
-        List<String> statuslist = SensorTypes.getSensorStatusList(sensor);
-        int statuscount = 0;
-        if (statuslist != null) {
-            items = new CharSequence[statuslist.size()];
-            itemStringValues = new String[statuslist.size()];
-            i = 0;
-            for (String status : statuslist) {
-                items[i] = (CharSequence) status;
-                itemStringValues[i] = status;
-                i++;
-            }
-        } else {
-            items = new CharSequence[0];
-            itemStringValues = new String[0];
-        }
-        optionCard_ZoneSensorStatus = new OptionCardInfo();
-        optionCard_ZoneSensorStatus.value = new ListOptionCardValue("Stato", 0, items, itemStringValues);
-        // value or status
-        CharSequence[] cs = {"Valore", "Stato"};
-        String[] csvalue = {"value", "status"};
-        optionCard_ConditionType = new OptionCardInfo();
-        optionCard_ConditionType.value = new ListOptionCardValue("Controlla", 0, cs, csvalue);
+        if (webduinoSystem == null) return;
+
+        result.clear();
+
+        loader.loadConditionType(optionCard_ConditionType, condition.type);
+        result.add(optionCard_ConditionType);
         optionCard_ConditionType.value.addListener(new OptionCardValue.OptionCardListener() {
             @Override
             public void onSetValue(Object value) {
-                if (value.equals("value")) {
-                    result.remove(optionCard_ZoneSensorStatus);
-                    result.add(optionCard_ValueOperator);
-                    result.add(optionCard_Value);
-                } else {
-                    result.remove(optionCard_ValueOperator);
-                    result.remove(optionCard_Value);
-                    result.add(optionCard_ZoneSensorStatus);
-                }
+                condition.type = (String) value;
+                loadOptions(value, result);
             }
         });
-        result.add(optionCard_ConditionType);
 
-        return result;
+        //ActionCommand actionCommand = null;
+        if (condition.type.equals(OptionLoader.CONDITION_ZONESENSORVALUE) || condition.type.equals(OptionLoader.CONDITION_ZONESENSORSTATUS)) {
+
+            loader.loadZoneId(optionCard_ZoneId, condition.zoneid);
+            result.add(optionCard_ZoneId);
+            optionCard_ZoneId.value.addListener(new OptionCardValue.OptionCardListener() {
+                @Override
+                public void onSetValue(Object value) {
+                    condition.zoneid = (int) value;
+                    loadOptions(value, result);
+                }
+            });
+            loader.loadZoneSensorId(optionCard_ZoneSensorId, condition.zoneid, condition.zonesensorid, null);
+            optionCard_ZoneSensorId.value.addListener(new OptionCardValue.OptionCardListener() {
+                @Override
+                public void onSetValue(Object value) {
+                    condition.zonesensorid = (int) value;
+                    loadOptions(value, result);
+                }
+            });
+            result.add(optionCard_ZoneSensorId);
+
+            if (condition.type.equals(OptionLoader.CONDITION_ZONESENSORSTATUS)) {
+
+                Zone zone = Zones.getFromId(condition.zoneid);
+                if (zone != null) {
+                    ZoneSensor zonesensor = zone.getZoneSensorFromId(condition.zonesensorid);
+                    if (zonesensor != null) {
+                        loader.loadSensorStatus(optionCard_ZoneSensorStatus, zonesensor.sensorId, condition.status);
+                        optionCard_ZoneSensorStatus.value.addListener(new OptionCardValue.OptionCardListener() {
+                            @Override
+                            public void onSetValue(Object value) {
+                                condition.status = (String) value;
+                                loadOptions(value, result);
+                            }
+                        });
+                        result.add(optionCard_ZoneSensorStatus);
+                    }
+                }
+            } else if (condition.type.equals(OptionLoader.CONDITION_ZONESENSORVALUE)) {
+
+                loader.loadCompareOperator(optionCard_ValueOperator, condition.valueoperator);
+                optionCard_ZoneId.value.addListener(new OptionCardValue.OptionCardListener() {
+                    @Override
+                    public void onSetValue(Object value) {
+                        condition.zonesensorid = (int) value;
+                        loadOptions(value, result);
+                    }
+                });
+                result.add(optionCard_ValueOperator);
+
+                loader.loadDecimalValue("Valore", optionCard_Value, condition.value);
+                optionCard_Value.value.addListener(new OptionCardValue.OptionCardListener() {
+                    @Override
+                    public void onSetValue(Object value) {
+                        condition.value = (double) value;
+                    }
+                });
+                result.add(optionCard_Value);
+            }
+
+
+        } else if (condition.type.equals(OptionLoader.CONDITION_TRIGGERSTATUS)) {
+
+            Trigger trigger = Triggers.getFromId(condition.triggerid);
+            if (trigger == null)
+                condition.triggerid = ((Trigger) Triggers.list.get(0)).id;
+            loader.loadTriggerId(optionCard_TriggerId, condition.triggerid);
+            if (optionCard_TriggerId.value != null) {
+                result.add(optionCard_TriggerId);
+                optionCard_TriggerId.value.addListener(new OptionCardValue.OptionCardListener() {
+                    @Override
+                    public void onSetValue(Object value) {
+                        condition.triggerid = (int) value;
+                        loadOptions(value, result);
+                        loadOptions(value, result);
+                    }
+                });
+
+                loader.loadTriggerStatus(optionCard_TriggerStatus, condition.triggerid, condition.status);
+                if (optionCard_TriggerStatus.value != null) {
+                    optionCard_TriggerStatus.value.addListener(new OptionCardValue.OptionCardListener() {
+                        @Override
+                        public void onSetValue(Object value) {
+                            condition.status = (String) value;
+                            loadOptions(value, result);
+                        }
+                    });
+                    result.add(optionCard_TriggerStatus);
+                }
+            }
+        }
     }
 }

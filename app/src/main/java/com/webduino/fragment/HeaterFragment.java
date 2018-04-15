@@ -419,7 +419,7 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
                 // The Intent's data Uri identifies which contact was selected.
                 // fetch the message String
                 MainActivity a = (MainActivity) getActivity();
-                a.getSensorData();
+                a.getSensorData(true);
                 //a.getActuatorData();
 
 

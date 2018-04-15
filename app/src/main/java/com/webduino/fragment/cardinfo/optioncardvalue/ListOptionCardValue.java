@@ -32,6 +32,13 @@ public class ListOptionCardValue extends OptionCardValue {
 
     public ListOptionCardValue(String name, Integer value, CharSequence[] items, String[] itemStringValues) {
         super(name, value);
+
+        if (itemIntValues != null) {
+            this.value = "" + items[value];
+        } else if (itemStringValues != null) {
+            this.value = itemStringValues[value];
+        }
+
         if (items == null)
             return;
         this.items = items;
@@ -46,7 +53,7 @@ public class ListOptionCardValue extends OptionCardValue {
             return -1;
 
         if (value == null) return 0;
-        return (int) value;
+        return (int) itemIntValues[(int)value];
     }
 
     @Override
@@ -87,15 +94,19 @@ public class ListOptionCardValue extends OptionCardValue {
                     public void onClick(DialogInterface dialog, int which) {
                         // The 'which' argument contains the index position
                         // of the selected item
-                        value = which;
+                        //value = which;
                         valueDescription = (String) items[which];
                         if (listeners != null) {
                             if (itemIntValues != null) {
-                                for (OptionCardListener listener : listeners)
-                                    listener.onSetValue(itemIntValues[which]);
+                                for (OptionCardListener listener : listeners) {
+                                    value = itemIntValues[which];
+                                    listener.onSetValue(value);
+                                }
                             } else {
-                                for (OptionCardListener listener : listeners)
-                                    listener.onSetValue(items[which]);
+                                for (OptionCardListener listener : listeners) {
+                                    value = items[which];
+                                    listener.onSetValue(value);
+                                }
                             }
                         }
                     }

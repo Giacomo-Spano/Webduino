@@ -27,7 +27,7 @@ public class WebduinoSystem {
     public static List<Scenario> scenarios = new ArrayList<>();
     public String webduinoSystemType;
 
-    public WebduinoSystem(JSONObject json) throws JSONException {
+    public WebduinoSystem(JSONObject json) throws Exception {
         fromJson(json);
     }
 
@@ -50,7 +50,7 @@ public class WebduinoSystem {
         return services;
     }
 
-    public void fromJson(JSONObject jObject) throws JSONException {
+    public void fromJson(JSONObject jObject) throws Exception {
 
 
         if (jObject.has("id"))

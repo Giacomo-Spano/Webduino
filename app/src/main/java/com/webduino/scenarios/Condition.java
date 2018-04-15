@@ -22,6 +22,9 @@ public class Condition {
     public String type;
     public String valueoperator;
     public List<String> valueOperatorList;
+    public int triggerid;
+
+    //public String compareoperator;
 
     protected boolean hasZone = true;
     protected boolean hasThreshold = false;
