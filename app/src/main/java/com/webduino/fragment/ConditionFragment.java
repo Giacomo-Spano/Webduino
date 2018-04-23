@@ -266,7 +266,7 @@ public class ConditionFragment extends Fragment {
             } else if (condition.type.equals(OptionLoader.CONDITION_ZONESENSORVALUE)) {
 
                 loader.loadCompareOperator(optionCard_ValueOperator, condition.valueoperator);
-                optionCard_ZoneId.value.addListener(new OptionCardValue.OptionCardListener() {
+                optionCard_ValueOperator.value.addListener(new OptionCardValue.OptionCardListener() {
                     @Override
                     public void onSetValue(Object value) {
                         condition.zonesensorid = (int) value;
