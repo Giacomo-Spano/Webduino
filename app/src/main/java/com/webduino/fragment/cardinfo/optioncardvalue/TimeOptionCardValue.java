@@ -23,15 +23,19 @@ public class TimeOptionCardValue extends OptionCardValue {
 
     @Override
     public String getStringValue() {
-        if (value == null) return "";
+        if (getValue() == null) return "";
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
-        return df.format(value);
+        return df.format(getValue());
+    }
+
+    public String getValueDescription() {
+        return getStringValue();
     }
 
     @Override
     public Date getDateValue() {
-        if (value != null)
-            return (Date)value;
+        if (getValue() != null)
+            return (Date)getValue();
         return null;
     }
 
@@ -43,10 +47,10 @@ public class TimeOptionCardValue extends OptionCardValue {
                 Date time = new Date();
                 time.setHours(hourOfDay);
                 time.setMinutes(minute);
-                value = time;
+                setValue(time);
                 if (listeners != null)
                     for (OptionCardListener listener:listeners)
-                        listener.onSetValue(value);
+                        listener.onSetValue(getValue());
             }
 
         }, time.getHours(), time.getMinutes(), false).show();
@@ -56,8 +60,8 @@ public class TimeOptionCardValue extends OptionCardValue {
     public Object showPicker() {
 
         Date date = new Date();
-        if (value != null)
-            date = (Date) value;
+        if (getValue() != null)
+            date = (Date) getValue();
         showStartTimePickerDialog(date);
       return null;
     }

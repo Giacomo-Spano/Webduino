@@ -30,6 +30,7 @@ import com.webduino.fragment.cardinfo.optioncardvalue.ListOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.scenarios.Condition;
 import com.webduino.webduinosystems.WebduinoSystem;
+import com.webduino.webduinosystems.WebduinoSystemZone;
 import com.webduino.webduinosystems.WebduinoSystems;
 import com.webduino.webduinosystems.services.Service;
 import com.webduino.zones.Zone;
@@ -50,6 +51,7 @@ public class ConditionFragment extends Fragment {
             optionCard_ValueOperator; // >, <, ==, etc
     OptionLoader loader = new OptionLoader();
     private WebduinoSystem webduinoSystem;
+    private List<CardInfo> result = new ArrayList<>();
 
     private OnConditionFragmentListener mListener;
 
@@ -73,7 +75,7 @@ public class ConditionFragment extends Fragment {
         }
         int webduinosystemid = getArguments().getInt("webduinosystemid");
         webduinoSystem = WebduinoSystems.getFromId(webduinosystemid);
-        condition.programactionid = getArguments().getInt("programactionid");
+        condition.timerangeid = getArguments().getInt("timerangeid");
     }
 
     @Override
@@ -115,7 +117,9 @@ public class ConditionFragment extends Fragment {
                 if (optionCard_ZoneSensorId.value != null)
                     condition.zonesensorid = optionCard_ZoneSensorId.value.getIntValue();
                 if (optionCard_ZoneSensorStatus.value != null)
-                    condition.status = optionCard_ZoneSensorStatus.value.getStringValue();
+                    condition.sensorstatus = optionCard_ZoneSensorStatus.value.getStringValue();
+                if (optionCard_TriggerStatus.value != null)
+                    condition.triggerstatus = optionCard_TriggerStatus.value.getStringValue();
                 if (optionCard_Value.value != null)
                     condition.value = optionCard_Value.value.getDoubleValue();
                 if (optionCard_ValueOperator.value != null)
@@ -164,7 +168,7 @@ public class ConditionFragment extends Fragment {
                     ((MainActivity) getActivity()).getScenarioData();
                 }
             }
-        }, requestDataTask.POST_CONDITION).execute(condition, false);
+        }, requestDataTask.POST_CONDITION).execute(condition, true);
     }
 
     @Override
@@ -203,12 +207,12 @@ public class ConditionFragment extends Fragment {
     }
 
     public List<CardInfo> createOptionList() {
-        final List<CardInfo> result = new ArrayList<CardInfo>();
-        loadOptions(condition.type, result);
+        result = new ArrayList<CardInfo>();
+        loadOptions();
         return result;
     }
 
-    private void loadOptions(Object value, final List<CardInfo> result) {
+    private void loadOptions(/*final List<CardInfo> result*/) {
 
         if (webduinoSystem == null) return;
 
@@ -220,12 +224,16 @@ public class ConditionFragment extends Fragment {
             @Override
             public void onSetValue(Object value) {
                 condition.type = (String) value;
-                loadOptions(value, result);
+                loadOptions();
             }
         });
 
         //ActionCommand actionCommand = null;
         if (condition.type.equals(OptionLoader.CONDITION_ZONESENSORVALUE) || condition.type.equals(OptionLoader.CONDITION_ZONESENSORSTATUS)) {
+
+            if (webduinoSystem.zones == null || webduinoSystem.zones.size() == 0)
+                return;
+
 
             loader.loadZoneId(optionCard_ZoneId, condition.zoneid);
             result.add(optionCard_ZoneId);
@@ -233,18 +241,21 @@ public class ConditionFragment extends Fragment {
                 @Override
                 public void onSetValue(Object value) {
                     condition.zoneid = (int) value;
-                    loadOptions(value, result);
+                    loadOptions();
                 }
             });
             loader.loadZoneSensorId(optionCard_ZoneSensorId, condition.zoneid, condition.zonesensorid, null);
-            optionCard_ZoneSensorId.value.addListener(new OptionCardValue.OptionCardListener() {
-                @Override
-                public void onSetValue(Object value) {
-                    condition.zonesensorid = (int) value;
-                    loadOptions(value, result);
-                }
-            });
-            result.add(optionCard_ZoneSensorId);
+            if (optionCard_ZoneSensorId.value != null) {
+                optionCard_ZoneSensorId.value.addListener(new OptionCardValue.OptionCardListener() {
+                    @Override
+                    public void onSetValue(Object value) {
+                        condition.zonesensorid = (int) value;
+                        loadOptions();
+                    }
+                });
+                result.add(optionCard_ZoneSensorId);
+            }
+
 
             if (condition.type.equals(OptionLoader.CONDITION_ZONESENSORSTATUS)) {
 
@@ -252,12 +263,12 @@ public class ConditionFragment extends Fragment {
                 if (zone != null) {
                     ZoneSensor zonesensor = zone.getZoneSensorFromId(condition.zonesensorid);
                     if (zonesensor != null) {
-                        loader.loadSensorStatus(optionCard_ZoneSensorStatus, zonesensor.sensorId, condition.status);
+                        loader.loadSensorStatus(optionCard_ZoneSensorStatus, zonesensor.sensorId, condition.sensorstatus);
                         optionCard_ZoneSensorStatus.value.addListener(new OptionCardValue.OptionCardListener() {
                             @Override
                             public void onSetValue(Object value) {
-                                condition.status = (String) value;
-                                loadOptions(value, result);
+                                condition.sensorstatus = (String) value;
+                                loadOptions();
                             }
                         });
                         result.add(optionCard_ZoneSensorStatus);
@@ -269,8 +280,8 @@ public class ConditionFragment extends Fragment {
                 optionCard_ValueOperator.value.addListener(new OptionCardValue.OptionCardListener() {
                     @Override
                     public void onSetValue(Object value) {
-                        condition.zonesensorid = (int) value;
-                        loadOptions(value, result);
+                        condition.valueoperator = (String) value;
+                        loadOptions();
                     }
                 });
                 result.add(optionCard_ValueOperator);
@@ -298,18 +309,17 @@ public class ConditionFragment extends Fragment {
                     @Override
                     public void onSetValue(Object value) {
                         condition.triggerid = (int) value;
-                        loadOptions(value, result);
-                        loadOptions(value, result);
+                        loadOptions();
                     }
                 });
 
-                loader.loadTriggerStatus(optionCard_TriggerStatus, condition.triggerid, condition.status);
+                loader.loadTriggerStatus(optionCard_TriggerStatus, condition.triggerid, condition.triggerstatus);
                 if (optionCard_TriggerStatus.value != null) {
                     optionCard_TriggerStatus.value.addListener(new OptionCardValue.OptionCardListener() {
                         @Override
                         public void onSetValue(Object value) {
-                            condition.status = (String) value;
-                            loadOptions(value, result);
+                            condition.triggerstatus = (String) value;
+                            loadOptions();
                         }
                     });
                     result.add(optionCard_TriggerStatus);

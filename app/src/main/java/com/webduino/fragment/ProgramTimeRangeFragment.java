@@ -23,23 +23,28 @@ import com.webduino.elements.ProgramActionTypes;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
+import com.webduino.fragment.cardinfo.ActionCardInfo;
+import com.webduino.fragment.cardinfo.ConditionCardInfo;
 import com.webduino.fragment.cardinfo.OptionCardInfo;
-import com.webduino.fragment.cardinfo.ProgramActionCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
 import com.webduino.fragment.cardinfo.optioncardvalue.BooleanOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.TimeOptionCardValue;
-import com.webduino.scenarios.ProgramAction;
+import com.webduino.scenarios.Action;
+import com.webduino.scenarios.Condition;
 import com.webduino.scenarios.ScenarioProgramTimeRange;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProgramTimeRangeFragment extends Fragment implements ProgramActionFragment.OnProgramActionFragmentInteractionListener {
+import static com.webduino.fragment.OptionLoader.ACTION_ACTUATOR;
+import static com.webduino.fragment.OptionLoader.CONDITION_ZONESENSORSTATUS;
+
+public class ProgramTimeRangeFragment extends Fragment implements ActionFragment.OnActionFragmentListener, ConditionFragment.OnConditionFragmentListener {
 
     ScenarioProgramTimeRange timeRange;
-    private CardAdapter programActionsAdapter, optionsAdapter;
+    private CardAdapter conditionsAdapter, actionsAdapter, optionsAdapter;
     OptionCardInfo optionCard_Name, optionCard_Description, optionCard_StartTime, optionCard_EndTime, optionCard_Enabled;
     int webduinosystemid;
 
@@ -84,15 +89,28 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
 
 
         linearLayoutManager = new LinearLayoutManager(this.getActivity());
+        RecyclerView conditionRecyclerView = (RecyclerView) view.findViewById(R.id.conditionList);
+        conditionRecyclerView.setHasFixedSize(false);
+        conditionRecyclerView.setLayoutManager(linearLayoutManager);
+        conditionsAdapter = new CardAdapter(this, createConditionList());
+        conditionRecyclerView.setAdapter(conditionsAdapter);
+        conditionsAdapter.setListener(new CardAdapter.OnListener() {
+            @Override
+            public void onClick(int position, CardInfo cardInfo) {
+                onConditionClick(position, cardInfo);
+            }
+        });
+
+        linearLayoutManager = new LinearLayoutManager(this.getActivity());
         RecyclerView actionRecyclerView = (RecyclerView) view.findViewById(R.id.actionList);
         actionRecyclerView.setHasFixedSize(false);
         actionRecyclerView.setLayoutManager(linearLayoutManager);
-        programActionsAdapter = new CardAdapter(this, createProgramActionList());
-        actionRecyclerView.setAdapter(programActionsAdapter);
-        programActionsAdapter.setListener(new CardAdapter.OnListener() {
+        actionsAdapter = new CardAdapter(this, createActionList());
+        actionRecyclerView.setAdapter(actionsAdapter);
+        actionsAdapter.setListener(new CardAdapter.OnListener() {
             @Override
             public void onClick(int position, CardInfo cardInfo) {
-                onProgramActionClick(position, cardInfo);
+                onActionClick(position, cardInfo);
             }
         });
 
@@ -168,25 +186,46 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         }, requestDataTask.POST_SCENARIOPROGRAMTIMERANGE).execute(timeRange, true);
     }
 
-    private List<CardInfo> createProgramActionList() {
+    private List<CardInfo> createConditionList() {
         List<CardInfo> result = new ArrayList<CardInfo>();
-        for (ProgramAction action : timeRange.programActionList) {
-            ProgramActionCardInfo actioncardinfo = new ProgramActionCardInfo();
+        for (Condition condition : timeRange.conditions) {
+            ConditionCardInfo conditioncardinfo = new ConditionCardInfo();
+            conditioncardinfo.id = timeRange.id;
+            //conditioncardinfo.name = timeRange.name;
+            conditioncardinfo.condition = condition;
+            conditioncardinfo.setEnabled(timeRange.enabled);
+            result.add(conditioncardinfo);
+        }
+        CardInfo addButton = new ActionButtonCardInfo();
+        addButton.id = 0;
+        addButton.name = "Aggiungi condizione";
+        //addButton.label = " ";
+        addButton.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.calendar, null);
+        addButton.setColor(Color.BLUE);
+        result.add(addButton);
+        return result;
+    }
+
+    private List<CardInfo> createActionList() {
+        List<CardInfo> result = new ArrayList<CardInfo>();
+        for (Action action : timeRange.actions) {
+            ActionCardInfo actioncardinfo = new ActionCardInfo();
             actioncardinfo.id = action.id;
-            actioncardinfo.name = action.name;
+            //actioncardinfo.name = "";
             actioncardinfo.action = action;
-            actioncardinfo.setEnabled(action.enabled);
+            actioncardinfo.setEnabled(true);
             result.add(actioncardinfo);
         }
         CardInfo addButton = new ActionButtonCardInfo();
         addButton.id = 0;
-        addButton.name = "Aggiungi azione";
+        addButton.name = "Aggiungi condizione";
         addButton.label = " ";
         addButton.imageDrawable = ResourcesCompat.getDrawable(getResources(), R.drawable.calendar, null);
         addButton.setColor(Color.BLUE);
         result.add(addButton);
         return result;
     }
+
 
     public List<CardInfo> createOptionList() {
         List<CardInfo> result = new ArrayList<CardInfo>();
@@ -228,83 +267,126 @@ public class ProgramTimeRangeFragment extends Fragment implements ProgramActionF
         mListener = null;
     }
 
-    public void onProgramActionClick(int position, CardInfo cardInfo) {
-        if (cardInfo instanceof ProgramActionCardInfo) {
-            showActionFragment(((ProgramActionCardInfo) cardInfo).action);
+    private void onConditionClick(int position, CardInfo cardInfo) {
+        if (cardInfo instanceof ConditionCardInfo) {
+            showConditionFragment(((ConditionCardInfo) cardInfo).condition);
         } else if (cardInfo instanceof ActionButtonCardInfo) {
-            createNewProgramAction();
+            createNewCondition();
         }
     }
 
-    private void createNewProgramAction() {
-        ProgramAction action = new ProgramAction();
-        action.timerangeid = timeRange.id;
+    private void createNewCondition() {
 
-        if (ProgramActionTypes.list == null || ProgramActionTypes.list.size() == 0)
-            return;
-
-        action.type = ProgramActionTypes.list.get(0).instruction; // questo serve per inizializzare il tipo di action altrimenti
-        // il salvataggio fallisce
+        final Condition condition = new Condition();
+        condition.type = CONDITION_ZONESENSORSTATUS;
+        condition.timerangeid = timeRange.id;
 
         new requestDataTask(MainActivity.activity, new WebduinoResponse() {
             @Override
             public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
-                ProgramAction action = (ProgramAction) result;
-                timeRange.programActionList.add(action);
-                updateProgramActionList();
-                showActionFragment(action);
+
+                Condition condition = (Condition) result;
+                timeRange.conditions.add(condition);
+                updateConditionList();
+                showConditionFragment(condition);
             }
-
-        }, requestDataTask.POST_SCENARIOPROGRAMACTION).execute(action, false);
+        }, requestDataTask.POST_CONDITION).execute(condition, false);
     }
 
-    private void updateProgramActionList() {
-        List<CardInfo> list = createProgramActionList();
-        programActionsAdapter.swap(list);
+    private void onActionClick(int position, CardInfo cardInfo) {
+        if (cardInfo instanceof ActionCardInfo) {
+            showActionFragment(((ActionCardInfo) cardInfo).action);
+        } else if (cardInfo instanceof ActionButtonCardInfo) {
+            createNewAction();
+        }
     }
 
-    private void showActionFragment(ProgramAction programAction) {
-        ProgramActionFragment programActionFragment = new ProgramActionFragment();
-        programActionFragment.addListener(this);
+    private void createNewAction() {
 
-        if (programAction != null) {
-            programActionFragment.programAction = programAction;
+        Action action = new Action();
+        action.type = ACTION_ACTUATOR;
+        action.timerangeid = timeRange.id;
+
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+
+                Action action = (Action) result;
+                timeRange.actions.add(action);
+                updateActionList();
+                showActionFragment(action);
+
+            }
+        }, requestDataTask.POST_ACTION).execute(action, false);
+    }
+
+    private void updateActionList() {
+        List<CardInfo> list = createActionList();
+        actionsAdapter.swap(list);
+    }
+
+    private void updateConditionList() {
+        List<CardInfo> list = createConditionList();
+        conditionsAdapter.swap(list);
+    }
+
+    private void showActionFragment(Action action) {
+        ActionFragment actionFragment = new ActionFragment();
+        actionFragment.addListener(this);
+
+        if (action != null) {
+            actionFragment.action = action;
             Bundle bundle = new Bundle();
             bundle.putInt("webduinosystemid", webduinosystemid);
-            programActionFragment.setArguments(bundle);
+            bundle.putInt("timerangeid", timeRange.id);
+            actionFragment.setArguments(bundle);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
-            ft.replace(R.id.content_frame, (Fragment) programActionFragment);
+            ft.replace(R.id.content_frame, (Fragment) actionFragment);
             ft.addToBackStack(null);
             ft.commit();
         }
     }
 
-    @Override
-    public void onSaveProgramAction(ProgramAction savedaction) {
+    private void showConditionFragment(Condition condition) {
+        ConditionFragment conditionFragment = new ConditionFragment();
+        conditionFragment.addListener(this);
 
-        ProgramAction action = timeRange.getProgramActionFromId(savedaction.id);
-
-        if (savedaction.id == 0) {
-            timeRange.programActionList.add(savedaction);
-        } else if (action != null) {
-            for (ProgramAction programAction : timeRange.programActionList) {
-                if (programAction.id == savedaction.id) {
-                    int itemIndex = timeRange.programActionList.indexOf(programAction);
-                    if (itemIndex != -1) {
-                        timeRange.programActionList.set(itemIndex, savedaction);
-                    }
-                    return;
-                }
-            }
+        if (condition != null) {
+            conditionFragment.condition = condition;
+            Bundle bundle = new Bundle();
+            bundle.putInt("webduinosystemid", webduinosystemid);
+            bundle.putInt("timerangeid", timeRange.id);
+            conditionFragment.setArguments(bundle);
+            FragmentManager fragmentManager = getFragmentManager();
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            ft.replace(R.id.content_frame, (Fragment) conditionFragment);
+            ft.addToBackStack(null);
+            ft.commit();
         }
-        mListener.onSaveProgramTimeRange(timeRange);
+    }
+
+
+    @Override
+    public void onSaveAction(Action action) {
+
     }
 
     @Override
-    public void onDeleteProgramAction(ProgramAction action) {
-        timeRange.programActionList.remove(action);
+    public void onDeleteAction(Action action) {
+        timeRange.actions.remove(action);
     }
+
+    @Override
+    public void onSaveCondition(Condition condition) {
+
+    }
+
+    @Override
+    public void onDeleteCondition(Condition condition) {
+        timeRange.conditions.remove(condition);
+    }
+
 
 
     public interface OnProgramTimeRangeFragmentInteractionListener {

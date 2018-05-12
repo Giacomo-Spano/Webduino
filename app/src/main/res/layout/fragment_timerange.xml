@@ -43,6 +43,17 @@
                 android:id="@+id/textView4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="Condizioni" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/conditionList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/textView6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="Azioni" />
 
             <android.support.v7.widget.RecyclerView

@@ -11,7 +11,7 @@ import java.util.List;
  * Created by gs163400 on 10/02/2018.
  */
 
-public class ProgramAction {
+public class ProgramInstruction {
 
     public int id = 0;
     public int timerangeid = 0;
@@ -44,11 +44,11 @@ public class ProgramAction {
     protected boolean hasParam = false;
     protected boolean hasServiceId = false;
 
-    public ProgramAction() {
+    public ProgramInstruction() {
 
     }
 
-    public ProgramAction(int id, int timerangeid, String type, String name, String description, int priority, int actuatorid, double targevalue, double thresholdvalue, int zoneId, int seconds, boolean enabled) {
+    public ProgramInstruction(int id, int timerangeid, String type, String name, String description, int priority, int actuatorid, double targevalue, double thresholdvalue, int zoneId, int seconds, boolean enabled) {
         this.id = id;
         this.timerangeid = timerangeid;
         this.type = type;
@@ -63,7 +63,7 @@ public class ProgramAction {
         this.enabled = enabled;
     }
 
-    public ProgramAction(JSONObject json) throws JSONException {
+    public ProgramInstruction(JSONObject json) throws JSONException {
         fromJson(json);
     }
 
@@ -71,20 +71,10 @@ public class ProgramAction {
 
         if (json.has("id")) id = json.getInt("id");
         if (json.has("timerangeid")) timerangeid = json.getInt("timerangeid");
-        if (json.has("type")) type = json.getString("type");
         if (json.has("name")) name = json.getString("name");
         if (json.has("description")) description = json.getString("description");
-        if (json.has("actuatorid")) actuatorid = json.getInt("actuatorid");
-        if (json.has("targetvalue")) targetvalue = json.getDouble("targetvalue");
-        if (json.has("thresholdvalue")) thresholdvalue = json.getDouble("thresholdvalue");
-        if (json.has("zoneid")) zoneid = json.getInt("zoneid");
-        if (json.has("seconds")) seconds = json.getInt("seconds");
-        if (json.has("enabled")) enabled = json.getBoolean("enabled");
         if (json.has("priority")) priority = json.getInt("priority");
         if (json.has("serviceid")) serviceid = json.getInt("serviceid");
-        if (json.has("param")) param = json.getString("param");
-        if (json.has("zonesensorid")) zonesensorid = json.getInt("zonesensorid");
-        if (json.has("zonesensorstatus")) zonesensorstatus = json.getString("zonesensorstatus");
         if (json.has("actions")) {
             JSONArray jsonArray = json.getJSONArray("actions");
             if (jsonArray != null) {

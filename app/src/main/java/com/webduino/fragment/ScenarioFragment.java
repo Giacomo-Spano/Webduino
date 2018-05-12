@@ -32,22 +32,19 @@ import com.webduino.fragment.cardinfo.ProgramCardInfo;
 import com.webduino.fragment.cardinfo.TriggerCardInfo;
 import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
-import com.webduino.scenarios.ProgramAction;
 import com.webduino.scenarios.Scenario;
 import com.webduino.scenarios.ScenarioProgram;
 import com.webduino.scenarios.ScenarioProgramTimeRange;
 import com.webduino.scenarios.ScenarioTimeInterval;
 import com.webduino.scenarios.ScenarioTrigger;
 import com.webduino.scenarios.Scenarios;
-import com.webduino.webduinosystems.WebduinoSystem;
-import com.webduino.webduinosystems.WebduinoSystems;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ScenarioFragment extends Fragment implements
         TimeIntervalFragment.OnTimeIntervalFragmentInteractionListener, TriggerFragment.OnTriggerFragmentInteractionListener, ProgramFragment.OnProgramFragmentInteractionListener,
-       ProgramTimeRangeFragment.OnProgramTimeRangeFragmentInteractionListener, ProgramActionFragment.OnProgramActionFragmentInteractionListener {
+       ProgramTimeRangeFragment.OnProgramTimeRangeFragmentInteractionListener/*, ProgramInstructionFragment.OnProgramActionFragmentInteractionListener*/ {
 
     public boolean adaptercreated = false;
     ArrayList<HeaterDataRowItem> list = new ArrayList<>();
@@ -57,6 +54,7 @@ public class ScenarioFragment extends Fragment implements
     private int webduinosystemid;
 
     OptionCardInfo optionCard_Name, optionCard_Description, optionCard_Priority, optionCard_Enabled;
+
 
     public interface OnScenarioFragmentInteractionListener {
         // TODO: Update argument type and name
@@ -149,15 +147,12 @@ public class ScenarioFragment extends Fragment implements
 
                 scenario.name = optionCard_Name.value.getStringValue();
                 scenario.description = optionCard_Description.value.getStringValue();
-                Object val = optionCard_Enabled.value;
                 scenario.enabled = optionCard_Enabled.value.getBoolValue();
-                scenario.priority = optionCard_Enabled.value.getIntValue();
-
+                scenario.priority = optionCard_Priority.value.getIntValue();
                 saveScenario();
                 if (mListener != null) {
                     mListener.onSave(scenario);
                 }
-
             }
         });
 
@@ -316,12 +311,8 @@ public class ScenarioFragment extends Fragment implements
     }
 
     public void updateProgramList() {
-
         List<CardInfo> list = createProgramList();
         programsAdapter.swap(list);
-        /*if (scenarioFragment != null) {
-            //scenarioFragment.refreshData();
-        }*/
     }
 
     public List<CardInfo> createCalendarList() {
@@ -528,22 +519,22 @@ public class ScenarioFragment extends Fragment implements
 
     }
 
-    @Override
-    public void onSaveProgramAction(ProgramAction action) {
+    /*@Override
+    public void onSaveProgramAction(ProgramInstruction action) {
 
         ScenarioProgram program = scenario.getProgramFromTimerangeId(action.timerangeid);
         ScenarioProgramTimeRange timerange = program.getTimeRangeFromId(action.timerangeid);
 
         if (timerange != null) {
             if (action.id == 0) {
-                timerange.programActionList.add(action);
+                timerange.programInstructionList.add(action);
                 //saveScenario();
             } else {
-                for (ProgramAction actn : timerange.programActionList) {
+                for (ProgramInstruction actn : timerange.programInstructionList) {
                     if (actn.id == action.id) {
-                        int itemIndex = timerange.programActionList.indexOf(actn);
+                        int itemIndex = timerange.programInstructionList.indexOf(actn);
                         if (itemIndex != -1) {
-                            timerange.programActionList.set(itemIndex, action);
+                            timerange.programInstructionList.set(itemIndex, action);
                         }
                         //saveScenario();
                         return;
@@ -551,14 +542,12 @@ public class ScenarioFragment extends Fragment implements
                 }
             }
         }
-    }
+    }*/
 
-    @Override
-    public void onDeleteProgramAction(ProgramAction action) {
-        /*ScenarioProgram prgm = scenario.getProgramFromTimerangeId(action.timerangeid);
-        ScenarioProgramTimeRange tr = prgm.getTimeRangeFromId(action.timerangeid);
-        tr.programActionList.remove(action);*/
-    }
+    /*@Override
+    public void onDeleteProgramInstruction(ProgramInstruction action) {
+
+    }*/
 
     @Override
     public void onSaveProgramTimeRange(ScenarioProgramTimeRange timeRange) {

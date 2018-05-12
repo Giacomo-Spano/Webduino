@@ -13,4 +13,6 @@ public class OptionCardInfo extends CardInfo {
     public OptionCardInfo() {
         type = TYPE_OPTION;
     }
+
+
 }

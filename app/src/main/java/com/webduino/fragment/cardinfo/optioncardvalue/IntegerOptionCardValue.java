@@ -21,14 +21,14 @@ public class IntegerOptionCardValue extends OptionCardValue {
 
     @Override
     public int getIntValue() {
-        if (value == null) return 0;
-        return (int) value;
+        if (getValue() == null) return 0;
+        return (int) getValue();
     }
 
     @Override
     public String getStringValue() {
-        if (value == null) return "";
-        return "" + value;
+        if (getValue() == null) return "";
+        return "" + getValue();
     }
 
 
@@ -43,11 +43,11 @@ public class IntegerOptionCardValue extends OptionCardValue {
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         CharSequence str = tv.getText();
-                        value = Integer.valueOf(str.toString());
+                        setValue(Integer.valueOf(str.toString()));
 
                         if (listeners != null)
                             for (OptionCardListener listener:listeners)
-                                listener.onSetValue(value);
+                                listener.onSetValue(getValue());
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

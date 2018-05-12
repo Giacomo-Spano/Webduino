@@ -28,23 +28,27 @@ public class BooleanOptionCardValue extends OptionCardValue {
             valueDescription = falseDescription;
     }
 
-    public boolean getValue() {
-        if (value == null)
-            return false;
-        return (boolean)value;
+    @Override
+    public String getValueDescription() {
+        if (getValue() == null) return "";
+        boolean checked = (boolean) getValue();
+        if (checked)
+            return trueDescription;
+        else
+            return falseDescription;
     }
 
     @Override
     public boolean getBoolValue() {
-        if (value == null)
+        if (getValue() == null)
             return false;
-        return (boolean)value;
+        return (boolean)getValue();
     }
 
     @Override
     public String getStringValue() {
-        if (value == null) return "";
-        boolean checked = (boolean) value;
+        if (getValue() == null) return "";
+        boolean checked = (boolean) getValue();
         if (checked)
             return trueDescription;
         else
@@ -59,22 +63,22 @@ public class BooleanOptionCardValue extends OptionCardValue {
         final CheckBox cb = view.findViewById(R.id.checkBox);
 
         cb.setText(trueDescription);
-        cb.setChecked((boolean) value);
+        cb.setChecked((boolean) getValue());
 
         builder.setView(view)
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         if (cb.isChecked()) {
-                            value = new Boolean(true);
+                            setValue(new Boolean(true));
                             valueDescription = trueDescription;
                         } else {
-                            value = new Boolean(false);
+                            setValue(new Boolean(false));
                             valueDescription = falseDescription;
                         }
 
                         if (listeners != null)
                             for (OptionCardListener listener:listeners)
-                                listener.onSetValue(value);
+                                listener.onSetValue(getValue());
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

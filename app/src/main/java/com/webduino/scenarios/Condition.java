@@ -14,10 +14,11 @@ import java.util.List;
 public class Condition {
 
     public int id = 0;
-    public int programactionid = 0;
+    public int timerangeid = 0;
     public int zoneid;
     public int zonesensorid;
-    public String status;
+    public String sensorstatus;
+    public String triggerstatus;
     public double value;
     public String type;
     public String valueoperator;
@@ -51,10 +52,11 @@ public class Condition {
     public void fromJson(JSONObject json) throws JSONException {
 
         if (json.has("id")) id = json.getInt("id");
-        if (json.has("programactionid")) programactionid = json.getInt("timerangeid");
+        if (json.has("timerangeid")) timerangeid = json.getInt("timerangeid");
         if (json.has("zoneid")) zoneid = json.getInt("zoneid");
         if (json.has("zonesensorid")) zonesensorid = json.getInt("zonesensorid");
-        if (json.has("status")) status = json.getString("status");
+        if (json.has("sensorstatus")) sensorstatus = json.getString("sensorstatus");
+        if (json.has("triggerstatus")) triggerstatus = json.getString("triggerstatus");
         if (json.has("value")) value = json.getDouble("value");
         if (json.has("type")) type = json.getString("type");
         if (json.has("valueoperator")) valueoperator = json.getString("valueoperator");
@@ -105,13 +107,15 @@ public class Condition {
     public JSONObject toJson() throws JSONException {
         JSONObject json = new JSONObject();
         json.put("id", id);
-        json.put("programactionid", programactionid);
+        json.put("timerangeid", timerangeid);
         json.put("zoneid", zoneid);
         json.put("zonesensorid", zonesensorid);
-        json.put("status", status);
+        json.put("sensorstatus", sensorstatus);
+        json.put("triggerstatus", triggerstatus);
         json.put("type", type);
         json.put("value", value);
         json.put("valueoperator", valueoperator);
+        json.put("triggerid", triggerid);
         return json;
     }
 }

@@ -1,8 +1,5 @@
 package com.webduino.elements;
 
-import com.webduino.elements.Trigger;
-import com.webduino.scenarios.ProgramAction;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -18,15 +18,15 @@ public class DateOptionCardValue extends OptionCardValue {
 
     @Override
     public String getStringValue() {
-        if (value == null) return "";
+        if (getValue() == null) return "";
         SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        return df.format(value);
+        return df.format(getValue());
     }
 
     @Override
     public Date getDateValue() {
-        if (value != null)
-            return (Date)value;
+        if (getValue() != null)
+            return (Date)getValue();
         return null;
     }
 
@@ -36,10 +36,10 @@ public class DateOptionCardValue extends OptionCardValue {
         dateFragment.setListener(new DatePickerFragment.DataPickerListener() {
             @Override
             public void setDate(Date date) {
-                value = date;
+                setValue(date);
                 if (listeners != null)
                     for (OptionCardListener listener:listeners)
-                        listener.onSetValue(value);
+                        listener.onSetValue(getValue());
             }
             @Override
             public void cancel() {
@@ -52,8 +52,8 @@ public class DateOptionCardValue extends OptionCardValue {
     public Object showPicker() {
 
         Date date = new Date();
-        if (value != null)
-            date = (Date) value;
+        if (getValue() != null)
+            date = (Date) getValue();
         showStartDateTimePickerDialog(date);
       return null;
     }

@@ -24,8 +24,8 @@ public class ScenarioProgramTimeRange {
     public Date endTime = new Date();
     public boolean enabled;
     public int index;
-
-    public List<ProgramAction> programActionList = new ArrayList<>();
+    public List<Condition> conditions = new ArrayList<>();
+    public List<Action> actions = new ArrayList<>();
 
     public ScenarioProgramTimeRange() {
     }
@@ -50,8 +50,6 @@ public class ScenarioProgramTimeRange {
             startTime = df.parse(str);
             str = json.getString("endtime");
             endTime = df.parse(str);
-            /*if (endTime.compareTo(startTime) < 0)
-                throw new Exception("start time " + startTime.toString() + "must be before end time " + endTime.toString());*/
         } else {
             throw new Exception("missing start/end time");
         }
@@ -60,31 +58,38 @@ public class ScenarioProgramTimeRange {
         if (json.has("index"))
             index = json.getInt("index");
 
-        if (json.has("programactions")) {
 
-            ProgramActionFactory factory = new ProgramActionFactory();
-            JSONArray jsonArray = json.getJSONArray("programactions");
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject jo = jsonArray.getJSONObject(i);
-                ProgramAction programaction = null;
-                try {
-                    programaction = factory.fromJson(jo);
-                    programActionList.add(programaction);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    throw new Exception(e.toString());
+        if (json.has("conditions")) {
+            JSONArray jsonArray = json.getJSONArray("conditions");
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonCondition = jsonArray.getJSONObject(i);
+                    Condition condition = new Condition(jsonCondition);
+                    if (condition != null)
+                        conditions.add(condition);
+                }
+            }
+        }
+        if (json.has("actions")) {
+            JSONArray jsonArray = json.getJSONArray("actions");
+            if (jsonArray != null) {
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject jsonAction = jsonArray.getJSONObject(i);
+                    Action action = new Action(jsonAction);
+                    if (action != null)
+                        actions.add(action);
                 }
             }
         }
     }
 
-    public ProgramAction getActionFromId(int id) {
-        for (ProgramAction action : programActionList) {
+    /*public ProgramInstruction getActionFromId(int id) {
+        for (ProgramInstruction action : programInstructionList) {
             if (action.id == id)
                 return action;
         }
         return null;
-    }
+    }*/
 
     public JSONObject toJson() throws JSONException {
 
@@ -99,22 +104,29 @@ public class ScenarioProgramTimeRange {
         json.put("enabled", enabled);
         json.put("index", index);
 
-        JSONArray jarray = new JSONArray();
-        if (programActionList != null) {
-            for (ProgramAction action : programActionList) {
-                jarray.put(action.toJson());
+        JSONArray jarrayconditions = new JSONArray();
+        if (conditions != null) {
+            for (Condition condition : conditions) {
+                jarrayconditions.put(condition.toJson());
             }
-            json.put("actions", jarray);
+            json.put("conditions", jarrayconditions);
+        }
+        JSONArray jarrayactions = new JSONArray();
+        if (actions != null) {
+            for (Action action : actions) {
+                jarrayactions.put(action.toJson());
+            }
+            json.put("actions", jarrayactions);
         }
 
         return json;
     }
 
-    public ProgramAction getProgramActionFromId(int id) {
-        for (ProgramAction action : programActionList) {
+    /*public ProgramInstruction getProgramActionFromId(int id) {
+        for (ProgramInstruction action : programInstructionList) {
             if (action.id == id)
                 return action;
         }
         return null;
-    }
+    }*/
 }

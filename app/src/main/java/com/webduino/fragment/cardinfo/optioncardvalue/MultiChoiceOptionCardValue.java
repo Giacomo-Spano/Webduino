@@ -43,8 +43,27 @@ public class MultiChoiceOptionCardValue extends OptionCardValue {
     }
 
     @Override
+    public String getValueDescription() {
+        if (getValue() == null) return "";
+
+        String str = "";
+        int i = 0;
+        for (Boolean val:itemValues) {
+            if (!val) {
+                i++;
+                continue;
+            }
+            if (!str.equals(""))
+                str += ",";
+            str += items[i];
+            i++;
+        }
+        return str;
+    }
+
+    @Override
     public String getStringValue() {
-        if (value == null) return "";
+        if (getValue() == null) return "";
 
         String str = "";
         int i = 0;
@@ -80,7 +99,7 @@ public class MultiChoiceOptionCardValue extends OptionCardValue {
                     public void onClick(DialogInterface dialog, int id) {
                         if (listeners != null)
                             for (OptionCardListener listener:listeners)
-                                listener.onSetValue(value);
+                                listener.onSetValue(getValue());
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

@@ -304,7 +304,6 @@ public class CardAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> i
             OptionCardInfo oci = (OptionCardInfo) ci;
             if (oci != null && oci.value != null) {
                 nameTextView.setText(oci.value.getName());
-               //valueTextView.setText(oci.value.getStringValue());
                 valueTextView.setText(oci.value.getValueDescription());
             }
         }

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class Action {
 
     public int id = 0;
-    public int programactionid = 0;
+    public int timerangeid = 0;
     public String type = "actuator";
     public String actuatorcommand = "";
     public String servicecommand = "";
@@ -50,7 +50,7 @@ public class Action {
     public void fromJson(JSONObject json) throws JSONException {
 
         if (json.has("id")) id = json.getInt("id");
-        if (json.has("programactionid")) programactionid = json.getInt("programactionid");
+        if (json.has("timerangeid")) timerangeid = json.getInt("timerangeid");
         if (json.has("actioncommand")) actuatorcommand = json.getString("actioncommand");
         if (json.has("servicecommand")) servicecommand = json.getString("servicecommand");
         if (json.has("type")) type = json.getString("type");
@@ -100,7 +100,7 @@ public class Action {
         JSONObject json = new JSONObject();
 
         json.put("id", id);
-        json.put("programactionid", programactionid);
+        json.put("timerangeid", timerangeid);
         json.put("actuatorid", actuatorid);
         json.put("serviceid", serviceid);
         json.put("targetvalue", targetvalue);

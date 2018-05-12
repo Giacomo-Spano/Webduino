@@ -18,9 +18,11 @@ import android.view.ViewGroup;
 
 import com.webduino.MainActivity;
 import com.webduino.R;
+import com.webduino.WebduinoResponse;
 import com.webduino.elements.HeaterActuator;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
+import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.cardinfo.ActionButtonCardInfo;
 import com.webduino.fragment.cardinfo.CardInfo;
@@ -234,9 +236,9 @@ public class WebduinoSystemFragment extends Fragment {
         return result;
     }
 
-    private void showScenarioFragment(ScenarioCardInfo scenarioCardInfo) {
+    private void showScenarioFragment(Scenario scenario) {
         Bundle bundle = new Bundle();
-        bundle.putInt("scenarioid", scenarioCardInfo.scenario.id);
+        bundle.putInt("scenarioid", scenario.id);
         bundle.putInt("webduinosystemid", webduinoSystem.id);
 
         ScenarioFragment scenarioFragment = new ScenarioFragment();
@@ -263,14 +265,33 @@ public class WebduinoSystemFragment extends Fragment {
         if (cardInfo instanceof ScenarioCardInfo) {
 
             ScenarioCardInfo scenarioCardInfordInfo = (ScenarioCardInfo) cardInfo;
-            showScenarioFragment(scenarioCardInfordInfo);
+            showScenarioFragment(scenarioCardInfordInfo.scenario);
 
         } else if (cardInfo instanceof ActionButtonCardInfo) {
 
-            ScenarioCardInfo scenarioCardInfordInfo = new ScenarioCardInfo();
-            showScenarioFragment(scenarioCardInfordInfo);
+            createNewScenario();
         }
+    }
 
+    private void createNewScenario() {
+        Scenario scenario = new Scenario(webduinoSystem.id);
+
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+            @Override
+            public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+
+                Scenario scenario = (Scenario) result;
+                Scenarios.add(scenario);
+                updateScenarioList();
+                showScenarioFragment(scenario);
+
+            }
+        }, requestDataTask.POST_SCENARIO).execute(scenario,false);
+    }
+
+    public void updateScenarioList() {
+        List<CardInfo> list = createScenarioList();
+        scenarioCardAdapter.swap(list);
     }
 
     public void onClickZone(CardInfo cardInfo) {

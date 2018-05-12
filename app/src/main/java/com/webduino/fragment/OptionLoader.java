@@ -52,9 +52,9 @@ public class OptionLoader {
     public static final String COMPARE_OPERATOR_GREATER_DESCRIPTION = ">";
     public static final String COMPARE_OPERATOR_LOWER_DESCRIPTION = "<";
 
-    public void loadCommandType(OptionCardInfo optionCard, String type) {
-        CharSequence[] cs = {ACTION_ACTUATOR, ACTION_SERVICE, ACTION_TRIGGER};
-        String[] csvalue = {ACTION_ACTUATOR_DESCRIPTION, ACTION_SERVICE_DESCRIPTION, ACTION_TRIGGER_DESCRIPTION};
+    public void loadActionType(OptionCardInfo optionCard, String type) {
+        CharSequence[] cs = {ACTION_ACTUATOR_DESCRIPTION, ACTION_SERVICE_DESCRIPTION, ACTION_TRIGGER_DESCRIPTION};
+        String[] csvalue = {ACTION_ACTUATOR, ACTION_SERVICE, ACTION_TRIGGER};
         int value = 0;
         for (int i = 0; i < csvalue.length; i++) {
             if (csvalue[i].equals(type)) {
@@ -66,8 +66,8 @@ public class OptionLoader {
     }
 
     public void loadConditionType(OptionCardInfo optionCard, String type) {
-        CharSequence[] cs = {CONDITION_ZONESENSORSTATUS, CONDITION_ZONESENSORVALUE, CONDITION_TRIGGERSTATUS};
-        String[] csvalue = {CONDITION_ZONESENSORSTATUS_DESCRIPTION, CONDITION_ZONESENSORVALUE_DESCRIPTION, CONDITION_TRIGGERSTATUS_DESCRIPTION};
+        CharSequence[] cs = {CONDITION_ZONESENSORSTATUS_DESCRIPTION, CONDITION_ZONESENSORVALUE_DESCRIPTION, CONDITION_TRIGGERSTATUS_DESCRIPTION};
+        String[] csvalue = {CONDITION_ZONESENSORSTATUS, CONDITION_ZONESENSORVALUE, CONDITION_TRIGGERSTATUS};
         int value = 0;
         for (int i = 0; i < csvalue.length; i++) {
             if (csvalue[i].equals(type)) {
@@ -116,7 +116,7 @@ public class OptionLoader {
                     value = i;
                 i++;
             }
-            optionCard.value = new ListOptionCardValue("Stato sensore", value, items, itemStringValues);
+            optionCard.value = new ListOptionCardValue("Stato trigger", value, items, itemStringValues);
         } else {
             optionCard.value = null;
         }
@@ -293,9 +293,9 @@ public class OptionLoader {
             i = 0;
             int value = 0;
             for (ActionCommand actionCommand : actuator.actioncommandlist) {
-                items[i] = actionCommand.command;
-                itemStringValues[i] = actionCommand.name;
-                if (items[i].equals(actuatorcommand))
+                items[i] = actionCommand.name;
+                itemStringValues[i] = actionCommand.command;
+                if (actionCommand.command.equals(actuatorcommand))
                     value = i;
                 i++;
             }

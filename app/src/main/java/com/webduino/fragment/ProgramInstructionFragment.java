@@ -20,11 +20,8 @@ import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.Services;
 import com.webduino.WebduinoResponse;
-import com.webduino.elements.ProgramActionType;
 import com.webduino.elements.ProgramActionTypes;
 import com.webduino.elements.Sensor;
-import com.webduino.elements.SensorType;
-import com.webduino.elements.SensorTypes;
 import com.webduino.elements.Sensors;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
@@ -40,20 +37,19 @@ import com.webduino.fragment.cardinfo.optioncardvalue.ListOptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.OptionCardValue;
 import com.webduino.fragment.cardinfo.optioncardvalue.StringOptionCardValue;
 import com.webduino.scenarios.Action;
-import com.webduino.scenarios.ProgramAction;
+import com.webduino.scenarios.ProgramInstruction;
 import com.webduino.scenarios.Condition;
-import com.webduino.scenarios.ScenarioProgram;
 import com.webduino.webduinosystems.services.Service;
-import com.webduino.zones.Zone;
-import com.webduino.zones.ZoneSensor;
-import com.webduino.zones.Zones;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProgramActionFragment extends Fragment implements ActionFragment.OnActionFragmentListener, ConditionFragment.OnConditionFragmentListener {
+import static com.webduino.fragment.OptionLoader.ACTION_ACTUATOR;
+import static com.webduino.fragment.OptionLoader.CONDITION_ZONESENSORSTATUS;
 
-    ProgramAction programAction;
+public class ProgramInstructionFragment extends Fragment implements ActionFragment.OnActionFragmentListener, ConditionFragment.OnConditionFragmentListener {
+
+    ProgramInstruction programInstruction;
     private CardAdapter optionsAdapter, conditionsAdapter, actionsAdapter;
     OptionCardInfo optionCard_Enabled, optionCard_Name, optionCard_Description, optionCard_ActionType, optionCard_Threshold,
             optionCard_Actuator, optionCard_Target, optionCard_Duration, optionCard_Priority,
@@ -65,7 +61,7 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
 
     private OnProgramActionFragmentInteractionListener mListener;
 
-    public ProgramActionFragment() {
+    public ProgramInstructionFragment() {
     }
 
     @Override
@@ -140,23 +136,24 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
             @Override
             public void onClick(View view) {
 
-                programAction.enabled = optionCard_Enabled.value.getBoolValue();
-                programAction.name = optionCard_Name.value.getStringValue();
-                programAction.description = optionCard_Description.value.getStringValue();
-                programAction.type = actionItems[optionCard_ActionType.value.getIntValue()].toString();
-                if (optionCard_Threshold != null)
-                    programAction.thresholdvalue = optionCard_Threshold.value.getDoubleValue();
+                programInstruction.enabled = optionCard_Enabled.value.getBoolValue();
+                programInstruction.name = optionCard_Name.value.getStringValue();
+                programInstruction.description = optionCard_Description.value.getStringValue();
+                programInstruction.priority = optionCard_Priority.value.getIntValue();
+                //programInstruction.type = actionItems[optionCard_ActionType.value.getIntValue()].toString();
+                /*if (optionCard_Threshold != null)
+                    programInstruction.thresholdvalue = optionCard_Threshold.value.getDoubleValue();
                 if (optionCard_Actuator != null)
-                    programAction.actuatorid = optionCard_Actuator.value.getIntValue();
+                    programInstruction.actuatorid = optionCard_Actuator.value.getIntValue();
                 if (optionCard_Target != null)
-                    programAction.targetvalue = optionCard_Target.value.getDoubleValue();
+                    programInstruction.targetvalue = optionCard_Target.value.getDoubleValue();
                 if (optionCard_Duration != null)
-                    programAction.seconds = optionCard_Duration.value.getIntValue();
-                programAction.priority = optionCard_Priority.value.getIntValue();
+                    programInstruction.seconds = optionCard_Duration.value.getIntValue();
+                programInstruction.priority = optionCard_Priority.value.getIntValue();
 
                 if (optionCard_ServiceId != null)
-                    programAction.serviceid = optionCard_ServiceId.value.getIntValue();
-
+                    programInstruction.serviceid = optionCard_ServiceId.value.getIntValue();
+                */
 
                 saveProgramAction();
 
@@ -187,14 +184,15 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
     private void createNewAction() {
 
         Action action = new Action();
-        action.programactionid = programAction.id;
+        action.type = ACTION_ACTUATOR;
+        action.timerangeid = programInstruction.id;
 
         new requestDataTask(MainActivity.activity, new WebduinoResponse() {
             @Override
             public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
 
                 Action action = (Action) result;
-                programAction.actions.add(action);
+                programInstruction.actions.add(action);
                 updateActionList();
                 showActionFragment(action);
 
@@ -222,7 +220,7 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
             actionFragment.action = action;
             Bundle bundle = new Bundle();
             bundle.putInt("webduinosystemid", webduinosystemid);
-            bundle.putInt("programactionid", programAction.id);
+            bundle.putInt("programactionid", programInstruction.id);
             actionFragment.setArguments(bundle);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -240,7 +238,7 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
             conditionFragment.condition = condition;
             Bundle bundle = new Bundle();
             bundle.putInt("webduinosystemid", webduinosystemid);
-            bundle.putInt("programactionid", programAction.id);
+            bundle.putInt("programactionid", programInstruction.id);
             conditionFragment.setArguments(bundle);
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction ft = fragmentManager.beginTransaction();
@@ -261,14 +259,16 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
     private void createNewCondition() {
 
         final Condition condition = new Condition();
-        condition.programactionid = programAction.id;
+        condition.type = CONDITION_ZONESENSORSTATUS;
+        condition.timerangeid = programInstruction.id;
+
 
         new requestDataTask(MainActivity.activity, new WebduinoResponse() {
             @Override
             public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
 
                 Condition condition = (Condition) result;
-                programAction.conditions.add(condition);
+                programInstruction.conditions.add(condition);
                 updateActionList();
                 showConditionFragment(condition);
             }
@@ -290,18 +290,18 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
 
 
     public void saveProgramAction() {
-        /*new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+        new requestDataTask(MainActivity.activity, new WebduinoResponse() {
             @Override
             public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
                 if (!error) {
-                    programAction = (ProgramAction) result;
+                    programInstruction = (ProgramInstruction) result;
                     if (mListener != null) {
-                        mListener.onSaveProgramAction(programAction);
+                        mListener.onSaveProgramAction(programInstruction);
                     }
                     getActivity().getFragmentManager().popBackStack();
                 }
             }
-        }, requestDataTask.POST_SCENARIOPROGRAMACTION).execute(action, false);*/
+        }, requestDataTask.POST_SCENARIOPROGRAMINSTRUCTION).execute(programInstruction, false);
     }
 
     public void deleteProgramAction() {
@@ -309,12 +309,12 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
             @Override
             public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
                 if (!error) {
-                    mListener.onDeleteProgramAction(programAction);
+                    mListener.onDeleteProgramInstruction(programInstruction);
                     getActivity().getFragmentManager().popBackStack();
                     ((MainActivity) getActivity()).getScenarioData();
                 }
             }
-        }, requestDataTask.POST_SCENARIOPROGRAMACTION).execute(programAction, true);
+        }, requestDataTask.POST_SCENARIOPROGRAMINSTRUCTION).execute(programInstruction, true);
     }
 
     @Override
@@ -339,7 +339,7 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
 
     @Override
     public void onDeleteAction(Action action) {
-
+        programInstruction.actions.remove(action);
     }
 
     @Override
@@ -349,25 +349,25 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
 
     @Override
     public void onDeleteCondition(Condition condition) {
-
+        programInstruction.conditions.remove(condition);
     }
 
     public interface OnProgramActionFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onSaveProgramAction(ProgramAction action);
+        void onSaveProgramAction(ProgramInstruction action);
 
-        void onDeleteProgramAction(ProgramAction action);
+        void onDeleteProgramInstruction(ProgramInstruction action);
 
     }
 
     private List<CardInfo> createConditionList() {
         List<CardInfo> result = new ArrayList<CardInfo>();
-        for (Condition condition : programAction.conditions) {
+        for (Condition condition : programInstruction.conditions) {
             ConditionCardInfo conditioncardinfo = new ConditionCardInfo();
-            conditioncardinfo.id = programAction.id;
-            conditioncardinfo.name = programAction.name;
+            conditioncardinfo.id = programInstruction.id;
+            conditioncardinfo.name = programInstruction.name;
             conditioncardinfo.condition = condition;
-            conditioncardinfo.setEnabled(programAction.enabled);
+            conditioncardinfo.setEnabled(programInstruction.enabled);
             result.add(conditioncardinfo);
         }
         CardInfo addButton = new ActionButtonCardInfo();
@@ -382,7 +382,7 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
 
     private List<CardInfo> createActionList() {
         List<CardInfo> result = new ArrayList<CardInfo>();
-        for (Action action : programAction.actions) {
+        for (Action action : programInstruction.actions) {
             ActionCardInfo actioncardinfo = new ActionCardInfo();
             actioncardinfo.id = action.id;
             //actioncardinfo.name = "";
@@ -404,29 +404,29 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
         List<CardInfo> result = new ArrayList<CardInfo>();
 
         optionCard_Enabled = new OptionCardInfo();
-        optionCard_Enabled.value = new BooleanOptionCardValue("Stato", programAction.enabled, "Abilitato", "Disabilitato");
+        optionCard_Enabled.value = new BooleanOptionCardValue("Stato", programInstruction.enabled, "Abilitato", "Disabilitato");
         result.add(optionCard_Enabled);
 
         optionCard_Name = new OptionCardInfo();
-        optionCard_Name.value = new StringOptionCardValue("Nome", programAction.name);
+        optionCard_Name.value = new StringOptionCardValue("Nome", programInstruction.name);
         result.add(optionCard_Name);
 
         optionCard_Description = new OptionCardInfo();
-        optionCard_Description.value = new StringOptionCardValue("Descrizione", programAction.description);
+        optionCard_Description.value = new StringOptionCardValue("Descrizione", programInstruction.description);
         result.add(optionCard_Description);
 
 
 
 
         // threshold
-        if (programAction.hasThreshold()) {
+        if (programInstruction.hasThreshold()) {
             optionCard_Threshold = new OptionCardInfo();
-            optionCard_Threshold.value = new DecimalOptionCardValue("Soglia", programAction.thresholdvalue);
+            optionCard_Threshold.value = new DecimalOptionCardValue("Soglia", programInstruction.thresholdvalue);
             result.add(optionCard_Threshold);
         }
 
         // actuator
-        if (programAction.hasActuator()) {
+        if (programInstruction.hasActuator()) {
             CharSequence[] items = new CharSequence[Sensors.list.size()];
             int[] itemValues = new int[Sensors.list.size()];
             int i = 0;
@@ -436,32 +436,32 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
                 i++;
             }
             optionCard_Actuator = new OptionCardInfo();
-            optionCard_Actuator.value = new ListOptionCardValue("Attuatore", programAction.actuatorid, items, itemValues);
+            optionCard_Actuator.value = new ListOptionCardValue("Attuatore", programInstruction.actuatorid, items, itemValues);
             result.add(optionCard_Actuator);
         }
 
         //target
-        if (programAction.hasTarget()) {
+        if (programInstruction.hasTarget()) {
             optionCard_Target = new OptionCardInfo();
-            optionCard_Target.value = new DecimalOptionCardValue("Target", programAction.targetvalue);
+            optionCard_Target.value = new DecimalOptionCardValue("Target", programInstruction.targetvalue);
             result.add(optionCard_Target);
         }
 
         //duration
-        if (programAction.hasDuration()) {
+        if (programInstruction.hasDuration()) {
             optionCard_Duration = new OptionCardInfo();
-            optionCard_Duration.value = new IntegerOptionCardValue("Durata", programAction.seconds);
+            optionCard_Duration.value = new IntegerOptionCardValue("Durata", programInstruction.seconds);
             result.add(optionCard_Duration);
         }
 
         //priority
         optionCard_Priority = new OptionCardInfo();
-        optionCard_Priority.value = new IntegerOptionCardValue("Priorità", programAction.priority);
+        optionCard_Priority.value = new IntegerOptionCardValue("Priorità", programInstruction.priority);
         result.add(optionCard_Priority);
 
 
         // serviceid
-        if (programAction.isHasServiceId()) {
+        if (programInstruction.isHasServiceId()) {
             CharSequence[] items = new CharSequence[Services.list.size()];
             int[] itemValues = new int[Services.list.size()];
             int i = 0;
@@ -471,7 +471,7 @@ public class ProgramActionFragment extends Fragment implements ActionFragment.On
                 i++;
             }
             optionCard_ServiceId = new OptionCardInfo();
-            optionCard_ServiceId.value = new ListOptionCardValue("Service", programAction.serviceid, items, itemValues);
+            optionCard_ServiceId.value = new ListOptionCardValue("Service", programInstruction.serviceid, items, itemValues);
             result.add(optionCard_ServiceId);
         }
 

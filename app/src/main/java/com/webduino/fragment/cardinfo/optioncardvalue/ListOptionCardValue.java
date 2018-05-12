@@ -24,48 +24,48 @@ public class ListOptionCardValue extends OptionCardValue {
         itemStringValues = null;
 
         valueDescription = "---";
-        for (int i = 0; i < itemIntValues.length; i++) {
-            if (itemIntValues[i] == value)
-                valueDescription = (String) items[i];
-        }
+        if (value >= 0 && value < items.length)
+            valueDescription = (String) items[value];
+
+    }
+
+    @Override
+    protected void setValue(Object value) {
+        super.setValue(value);
     }
 
     public ListOptionCardValue(String name, Integer value, CharSequence[] items, String[] itemStringValues) {
         super(name, value);
-
-        if (itemIntValues != null) {
-            this.value = "" + items[value];
-        } else if (itemStringValues != null) {
-            this.value = itemStringValues[value];
-        }
-
         if (items == null)
             return;
         this.items = items;
         this.itemStringValues = itemStringValues;
+
+        // annulla itemintvsluer perchè è una lista di stringhe
         itemIntValues = null;
+
+        valueDescription = "---";
+        if (value >= 0 && value < items.length)
+            valueDescription = (String) items[value];
     }
 
     @Override
     public int getIntValue() {
 
-        if (itemIntValues == null)
-            return -1;
-
-        if (value == null) return 0;
-        return (int) itemIntValues[(int)value];
+        if (itemIntValues == null || getValue() == null || !(getValue() instanceof Integer)) return 0;
+        return itemIntValues[((Integer) getValue()).intValue()];
     }
 
     @Override
     public String getStringValue() {
 
-        if (!(value instanceof Integer))
+        if (!(getValue() instanceof Integer))
             return "errore";
 
-        if (items == null || value == null)
+        if (items == null || getValue() == null)
             return "";
 
-        int n = (Integer) value;
+        int n = (Integer) getValue();
         if (n >= items.length)
             return "errore";
 
@@ -73,14 +73,13 @@ public class ListOptionCardValue extends OptionCardValue {
             return "" + items[n];
         } else if (itemStringValues != null) {
             return itemStringValues[n];
-        } else {
-            return "errore";
         }
+        return "errore";
     }
 
     @Override
     public String getValueDescription() {
-        return getStringValue();
+        return valueDescription;
     }
 
 
@@ -99,13 +98,13 @@ public class ListOptionCardValue extends OptionCardValue {
                         if (listeners != null) {
                             if (itemIntValues != null) {
                                 for (OptionCardListener listener : listeners) {
-                                    value = itemIntValues[which];
-                                    listener.onSetValue(value);
+                                    setValue(itemIntValues[which]);
+                                    listener.onSetValue(getValue());
                                 }
                             } else {
                                 for (OptionCardListener listener : listeners) {
-                                    value = items[which];
-                                    listener.onSetValue(value);
+                                    setValue(which);
+                                    listener.onSetValue(getStringValue());
                                 }
                             }
                         }

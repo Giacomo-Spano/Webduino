@@ -22,13 +22,13 @@ public class StringOptionCardValue extends OptionCardValue {
 
     @Override
     public String getStringValue() {
-        if (value == null) return "";
-        return value.toString();
+        if (getValue() == null) return "";
+        return getValue().toString();
     }
 
     @Override
     public String getValueDescription() {
-        return (String) value;
+        return (String) getValue();
     }
 
     public Object showPicker() {
@@ -47,10 +47,10 @@ public class StringOptionCardValue extends OptionCardValue {
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         CharSequence str = et.getText();
-                        value = str.toString();
+                        setValue(str.toString());
                         if (listeners != null)
                             for (OptionCardListener listener:listeners)
-                                listener.onSetValue(value);
+                                listener.onSetValue(getValue());
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

@@ -16,7 +16,7 @@ import java.util.List;
  */
 
 public class OptionCardValue {
-    protected Object value;
+    private Object value;
     protected String name;
     List<OptionCardListener> listeners = new ArrayList<>();
     public String valueDescription = "";
@@ -26,12 +26,20 @@ public class OptionCardValue {
         this.name = name;
     }
 
+    protected void setValue(Object value) {
+        this.value = value;
+    }
+
+    protected Object getValue() {
+        return value;
+    }
+
     public String getName() {
         return name;
     }
 
     public String getValueDescription() {
-        return valueDescription;
+        return "" + value;
     }
 
     public String getStringValue() {

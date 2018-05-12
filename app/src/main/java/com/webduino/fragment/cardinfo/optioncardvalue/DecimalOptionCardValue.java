@@ -23,14 +23,14 @@ public class DecimalOptionCardValue extends OptionCardValue {
     @Override
     public double getDoubleValue() {
 
-        if (value == null) return 0;
-        return (double) value;
+        if (getValue() == null) return 0;
+        return (double) getValue();
     }
 
     @Override
     public String getStringValue() {
-        if (value == null) return "";
-        return "" + value;
+        if (getValue() == null) return "";
+        return "" + getValue();
     }
 
 
@@ -45,11 +45,11 @@ public class DecimalOptionCardValue extends OptionCardValue {
                 .setPositiveButton("ok", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         CharSequence str = tv.getText();
-                        value = Double.valueOf(str.toString());
-                        valueDescription = "" + value;
+                        setValue(Double.valueOf(str.toString()));
+                        valueDescription = "" + getValue();
                         if (listeners != null)
                             for (OptionCardListener listener:listeners)
-                                listener.onSetValue(value);
+                                listener.onSetValue(getValue());
                     }
                 })
                 .setNegativeButton("cancel", new DialogInterface.OnClickListener() {

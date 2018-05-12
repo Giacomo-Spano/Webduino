@@ -15,7 +15,6 @@ import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.scenarios.Action;
 import com.webduino.scenarios.Condition;
-import com.webduino.scenarios.ProgramAction;
 import com.webduino.scenarios.Scenario;
 import com.webduino.SensorFactory;
 import com.webduino.ZoneFactory;
@@ -79,7 +78,7 @@ public class requestDataTask extends
     public static final int POST_SCENARIOTRIGGER = 20;
     public static final int POST_SCENARIOPROGRAM = 21;
     public static final int POST_SCENARIOPROGRAMTIMERANGE = 22;
-    public static final int POST_SCENARIOPROGRAMACTION = 23;
+    public static final int POST_SCENARIOPROGRAMINSTRUCTION = 23;
     public static final int REQUEST_WEBDUINOSYSTEMS = 24;
     public static final int REQUEST_SENSORTYPE = 25;
     public static final int POST_CONDITION = 26;
@@ -116,9 +115,10 @@ public class requestDataTask extends
         // TODO: Update argument type and name
         void onFinish(boolean res);
     }
+
     private OnFinishListener listener;
 
-    public requestDataTask(Activity activity, AsyncRequestDataResponse asyncResponse, int type,OnFinishListener listener) {
+    public requestDataTask(Activity activity, AsyncRequestDataResponse asyncResponse, int type, OnFinishListener listener) {
         this.listener = listener;
         //requestDataTask(activity,asyncResponse,type);
         this.activity = activity;
@@ -153,7 +153,7 @@ public class requestDataTask extends
             return result;
         } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM
                 || requestType == POST_SCENARIO || requestType == POST_SCENARIOTIMEINTERVAL || requestType == POST_SCENARIOTRIGGER || requestType == POST_SCENARIOPROGRAM
-                || requestType == POST_SCENARIOPROGRAMTIMERANGE || requestType == POST_SCENARIOPROGRAMACTION
+                || requestType == POST_SCENARIOPROGRAMTIMERANGE || requestType == POST_SCENARIOPROGRAMINSTRUCTION
                 || requestType == POST_CONDITION || requestType == POST_ACTION) {
             try {
                 result = performPostCall(params);
@@ -640,81 +640,99 @@ public class requestDataTask extends
                 Scenario scenario = (Scenario) params[0];
                 boolean delete = (boolean) params[1];
                 String str = save("scenario", scenario.toJson(), delete);
-                JSONObject json = new JSONObject(str);
-                Scenario updatedscenario = new Scenario(json);
                 Result result = new Result();
-                result.response = true;
-                result.resultObject = updatedscenario;
+                if (!delete) {
+                    JSONObject json = new JSONObject(str);
+                    Scenario updatedscenario = new Scenario(json);
+                    result.response = true;
+                    result.resultObject = updatedscenario;
+                } else {
+                    result.response = true;
+                }
                 return result;
             } else if (requestType == POST_SCENARIOTIMEINTERVAL) {
                 ScenarioTimeInterval scenario = (ScenarioTimeInterval) params[0];
                 boolean delete = (boolean) params[1];
                 String str = save("timeinterval", scenario.toJson(), delete);
-                JSONObject json = new JSONObject(str);
-                ScenarioTimeInterval updatetimeinterval = new ScenarioTimeInterval(json);
                 Result result = new Result();
-                result.response = true;
-                result.resultObject = updatetimeinterval;
+                if (!delete) {
+                    JSONObject json = new JSONObject(str);
+                    ScenarioTimeInterval updatetimeinterval = new ScenarioTimeInterval(json);
+                    result.response = true;
+                    result.resultObject = updatetimeinterval;
+                } else {
+                    result.response = true;
+                }
                 return result;
             } else if (requestType == POST_SCENARIOTRIGGER) {
                 ScenarioTrigger scenario = (ScenarioTrigger) params[0];
                 boolean delete = (boolean) params[1];
                 String str = save("scenariotrigger", scenario.toJson(), delete);
-                JSONObject json = new JSONObject(str);
-                ScenarioTrigger updatedtrigger = new ScenarioTrigger(json);
                 Result result = new Result();
-                result.response = true;
-                result.resultObject = updatedtrigger;
+                if (!delete) {
+                    JSONObject json = new JSONObject(str);
+                    ScenarioTrigger updatedtrigger = new ScenarioTrigger(json);
+                    result.response = true;
+                    result.resultObject = updatedtrigger;
+                } else {
+                    result.response = true;
+                }
                 return result;
             } else if (requestType == POST_SCENARIOPROGRAM) {
                 ScenarioProgram scenario = (ScenarioProgram) params[0];
                 boolean delete = (boolean) params[1];
                 String str = save("program", scenario.toJson(), delete);
-                JSONObject json = new JSONObject(str);
-                ScenarioProgram updatedscenarioprogram = new ScenarioProgram(json);
                 Result result = new Result();
-                result.response = true;
-                result.resultObject = updatedscenarioprogram;
+                if (!delete) {
+                    JSONObject json = new JSONObject(str);
+                    ScenarioProgram updatedscenarioprogram = new ScenarioProgram(json);
+                    result.response = true;
+                    result.resultObject = updatedscenarioprogram;
+                } else {
+                    result.response = true;
+                }
                 return result;
             } else if (requestType == POST_SCENARIOPROGRAMTIMERANGE) {
                 ScenarioProgramTimeRange scenariotimerange = (ScenarioProgramTimeRange) params[0];
                 boolean delete = (boolean) params[1];
                 String str = save("timerange", scenariotimerange.toJson(), delete);
-                JSONObject json = new JSONObject(str);
-                ScenarioProgramTimeRange updatedscenariotimerange = new ScenarioProgramTimeRange(json);
                 Result result = new Result();
-                result.response = true;
-                result.resultObject = updatedscenariotimerange;
-                return result;
-            } else if (requestType == POST_SCENARIOPROGRAMACTION) {
-                ProgramAction action = (ProgramAction) params[0];
-                boolean delete = (boolean) params[1];
-                String str = save("programaction", action.toJson(), delete);
-                JSONObject json = new JSONObject(str);
-                ProgramAction updatedaction = new ProgramAction(json);
-                Result result = new Result();
-                result.response = true;
-                result.resultObject = updatedaction;
+                if (!delete) {
+                    JSONObject json = new JSONObject(str);
+                    ScenarioProgramTimeRange updatedscenariotimerange = new ScenarioProgramTimeRange(json);
+                    result.response = true;
+                    result.resultObject = updatedscenariotimerange;
+                } else {
+                    result.response = true;
+                }
                 return result;
             } else if (requestType == POST_ACTION) {
                 Action action = (Action) params[0];
                 boolean delete = (boolean) params[1];
                 String str = save("action", action.toJson(), delete);
-                JSONObject json = new JSONObject(str);
-                Action updatedaction = new Action(json);
                 Result result = new Result();
-                result.response = true;
-                result.resultObject = updatedaction;
+                if (!delete) {
+                    JSONObject json = new JSONObject(str);
+                    Action updatedaction = new Action(json);
+                    result.response = true;
+                    result.resultObject = updatedaction;
+                } else {
+                    result.response = true;
+                }
                 return result;
             } else if (requestType == POST_CONDITION) {
                 Condition condition = (Condition) params[0];
                 boolean delete = (boolean) params[1];
                 String str = save("condition", condition.toJson(), delete);
-                JSONObject json = new JSONObject(str);
-                Condition updatedcondition = new Condition(json);
                 Result result = new Result();
-                result.response = true;
-                result.resultObject = updatedcondition;
+                if (!delete) {
+                    JSONObject json = new JSONObject(str);
+                    Condition updatedcondition = new Condition(json);
+                    result.response = true;
+                    result.resultObject = updatedcondition;
+                } else {
+                    result.response = true;
+                }
                 return result;
             }
 
