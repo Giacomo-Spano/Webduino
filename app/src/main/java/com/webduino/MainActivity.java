@@ -10,8 +10,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.LightingColorFilter;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -33,10 +35,17 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.webduino.chart.HistoryData;
 import com.webduino.elements.Actuators;
 import com.webduino.elements.HeaterActuator;
@@ -98,15 +107,15 @@ public class MainActivity extends AppCompatActivity
     public static final String notification_error = "error";
     public static final String notification_register = "register";
 
-
     protected ArrayList<Geofence> mGeofenceList;
-    protected GoogleApiClient mGoogleApiClient;
-    private Button mAddGeofencesButton;
+    protected GoogleApiClient mGoogleApiClient; // questo serve per la location ma non ho capito perchà
+    private FusedLocationProviderClient mFusedLocationClient;
+    private GeofencingClient mGeofencingClient;
+    LocationRequest mLocationRequest;
+    private LocationCallback mLocationCallback;
 
     FloatingActionButton fab;
 
-    // GPSTracker class
-    GPSTracker gps;
     private static final int REQUEST_CODE_PERMISSION = 2;
     String mPermission = Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -127,6 +136,7 @@ public class MainActivity extends AppCompatActivity
 
     private MyReceiver myReceiver;
     private IntentFilter intentFilter;
+    private PendingIntent mGeofencePendingIntent;
 
     public FloatingActionButton getFloatingActionButton() {
         return fab;
@@ -141,6 +151,7 @@ public class MainActivity extends AppCompatActivity
         if (fab != null)
             fab.hide();
     }
+
     public void setImageResourceFloatingActionButton(int drawable) {
 
         fab.setImageResource(drawable/*android.R.drawable.ic_media_pause*/);
@@ -155,29 +166,6 @@ public class MainActivity extends AppCompatActivity
         enableMenuItem(R.id.action_delete, enable);
     }
 
-    /*public void enableDeleteScenarioMenuItem(boolean enable) {
-        enableMenuItem(R.id.action_delete_scenario, enable);
-    }
-
-    public void enableDeleteProgramMenuItem(boolean enable) {
-        enableMenuItem(R.id.action_delete_program, enable);
-    }
-
-    public void enableDeleteTimeIntervalMenuItem(boolean enable) {
-        enableMenuItem(R.id.action_delete_timeinterval, enable);
-    }
-
-    public void enableDeleteTriggerMenuItem(boolean enable) {
-        enableMenuItem(R.id.action_delete_trigger, enable);
-    }
-
-    public void enableDeleteTimerangeMenuItem(boolean enable) {
-        enableMenuItem(R.id.action_delete_timerange, enable);
-    }
-
-    public void enableDeleteProgramActionMenuItem(boolean enable) {
-        enableMenuItem(R.id.action_delete_action, enable);
-    }*/
 
     private class MyReceiver extends BroadcastReceiver {
         @Override
@@ -185,29 +173,33 @@ public class MainActivity extends AppCompatActivity
             //MainActivity mainActivity = ((MainActivity) context.getApplicationContext());
             //getActuatorData();
             //mainActivity.etReceivedBroadcast.append("broadcast: "+intent.getAction()+"\n");
-            }
+        }
     }
 
 
+    // questa può essere chiamata per fare una richiesta di location
     public void getLocation() {
-        // create class object
-        gps = new GPSTracker(MainActivity.this);
 
-        // check if GPS enabled
-        if (gps.canGetLocation()) {
-
-            double latitude = gps.getLatitude();
-            double longitude = gps.getLongitude();
-
-            // \n is for new line
-            Toast.makeText(getApplicationContext(), "Your Location is - \nLat: "
-                    + latitude + "\nLong: " + longitude, Toast.LENGTH_LONG).show();
-        } else {
-            // can't get location
-            // GPS or Network is not enabled
-            // Ask user to enable GPS/network in settings
-            gps.showSettingsAlert();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
         }
+        mFusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        // Got last known location. In some rare situations this can be null.
+                        if (location != null) {
+                            // Logic to handle location object
+                        }
+                    }
+                });
 
     }
 
@@ -223,12 +215,25 @@ public class MainActivity extends AppCompatActivity
         unregisterReceiver(myReceiver);
     }
 
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         activity = this;
 
+        // inizializzazione location e geofence
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mGeofencingClient = LocationServices.getGeofencingClient(this);
+        createLocationRequest();
+        // fine inizializzazione location e geofence
 
         String action = getIntent().getStringExtra("action");
         int notificationId = getIntent().getIntExtra("notificationId", 0);
@@ -278,7 +283,8 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        /*FloatingActionButton*/ fab = (FloatingActionButton) findViewById(R.id.fab);
+        /*FloatingActionButton*/
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -321,20 +327,26 @@ public class MainActivity extends AppCompatActivity
         intentFilter = new IntentFilter("com.webduino.USER_ACTION");
     }
 
-    /*private void SendManualOff(int actuatorId) {
-
-        String command = Command_Off;
-        double temperature = 0;
-        int zoneId = 0;
-        int duration = 30;
-        boolean remoteSensor = false;
-        new requestDataTask(this, getAsyncResponse(), requestDataTask.POST_ACTUATOR_COMMAND).execute(actuatorId, command, duration, temperature, zoneId);
-    }*/
-
-
     // geofence
     public void populateGeofenceList() {
-        for (Map.Entry<String, LatLng> entry : Constants.LANDMARKS.entrySet()) {
+
+        GeofenceZones geofenceZones = new GeofenceZones();
+        for (GeofenceZone zone: geofenceZones.zones) {
+            mGeofenceList.add(new Geofence.Builder()
+                    .setRequestId(zone.description)
+                    .setCircularRegion(
+                            zone.latitude,
+                            zone.longitude,
+                            zone.radius
+                    )
+                    .setExpirationDuration(Geofence.NEVER_EXPIRE /*Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS*/)
+                    .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                            Geofence.GEOFENCE_TRANSITION_EXIT)
+                    .build());
+        }
+
+
+        /*for (Map.Entry<String, LatLng> entry : Constants.LANDMARKS.entrySet()) {
             mGeofenceList.add(new Geofence.Builder()
                     .setRequestId(entry.getKey())
                     .setCircularRegion(
@@ -346,9 +358,10 @@ public class MainActivity extends AppCompatActivity
                     .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
                             Geofence.GEOFENCE_TRANSITION_EXIT)
                     .build());
-        }
+        }*/
     }
 
+    // questo serve
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
@@ -357,21 +370,51 @@ public class MainActivity extends AppCompatActivity
                 .build();
     }
 
-    public void addGeofencesButtonHandler(/*View view*/) {
-        if (!mGoogleApiClient.isConnected()) {
-            Toast.makeText(this, "Google API Client not connected!", Toast.LENGTH_SHORT).show();
+    // registra la lista di geofence
+    public void addGeofencesButtonHandler() {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+
+            // DA FARE
             return;
         }
+        mGeofencingClient.addGeofences(getGeofencingRequest(), getGeofencePendingIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        // Geofences added
+                        // ...
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Failed to add geofences
+                        // ...
+                        /*
+                        public static final int GEOFENCE_NOT_AVAILABLE
+                        Geofence service is not available now. Typically this is because the user turned off location access in settings > location access.
 
-        try {
-            LocationServices.GeofencingApi.addGeofences(
-                    mGoogleApiClient,
-                    getGeofencingRequest(),
-                    getGeofencePendingIntent()
-            ).setResultCallback(this); // Result processed in onResult().
-        } catch (SecurityException securityException) {
-            // Catch exception generated if the app does not use ACCESS_FINE_LOCATION permission.
-        }
+                        Constant Value: 1000
+                        public static final int GEOFENCE_TOO_MANY_GEOFENCES
+                        Your app has registered more than 100 geofences. Remove unused ones before adding new geofences.
+
+                        Constant Value: 1001
+                        public static final int GEOFENCE_TOO_MANY_PENDING_INTENTS
+                        You have provided more than 5 different PendingIntents to the addGeofences(GoogleApiClient, GeofencingRequest, PendingIntent) call.
+
+                        Constant Value: 1002
+                         */
+                    }
+                });
     }
 
     private GeofencingRequest getGeofencingRequest() {
@@ -382,12 +425,50 @@ public class MainActivity extends AppCompatActivity
     }
 
     private PendingIntent getGeofencePendingIntent() {
+        // Reuse the PendingIntent if we already have it.
+        if (mGeofencePendingIntent != null) {
+            return mGeofencePendingIntent;
+        }
         Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling addgeoFences()
-        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when
+        // calling addGeofences() and removeGeofences().
+        mGeofencePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
+        return mGeofencePendingIntent;
     }
 
-    // end geofence
+    // fa una richiesta di aggiornamento periodico della location ogni seconds secondi
+    // la richiesta rimane attiva anche quando l'applicazione esce
+    // la location viene restituita con una chiamata la PerdingIntent implementato dalla class LocationClass
+    public void requestLocationUpdates(int seconds) {
+        LocationRequest locationRequest = new LocationRequest()
+                .setInterval(seconds * 1000) /// 15 minuti
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        Intent intent = new Intent(this, LocationService.class);
+        int id = 323232; // questo id serve per stoppare la request
+        PendingIntent requestLocationUpdatePendingIntent = PendingIntent.getService(this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        mFusedLocationClient.requestLocationUpdates(locationRequest, requestLocationUpdatePendingIntent);
+    }
+
+    private void stopLocationUpdates() {
+        Intent intent = new Intent(this, LocationService.class);
+        int id = 323232;
+        PendingIntent requestLocationUpdatePendingIntent = PendingIntent.getService(this, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mFusedLocationClient.removeLocationUpdates(requestLocationUpdatePendingIntent);
+    }
+
 
     public void refreshData() {
         getSensorData(true);
@@ -403,8 +484,15 @@ public class MainActivity extends AppCompatActivity
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
+            System.exit(0);
         }
     }
+
+    /*@Override
+    public void onBackPressed() {
+        // Check whether you receive location updates after the app has been killed by the system
+        System.exit(0);
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -440,6 +528,12 @@ public class MainActivity extends AppCompatActivity
             return true;
         } else if (id == R.id.action_add_geofence) {
             addGeofencesButtonHandler();
+            return true;
+        } else if (id == R.id.action_start_locationupdate) {
+            requestLocationUpdates(/*15 * 60*/5);
+            return true;
+        } else if (id == R.id.action_stop_locationupdate) {
+            stopLocationUpdates();
             return true;
         }
 
@@ -661,6 +755,7 @@ public class MainActivity extends AppCompatActivity
         }, requestDataTask.REQUEST_SERVICES).execute();
 
     }
+
     public void getTriggers() {
         new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
 
@@ -682,7 +777,7 @@ public class MainActivity extends AppCompatActivity
 
     public void getDataLog(int actuatorId) {
 
-        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORDATALOG).execute(actuatorId,"heater");
+        new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORDATALOG).execute(actuatorId, "heater");
 
         /*for (Sensor sensor : Sensors.list) {
             new requestDataTask(MainActivity.activity, getAsyncResponse(), requestDataTask.REQUEST_SENSORDATALOG).execute(sensor.getId(),"temperature");
@@ -720,8 +815,6 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
-
     // geofence
     @Override
     protected void onStart() {
@@ -741,8 +834,14 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnected(Bundle connectionHint) {
-
+        //requestLocationUpdates();
     }
+
+
+
+
+
+
 
     @Override
     public void onConnectionFailed(ConnectionResult result) {

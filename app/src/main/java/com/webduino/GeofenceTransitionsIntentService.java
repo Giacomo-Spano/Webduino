@@ -23,16 +23,12 @@ import java.util.List;
 /**
  * Created by Giacomo Spanò on 14/01/2017.
  */
-
-
 public class GeofenceTransitionsIntentService extends IntentService {
+    // ...
+
     protected static final String TAG = "GeofenceTransitionsIS";
 
-    public GeofenceTransitionsIntentService() {
-        super(TAG);  // use TAG to name the IntentService worker thread
-    }
-
-    @Override
+    //@Override
     protected void onHandleIntent(Intent intent) {
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
         if (geofencingEvent.hasError()) {
@@ -51,7 +47,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
             // Get the geofences that were triggered. A single event can trigger
             // multiple geofences.
-            List triggeringGeofences = geofencingEvent.getTriggeringGeofences();
+            List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
 
             // Get the transition details as a String.
             /*String geofenceTransitionDetails = getGeofenceTransitionDetails(
@@ -60,19 +56,30 @@ public class GeofenceTransitionsIntentService extends IntentService {
                     triggeringGeofences
             );*/
 
-            String geofenceTransitionDetails = getGeofenceTransitionDetails(geofencingEvent);
+            for (Geofence geofence: triggeringGeofences) {
+                String geofenceId = geofence.getRequestId();
+                String message = "zona: " + geofenceId + " tansition: " + geofenceTransition;
+                sendNotification(message);
+                Log.i(TAG, message);
+            }
 
             // Send notification and log the transition details.
-            sendNotification(geofenceTransitionDetails);
-            Log.i(TAG, geofenceTransitionDetails);
+            //sendNotification(geofenceTransitionDetails);
+            //Log.i(TAG, geofenceTransitionDetails);
         } else {
             // Log the error.
-            Log.e(TAG, "R.string.geofence_transition_invalid_type");
+            /*Log.e(TAG, getString(R.string.geofence_transition_invalid_type,
+                    geofenceTransition));*/
         }
     }
 
+    public GeofenceTransitionsIntentService() {
+        super(TAG);  // use TAG to name the IntentService worker thread
+    }
+
+
     private String getGeofenceTransitionDetails(GeofenceTransitionsIntentService geofenceTransitionsIntentService, int geofenceTransition, List triggeringGeofences) {
-        return null;
+        return "detaiols";
     }
 
     private static String getGeofenceTransitionDetails(GeofencingEvent event) {
@@ -85,41 +92,26 @@ public class GeofenceTransitionsIntentService extends IntentService {
         return String.format("%s: %s", transitionString, TextUtils.join(", ", triggeringIDs));
     }
 
-    private void sendNotification(String notificationDetails) {
-        // Create an explicit content Intent that starts MainActivity.
-        Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
+    private void sendNotification(String messageBody) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
+                PendingIntent.FLAG_ONE_SHOT);
 
-        // Get a PendingIntent containing the entire back stack.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(MainActivity.class).addNextIntent(notificationIntent);
-        PendingIntent notificationPendingIntent =
-                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(notificationDetails)
-                .setContentText("Click notification to return to App")
+                .setContentTitle("Geofence Notification")
+                .setContentText(messageBody)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)
-                .setContentIntent(notificationPendingIntent);
+                .setContentIntent(pendingIntent);
 
-
-        // Get a notification builder that's compatible with platform versions >= 4
-        /*NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-
-        // Define the notification settings.
-        builder.setColor(Color.RED)
-                .setContentTitle(notificationDetails)
-                .setContentText("Click notification to return to App")
-                .setContentIntent(notificationPendingIntent)
-                .setAutoCancel(true);*/
-
-        // Fire and notify the built Notification.
-                NotificationManager notificationManager =
+        NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(0, notificationBuilder.build());
-    }
 
+        notificationManager.notify(2, notificationBuilder.build());
+
+    }
 
 }
