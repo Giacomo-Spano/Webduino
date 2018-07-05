@@ -13,12 +13,16 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.webduino.MainActivity;
 import com.webduino.R;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Belal on 5/27/2016.
@@ -35,17 +39,36 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Log.d(TAG, "From: " + remoteMessage.getFrom());
         Log.d(TAG, "Notification Message Body x: " + remoteMessage.getNotification().getBody());
 
-        String type = remoteMessage.getData().get("type");
-        String strId = remoteMessage.getData().get("id");
-        int id;
-        if (strId != null) {
-            id = Integer.valueOf(strId);
-        } else {
-            id = 0;
+        JSONObject data = new JSONObject(remoteMessage.getData());
+        //String type = remoteMessage.getData().get("type");
+        String type = null;
+        try {
+            type = data.getString("type");
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        //Calling method to generate notification
-        //sendNotification(remoteMessage.getNotification().getBody());
-        sendMultilineNotification(remoteMessage.getNotification().getBody(), type, id);
+
+        if (type != null && type.equals("alarm")) {
+
+
+
+            Log.i(TAG, "Alarm received");
+            playAlarm(getApplicationContext(), data);
+            return;
+        } else {
+
+
+            String strId = remoteMessage.getData().get("id");
+            int id;
+            if (strId != null) {
+                id = Integer.valueOf(strId);
+            } else {
+                id = 0;
+            }
+            //Calling method to generate notification
+            //sendNotification(remoteMessage.getNotification().getBody());
+            sendMultilineNotification(remoteMessage.getNotification().getBody(), type, id);
+        }
     }
 
     //This method is only generating push notification
@@ -166,6 +189,49 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         resultIntent.addFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
         getApplication().startActivity(resultIntent);*/
+
+
+    }
+
+    private void playAlarm(Context context, JSONObject alarmData) {
+        Intent resultIntent = new Intent(context, PlayAlarmActivity.class);
+
+        String spotId = null;
+        spotId = "1";//alarmData.getString("spotID");
+        String spotName = "spotName";//alarmData.getString("spotName");
+        String alarmId = "1";//alarmData.getString("alarmId");
+        String curDate = "alarmId";//alarmData.getString("curDate");
+        String curspeed = "curspeed";//alarmData.getString("curspeed");
+        String curavspeed = "curavspeed";//alarmData.getString("curavspeed");
+        String windid = "windid";//alarmData.getString("windid");
+
+        Bundle b = new Bundle();
+        b.putString("spotid", spotId);
+        b.putString("spotName", spotName);
+        b.putString("alarmid", alarmId);
+        b.putString("curspeed", curspeed);
+        b.putString("curavspeed", curavspeed);
+        b.putString("curdate", curDate);
+        b.putString("windid", windid);
+        resultIntent.putExtras(b); //Put your id to your next Intent
+
+        // The stack builder object will contain an artificial back stack for the
+        // started Activity.
+        // This ensures that navigating backward from the Activity leads out of
+        // your application to the Home screen.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(MainActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        resultIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getApplication().startActivity(resultIntent);
 
 
     }

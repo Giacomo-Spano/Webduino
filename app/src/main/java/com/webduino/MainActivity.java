@@ -14,13 +14,19 @@ import android.content.pm.PackageManager;
 import android.graphics.LightingColorFilter;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.nfc.NdefMessage;
+import android.nfc.NfcAdapter;
+import android.nfc.Tag;
+import android.nfc.tech.Ndef;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.test.mock.MockPackageManager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -113,6 +119,8 @@ public class MainActivity extends AppCompatActivity
     private GeofencingClient mGeofencingClient;
     LocationRequest mLocationRequest;
     private LocationCallback mLocationCallback;
+
+    private NfcAdapter mNfcAdapter;
 
     FloatingActionButton fab;
 
@@ -207,12 +215,26 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         registerReceiver(myReceiver, intentFilter);
+
+        /// NFC
+        IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
+        IntentFilter ndefDetected = new IntentFilter(NfcAdapter.ACTION_NDEF_DISCOVERED);
+        IntentFilter techDetected = new IntentFilter(NfcAdapter.ACTION_TECH_DISCOVERED);
+        IntentFilter[] nfcIntentFilter = new IntentFilter[]{techDetected,tagDetected,ndefDetected};
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        if(mNfcAdapter!= null)
+            mNfcAdapter.enableForegroundDispatch(this, pendingIntent, nfcIntentFilter, null);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         unregisterReceiver(myReceiver);
+
+        // NFC
+        if(mNfcAdapter!= null)
+            mNfcAdapter.disableForegroundDispatch(this);
     }
 
     protected void createLocationRequest() {
@@ -280,6 +302,9 @@ public class MainActivity extends AppCompatActivity
         /// fine geofence
 
 
+        initNFC();
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -326,6 +351,40 @@ public class MainActivity extends AppCompatActivity
         myReceiver = new MyReceiver();
         intentFilter = new IntentFilter("com.webduino.USER_ACTION");
     }
+
+    private void initNFC(){
+        mNfcAdapter = NfcAdapter.getDefaultAdapter(this);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
+
+        Log.d("WW", "onNewIntent: "+intent.getAction());
+
+        if(tag != null) {
+            Toast.makeText(this, "R.string.message_tag_detected", Toast.LENGTH_SHORT).show();
+            Ndef ndef = Ndef.get(tag);
+
+            /*if (isDialogDisplayed) {
+
+                if (isWrite) {
+
+                    String messageToWrite = mEtMessage.getText().toString();
+                    mNfcWriteFragment = (NFCWriteFragment) getFragmentManager().findFragmentByTag(NFCWriteFragment.TAG);
+                    mNfcWriteFragment.onNfcDetected(ndef,messageToWrite);
+
+                } else {
+
+                    mNfcReadFragment = (NFCReadFragment)getFragmentManager().findFragmentByTag(NFCReadFragment.TAG);
+                    mNfcReadFragment.onNfcDetected(ndef);
+                }
+            }*/
+        }
+    }
+
+
+
 
     // geofence
     public void populateGeofenceList() {

@@ -6,4 +6,6 @@
 
     <color name="colorTextPrimaryDark">#AAAAAA</color>
     <color name="colorTextPrimary">#FFFFFF</color>
+
+    <color name="textButton">#FFFFFF</color>
 </resources>

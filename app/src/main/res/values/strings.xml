@@ -61,12 +61,15 @@
     <string name="Actuators">Attuatori</string>
     <string name="delete_scenario">Cancella scenario</string>
 
+    <string name="title_activity_play_alarm">PlayAlarmActivity</string>
+
     <string name="program">Programma</string>
     <string name="timerange">Fascia oraria</string>
     <string name="action">Azione</string>
     <string name="Timeinterval">Calendario</string>
     <string name="programaction">Azioni</string>
     <string name="condition">Condizione</string>
+    <string name="message_tag_detected">message_tag_detected</string>
     <string-array name="dayshortlist">
         <item>Lu</item>
         <item>Ma</item>

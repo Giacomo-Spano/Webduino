@@ -6,6 +6,14 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <!--  NFC support  -->
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-sdk android:minSdkVersion="10"/>
+    <uses-feature android:name="android.hardware.nfc" android:required="true" />
+
+
+    <!--  end NFC support  -->
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -21,6 +29,9 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+
+
         </activity>
         <activity
             android:name=".wizard.HeaterWizardActivity"
@@ -35,6 +46,10 @@
         <activity
             android:name=".HeaterActivity"
             android:label="@string/app_name"></activity>
+        <activity
+            android:name="com.webduino.PlayAlarmActivity"
+            android:label="@string/title_activity_play_alarm" >
+        </activity>
 
         <!-- [START firebase_service] -->
         <service android:name=".MyFirebaseMessagingService">
