@@ -37,7 +37,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //Displaying data in log
         //It is optional
         Log.d(TAG, "From: " + remoteMessage.getFrom());
-        Log.d(TAG, "Notification Message Body x: " + remoteMessage.getNotification().getBody());
+        //Log.d(TAG, "Notification Message Body x: " + remoteMessage.getNotification().getBody());
 
         JSONObject data = new JSONObject(remoteMessage.getData());
         //String type = remoteMessage.getData().get("type");
@@ -49,8 +49,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         if (type != null && type.equals("alarm")) {
-
-
 
             Log.i(TAG, "Alarm received");
             playAlarm(getApplicationContext(), data);
@@ -196,24 +194,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void playAlarm(Context context, JSONObject alarmData) {
         Intent resultIntent = new Intent(context, PlayAlarmActivity.class);
 
-        String spotId = null;
-        spotId = "1";//alarmData.getString("spotID");
-        String spotName = "spotName";//alarmData.getString("spotName");
-        String alarmId = "1";//alarmData.getString("alarmId");
-        String curDate = "alarmId";//alarmData.getString("curDate");
-        String curspeed = "curspeed";//alarmData.getString("curspeed");
-        String curavspeed = "curavspeed";//alarmData.getString("curavspeed");
-        String windid = "windid";//alarmData.getString("windid");
-
-        Bundle b = new Bundle();
-        b.putString("spotid", spotId);
-        b.putString("spotName", spotName);
-        b.putString("alarmid", alarmId);
-        b.putString("curspeed", curspeed);
-        b.putString("curavspeed", curavspeed);
-        b.putString("curdate", curDate);
-        b.putString("windid", windid);
-        resultIntent.putExtras(b); //Put your id to your next Intent
+        try {
+            int actionid = Integer.parseInt(alarmData.getString("actionid"));
+            int webduinosystemid = Integer.parseInt(alarmData.getString("webduinosystemid"));
+            String param = alarmData.getString("param");
+            String date = alarmData.getString("date");
+            Bundle b = new Bundle();
+            b.putInt("actionid", actionid);
+            b.putInt("webduinosystemid", webduinosystemid);
+            b.putString("param", param);
+            b.putString("date", date);
+            resultIntent.putExtras(b); //Put your id to your next Intent
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
 
         // The stack builder object will contain an artificial back stack for the
         // started Activity.

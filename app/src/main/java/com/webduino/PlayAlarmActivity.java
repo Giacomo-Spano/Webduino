@@ -6,6 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.webduino.elements.requestDataTask;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -17,12 +22,10 @@ public class PlayAlarmActivity extends AppCompatActivity implements AlarmFragmen
 
     private static AlarmFragment lastActiveAlarmFragment = null;
     AlarmFragment mAlarmFragment;
-    int spotId;
-    String spotName;
-    int alarmId;
-    double curspeed;
-    double curavspeed;
-    String curDate;
+    int actionid;
+    int webduinosystemid;
+    String param;
+    String date;
 
     @Override
     protected void onDestroy() {
@@ -47,23 +50,6 @@ public class PlayAlarmActivity extends AppCompatActivity implements AlarmFragmen
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        //send file using email
-        /*Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        // Set type to "email"
-        emailIntent.setType("vnd.android.cursor.dir/email");
-        String to[] = {"giaggi70@gmail.com"};
-        emailIntent .putExtra(Intent.EXTRA_EMAIL, to);
-        // the attachment
-        emailIntent .putExtra(Intent.EXTRA_STREAM, outputFile.getAbsolutePath());
-        // the mail subject
-
-
-
-        String str = outputFile.getAbsolutePath();
-
-        emailIntent .putExtra(Intent.EXTRA_SUBJECT, "Subject " + str);
-        startActivity(Intent.createChooser(emailIntent , "Send email..."));*/
     }
 
     @Override
@@ -92,20 +78,16 @@ public class PlayAlarmActivity extends AppCompatActivity implements AlarmFragmen
         getFragmentManager().beginTransaction().add(R.id.content_frame, mAlarmFragment).commit();
 
         Bundle bundle = getIntent().getExtras();
-        spotId = 1;//Integer.valueOf(bundle.getString("spotid"));
-        spotName = "spotName";//bundle.getString("spotName");
-        alarmId = 1;//Integer.valueOf(bundle.getString("alarmid"));
-        curspeed = 1.0;//Double.valueOf(bundle.getString("curspeed"));
-        curavspeed = 1.0;//Double.valueOf(bundle.getString("curavspeed"));
-        curDate = "curDate";//bundle.getString("curdate");
+        actionid = bundle.getInt("actionid");
+        webduinosystemid = bundle.getInt("webduinosystemid");
+        param = bundle.getString("param");
+        date = bundle.getString("date");
 
         Bundle b = new Bundle();
-        b.putInt("spotid", spotId);
-        b.putString("spotName", spotName);
-        b.putInt("alarmid", alarmId);
-        b.putDouble("curavspeed", curavspeed);
-        b.putDouble("curspeed", curspeed);
-        b.putString("curdate", curDate);
+        b.putInt("actionid", actionid);
+        b.putInt("webduinosystemid", webduinosystemid);
+        b.putString("param", param);
+        b.putString("date", date);
         mAlarmFragment.setArguments(b);
     }
 
@@ -115,7 +97,7 @@ public class PlayAlarmActivity extends AppCompatActivity implements AlarmFragmen
 
         if (lastActiveAlarmFragment != null)
             lastActiveAlarmFragment.stopRingtone();
-        mAlarmFragment.playAlarm(spotId);
+        mAlarmFragment.playAlarm();
         lastActiveAlarmFragment = mAlarmFragment;
     }
 
@@ -154,12 +136,28 @@ public class PlayAlarmActivity extends AppCompatActivity implements AlarmFragmen
     @Override
     public void onStopAlarmClick() {
         stopAlarm(/*0*/);
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("webduinosystemid", "" + webduinosystemid);
+            json.put("command", "pause");
+
+            new requestDataTask(MainActivity.activity, new WebduinoResponse() {
+                @Override
+                public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+                    //heater.fromJson((JSONObject) result);
+                    //refreshData();
+                }
+            }, requestDataTask.POST_COMMAND).execute(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onSnoozeAlarmClick(int snoozeMinutes) {
 
-        snoozeAlarm(snoozeMinutes, alarmId);
+        snoozeAlarm(snoozeMinutes, actionid);
         stopAlarm(/*snoozeMinutes*/);
     }
 
@@ -168,7 +166,7 @@ public class PlayAlarmActivity extends AppCompatActivity implements AlarmFragmen
 
         Date date = new Date();
         //updateAlarmRingDate(date);
-        updateAlarmRingDate(date, alarmId);
+        updateAlarmRingDate(date, actionid);
     }
 
     private void updateAlarmRingDate(final Date date, final int alarmid) {

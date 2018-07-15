@@ -1,6 +1,8 @@
 package com.webduino.fragment;
 
 import com.webduino.ActionCommand;
+import com.webduino.Device;
+import com.webduino.Devices;
 import com.webduino.Services;
 import com.webduino.elements.Sensor;
 import com.webduino.elements.Sensors;
@@ -345,5 +347,37 @@ public class OptionLoader {
     public void loadStringValue(String text, OptionCardInfo optionCard, String value) {
 
         optionCard.value = new StringOptionCardValue(text, value);
+    }
+
+    public boolean loadDevice(OptionCardInfo optionCard, int deviceid) {
+
+        CharSequence[] items;
+        int[] itemIntValues;
+        Device currentdevice = Devices.getFromId(deviceid);
+        if (currentdevice == null) {
+            if (Devices.list != null && Devices.list.size() > 0) {
+                currentdevice = Devices.list.get(0);
+            } else {
+                return false;
+            }
+        }
+        if (Devices.list != null && Devices.list.size() > 0) {
+            items = new CharSequence[Devices.list.size()];
+            itemIntValues = new int[Devices.list.size()];
+            int i = 0;
+            int value = 0;
+            for (Device device : Devices.list) {
+                items[i] = device.name;
+                itemIntValues[i] = device.id;
+                if (itemIntValues[i] == currentdevice.id)
+                    value = i;
+                i++;
+            }
+            optionCard.value = new ListOptionCardValue("Device", value, items, itemIntValues);
+            return true;
+        } else {
+            optionCard.value = null;
+            return false;
+        }
     }
 }

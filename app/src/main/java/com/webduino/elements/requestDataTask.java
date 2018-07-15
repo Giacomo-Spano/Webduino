@@ -11,6 +11,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.preference.PreferenceManager;
 
 import com.webduino.AsyncRequestDataResponse;
+import com.webduino.Device;
 import com.webduino.MainActivity;
 import com.webduino.R;
 import com.webduino.scenarios.Action;
@@ -63,7 +64,7 @@ public class requestDataTask extends
     public static final int REQUEST_SHIELD = 5;
     //public static final int REQUEST_PROGRAMS = 6;
     public static final int REQUEST_NEXTPROGRAMS = 7;
-    public static final int POST_ACTUATOR_COMMAND = 8;
+    public static final int POST_SHIELD_COMMAND = 8;
     public static final int POST_PROGRAM = 9; // da eliminare
     public static final int POST_DELETEPROGRAM = 10;
     public static final int REQUEST_SENSORDATALOG = 11;
@@ -84,6 +85,8 @@ public class requestDataTask extends
     public static final int POST_CONDITION = 26;
     public static final int POST_ACTION = 27;
     public static final int REQUEST_SERVICES = 28;
+    public static final int REQUEST_DEVICES = 29;
+    public static final int POST_COMMAND = 30;
 
     private final Activity activity;
 
@@ -148,10 +151,10 @@ public class requestDataTask extends
                 || requestType == REQUEST_SENSORDATALOG
                 || requestType == REQUEST_ACTUATORPROGRAMTIMERANGEACTITONS || requestType == REQUEST_COMMANDDATALOG
                 || requestType == REQUEST_TRIGGERS || requestType == REQUEST_ACTIONTYPES || requestType == REQUEST_WEBDUINOSYSTEMS
-                || requestType == REQUEST_SENSORTYPE || requestType == REQUEST_SERVICES) {
+                || requestType == REQUEST_SENSORTYPE || requestType == REQUEST_SERVICES || requestType == REQUEST_DEVICES) {
             result = performGetRequest(params);
             return result;
-        } else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM
+        } else if (requestType == POST_SHIELD_COMMAND || requestType == POST_COMMAND || requestType == POST_PROGRAM || requestType == POST_DELETEPROGRAM
                 || requestType == POST_SCENARIO || requestType == POST_SCENARIOTIMEINTERVAL || requestType == POST_SCENARIOTRIGGER || requestType == POST_SCENARIOPROGRAM
                 || requestType == POST_SCENARIOPROGRAMTIMERANGE || requestType == POST_SCENARIOPROGRAMINSTRUCTION
                 || requestType == POST_CONDITION || requestType == POST_ACTION) {
@@ -241,6 +244,10 @@ public class requestDataTask extends
             } else if (requestType == REQUEST_SERVICES) {
 
                 path = "/system?requestcommand=services";
+
+            } else if (requestType == REQUEST_DEVICES) {
+
+                path = "/system?requestcommand=devices";
 
             }
 
@@ -412,6 +419,20 @@ public class requestDataTask extends
                         }
                     }
                     result.objectList = list;
+                } else if (requestType == REQUEST_DEVICES) {
+
+                    List<Object> list = new ArrayList<Object>();
+                    JSONArray jArray = new JSONArray(json);
+                    for (int i = 0; i < jArray.length(); i++) {
+                        JSONObject jObject = jArray.getJSONObject(i);
+                        try {
+                            Object device = new Device(jObject);
+                            list.add(device);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    result.objectList = list;
                 }
 
 
@@ -477,7 +498,7 @@ public class requestDataTask extends
             message = "Aggiornamnento";
         else if (requestType == REQUEST_SHIELD)
             message = "Aggiornamnento";
-        else if (requestType == POST_ACTUATOR_COMMAND || requestType == POST_DELETEPROGRAM)
+        else if (requestType == POST_SHIELD_COMMAND || requestType == POST_COMMAND || requestType == POST_DELETEPROGRAM)
             message = "Comando inviato";
         else if (requestType == REQUEST_SENSORDATALOG)
             message = "Aggiornamnento";
@@ -546,7 +567,7 @@ public class requestDataTask extends
         } else if (requestType == REQUEST_SENSORDATALOG || requestType == REQUEST_SCENARIOS || requestType == REQUEST_TRIGGERS
                 || requestType == REQUEST_ACTIONTYPES || requestType == REQUEST_ZONES || requestType == REQUEST_SENSORS
                 || requestType == REQUEST_WEBDUINOSYSTEMS || requestType == REQUEST_SENSORTYPE
-                || requestType == REQUEST_SERVICES) {
+                || requestType == REQUEST_SERVICES || requestType == REQUEST_DEVICES) {
             delegate.processFinishObjectList(result.objectList, requestType, error, errorMessage);
         } else {
             delegate.processFinish(result.resultObject, requestType, error, errorMessage);
@@ -587,30 +608,29 @@ public class requestDataTask extends
 
 
             String path = "";
-            if (requestType == POST_ACTUATOR_COMMAND) {
+            if (requestType == POST_SHIELD_COMMAND) {
                 path = "/shield?";
 
                 String serverUrl = getServerUrl();
                 String url = serverUrl + path;
 
-                int shieldId = (int) params[0];
+                JSONObject json = (JSONObject) params[0];
+                /*int shieldId = (int) params[0];
                 int actuatorId = (int) params[1];
                 String command = (String) params[2];
                 int duration = (int) params[3] * 60;
                 Date endtime = (Date) params[4];
-                ;
                 boolean nexttimerange = (boolean) params[5];
-                ;
                 double target = (double) params[6];
-                int zoneId = (int) params[7];
-                //boolean remote = (boolean) params[5];
-                JSONObject json = new JSONObject();
-                try {
-                    json.put("shieldid", "" + shieldId);
-                    json.put("actuatorid", "" + actuatorId);
-                    json.put("command", command);
+                int zoneId = (int) params[7];*/
 
-                    if (nexttimerange) {
+                /*JSONObject json = new JSONObject();
+                try {*/
+                    /*json.put("shieldid", "" + shieldId);
+                    json.put("actuatorid", "" + actuatorId);
+                    json.put("command", command);*/
+
+                    /*if (nexttimerange) {
                         json.put("nexttimerange", nexttimerange);
                     } else if (endtime != null && !endtime.equals("")) {
                         SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -618,25 +638,34 @@ public class requestDataTask extends
                     } else {
                         json.put("duration", "" + duration);
                     }
-
-
                     json.put("target", "" + target);
-                    json.put("zone", "" + zoneId);
-                    //json.put("remote", "" + remote);
+                    json.put("zone", "" + zoneId);*/
+
                     Result result = new Result();
                     String str = postCall(url, json.toString());
                     result.resultObject = new JSONObject(str);
                     return result;
 
-                } catch (JSONException e) {
+                /*} catch (JSONException e) {
                     e.printStackTrace();
                     throw e;
                 } catch (Exception e) {
                     e.printStackTrace();
                     throw e;
-                }
+                }*/
 
-            } else if (requestType == POST_SCENARIO) {
+            } else if (requestType == POST_COMMAND) {
+                path = "/system?data=command";
+
+                String serverUrl = getServerUrl();
+                String url = serverUrl + path;
+                JSONObject json = (JSONObject) params[0];
+                Result result = new Result();
+                String str = postCall(url, json.toString());
+                //result.resultObject = new JSONObject(str);
+                return result;
+
+            } if (requestType == POST_SCENARIO) {
                 Scenario scenario = (Scenario) params[0];
                 boolean delete = (boolean) params[1];
                 String str = save("scenario", scenario.toJson(), delete);

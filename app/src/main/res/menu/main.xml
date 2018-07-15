@@ -42,4 +42,11 @@
         android:title="Stop location update"
         android:visible="true"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_google"
+        android:orderInCategory="100"
+        android:title="google"
+        android:visible="true"
+        app:showAsAction="never" />
 </menu>

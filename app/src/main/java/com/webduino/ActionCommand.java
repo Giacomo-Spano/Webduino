@@ -24,12 +24,20 @@ public class ActionCommand {
     boolean hasstatus = false;
     String statusname = "stato";
 
+    public int deviceid = 0;
+    public String devicename = "";
+    boolean hasdevice = false;
+
     public boolean hasZone() {
         return haszone;
     }
 
     public boolean hasParam() {
         return hasparam;
+    }
+
+    public boolean hasDevice() {
+        return hasdevice;
     }
 
     public boolean hasStatus() {
@@ -78,6 +86,13 @@ public class ActionCommand {
                 paramname = json.getString("paramname");
             if (json.has("paramlen"))
                 paramlen = json.getDouble("paramlen");
+        }
+
+        if (json.has("device")) {
+            hasdevice = true;
+            deviceid = json.getInt("device");
+            if (json.has("devicename"))
+                devicename = json.getString("devicename");
         }
 
         if (json.has("hasstatus")) {

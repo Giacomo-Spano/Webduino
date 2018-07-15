@@ -345,6 +345,7 @@ public class MainActivity extends AppCompatActivity
         getActionTypes();
         getSensorTypes();
         getServicesData();
+        getDevicesData();
         refreshData();
         getScenarioData();
 
@@ -594,10 +595,18 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.action_stop_locationupdate) {
             stopLocationUpdates();
             return true;
+        } else if (id == R.id.action_google) {
+            startGoogle();
+            return true;
         }
 
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void startGoogle() {
+        startActivity(new Intent(Intent.ACTION_VOICE_COMMAND)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -812,6 +821,24 @@ public class MainActivity extends AppCompatActivity
                 //sensorsFragment.update();
             }
         }, requestDataTask.REQUEST_SERVICES).execute();
+
+    }
+
+    public void getDevicesData() {
+
+        new requestDataTask(MainActivity.activity, new AsyncRequestDataResponseClass() {
+
+            @Override
+            public void processFinishObjectList(List<Object> list, int requestType, boolean error, String errorMessage) {
+                if (error)
+                    return;
+                Devices.list.clear();
+                for (Object device : list) {
+                    Devices.add((Device) device);
+                }
+                //sensorsFragment.update();
+            }
+        }, requestDataTask.REQUEST_DEVICES).execute();
 
     }
 

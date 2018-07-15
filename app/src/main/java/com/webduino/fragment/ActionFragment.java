@@ -49,7 +49,8 @@ public class ActionFragment extends Fragment {
             optionCard_TriggerId,
             optionCard_TargetValue,
             optionCard_IntegerValue,
-            optionCard_ParamValue;
+            optionCard_ParamValue,
+            optionCard_DeviceValue;
     OptionLoader loader = new OptionLoader();
     private WebduinoSystem webduinoSystem;
     private List<CardInfo> result = new ArrayList<>();
@@ -69,6 +70,7 @@ public class ActionFragment extends Fragment {
         optionCard_TargetValue = new OptionCardInfo();
         optionCard_IntegerValue = new OptionCardInfo();
         optionCard_ParamValue = new OptionCardInfo();
+        optionCard_DeviceValue = new OptionCardInfo();
     }
 
     @Override
@@ -149,6 +151,9 @@ public class ActionFragment extends Fragment {
 
                 if (optionCard_ParamValue.value != null)
                     action.param = optionCard_ParamValue.value.getStringValue();
+
+                if (optionCard_DeviceValue.value != null)
+                    action.deviceid = optionCard_DeviceValue.value.getIntValue();
 
 
                 saveAction();
@@ -315,7 +320,7 @@ public class ActionFragment extends Fragment {
 
                 loader.loadTriggerId(optionCard_TriggerId, action.triggerid);
                 result.add(optionCard_TriggerId);
-                optionCard_ServiceId.value.addListener(new OptionCardValue.OptionCardListener() {
+                optionCard_TriggerId.value.addListener(new OptionCardValue.OptionCardListener() {
                     @Override
                     public void onSetValue(Object value) {
                         action.triggerid = (int) value;
@@ -351,6 +356,19 @@ public class ActionFragment extends Fragment {
                 }
             });
             result.add(optionCard_ParamValue);
+        }
+
+        if (actionCommand != null && actionCommand.hasDevice()) {
+            loader.loadDevice(optionCard_DeviceValue, action.deviceid);
+            optionCard_DeviceValue.value.addListener(new OptionCardValue.OptionCardListener() {
+                @Override
+                public void onSetValue(Object value) {
+                    action.deviceid = (int) value;
+                    //loadOptions();
+                    loader.loadDevice(optionCard_DeviceValue, action.deviceid);
+                }
+            });
+            result.add(optionCard_DeviceValue);
         }
 
         if (actionCommand != null && actionCommand.hasZone()) {

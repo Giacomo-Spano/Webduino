@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 
-
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -28,7 +27,6 @@ import com.webduino.WebduinoResponse;
 import com.webduino.elements.HeaterActuator;
 import com.webduino.elements.ProgramActionTypes;
 import com.webduino.elements.Sensors;
-import com.webduino.elements.Shield;
 import com.webduino.elements.requestDataTask;
 import com.webduino.fragment.adapters.CardAdapter;
 import com.webduino.fragment.adapters.HeaterDataRowItem;
@@ -41,8 +39,10 @@ import com.webduino.wizard.HeaterWizardActivity;
 import com.webduino.zones.Zone;
 import com.webduino.zones.Zones;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -175,8 +175,6 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         });
 
 
-
-
         okButton = (Button) v.findViewById(R.id.okButton);
         okButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -185,20 +183,40 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
                 final HeaterActuator heater = (HeaterActuator) Sensors.getFromId(actuatorId);
                 String command = Command_Manual;
                 double temperature = getTarget();
-                //int zoneId = heater.getZoneId();
                 int duration = 0;
                 Date endtime = new Date();//null;//new LocalTime();
                 boolean nexttimerange = true;
-                new requestDataTask(getActivity(), /*getAsyncResponse()*/new WebduinoResponse() {
-                    @Override
-                    public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
-                        heater.fromJson((JSONObject)result);
-                        refreshData();
-                    }
-                }, requestDataTask.POST_ACTUATOR_COMMAND).execute(shieldId, actuatorId, command, duration, endtime, nexttimerange, temperature, zoneid);
 
-                cancelButton.setVisibility(View.INVISIBLE);
-                okButton.setVisibility(View.INVISIBLE);
+                JSONObject json = new JSONObject();
+                try {
+                    json.put("shieldid", "" + shieldId);
+                    json.put("actuatorid", "" + actuatorId);
+                    json.put("command", command);
+                    if (nexttimerange) {
+                        json.put("nexttimerange", nexttimerange);
+                    } else if (endtime != null && !endtime.equals("")) {
+                        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                        json.put("endtime", df.format(endtime));
+                    } else {
+                        json.put("duration", "" + duration);
+                    }
+                    json.put("target", "" + target);
+                    json.put("zone", "" + zoneid);
+
+
+                    new requestDataTask(getActivity(), /*getAsyncResponse()*/new WebduinoResponse() {
+                        @Override
+                        public void processFinish(Object result, int requestType, boolean error, String errorMessage) {
+                            heater.fromJson((JSONObject) result);
+                            refreshData();
+                        }
+                    }, requestDataTask.POST_SHIELD_COMMAND).execute(json/*shieldId, actuatorId, command, duration, endtime, nexttimerange, temperature, zoneid*/);
+
+                    cancelButton.setVisibility(View.INVISIBLE);
+                    okButton.setVisibility(View.INVISIBLE);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
         cancelButton = (Button) v.findViewById(R.id.cancelButton);
@@ -218,7 +236,7 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         increaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                double current = (int)((getTarget()+0.2) * 100 + 0.5) / 100.0;
+                double current = (int) ((getTarget() + 0.2) * 100 + 0.5) / 100.0;
                 setTarget(current);
                 cancelButton.setVisibility(View.VISIBLE);
                 okButton.setVisibility(View.VISIBLE);
@@ -228,14 +246,12 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         decreaseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                double current = (int)((getTarget()-0.2) * 100 + 0.5) / 100.0;
+                double current = (int) ((getTarget() - 0.2) * 100 + 0.5) / 100.0;
                 setTarget(current);
                 cancelButton.setVisibility(View.VISIBLE);
                 okButton.setVisibility(View.VISIBLE);
             }
         });
-
-
 
 
         recList.setHasFixedSize(true);
@@ -244,7 +260,7 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
         // Attach the layout manager to the recycler view
         recList.setLayoutManager(gridLayoutManager);
 
-        cardAdapter = new CardAdapter(this,createActionButtonList());
+        cardAdapter = new CardAdapter(this, createActionButtonList());
         recList.setAdapter(cardAdapter);
         cardAdapter.setListener(this);
 
@@ -308,7 +324,7 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
             return;
 
         String status = "";
-        if ( heater.getReleStatus()) {
+        if (heater.getReleStatus()) {
             status = "Acceso";
             targetTextView.setTextColor(Color.GREEN);
         } else {
@@ -319,10 +335,10 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
 
         setTarget(target);
 
-        zoneTextView.setText("zona " + zoneid + " " + heater.getRemoteTemperature() +" °C");
+        zoneTextView.setText("zona " + zoneid + " " + heater.getRemoteTemperature() + " °C");
 
         // update action buttons
-        if(heater.getStatus().equals(HeaterActuator.StatusManualOff)) {
+        if (heater.getStatus().equals(HeaterActuator.StatusManualOff)) {
             enableCard(BUTTON_MANUALOFF, true);
             enableCard(BUTTON_MANUAL, false);
             enableCard(BUTTON_AUTO, false);
@@ -342,7 +358,7 @@ public class HeaterFragment extends Fragment implements CardAdapter.OnListener {
 
     private void setTarget(double target) {
         this.target = target;
-        targetTextView.setText(""+this.target+"°C");
+        targetTextView.setText("" + this.target + "°C");
     }
 
     private double getTarget() {

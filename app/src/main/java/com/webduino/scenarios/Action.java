@@ -22,6 +22,7 @@ public class Action {
     public int seconds = 0;
     public int actuatorid = 0;
     public int serviceid = 0;
+    public int deviceid = 0;
     public int zoneid = 0;
     public int zonesensorid = 0;
     public int triggerid = 0;
@@ -38,6 +39,7 @@ public class Action {
     protected boolean hasZoneSensorEnabled = false;
     protected boolean hasParam = false;
     protected boolean hasServiceId = false;
+    protected boolean hasDeviceId = false;
 
 
     public Action() {
@@ -56,6 +58,7 @@ public class Action {
         if (json.has("type")) type = json.getString("type");
         if (json.has("actuatorid")) actuatorid = json.getInt("actuatorid");
         if (json.has("serviceid")) serviceid = json.getInt("serviceid");
+        if (json.has("deviceid")) deviceid = json.getInt("deviceid");
         if (json.has("targetvalue")) targetvalue = json.getDouble("targetvalue");
         if (json.has("seconds")) seconds = json.getInt("seconds");
         if (json.has("zoneid")) zoneid = json.getInt("zoneid");
@@ -103,6 +106,7 @@ public class Action {
         json.put("timerangeid", timerangeid);
         json.put("actuatorid", actuatorid);
         json.put("serviceid", serviceid);
+        json.put("deviceid", deviceid);
         json.put("targetvalue", targetvalue);
         json.put("actioncommand", actuatorcommand);
         json.put("servicecommand", servicecommand);

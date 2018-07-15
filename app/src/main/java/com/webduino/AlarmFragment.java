@@ -19,10 +19,10 @@ import android.widget.TextView;
 public class AlarmFragment extends Fragment implements
         AdapterView.OnItemSelectedListener {
 
-    double mcurspeed, mcuravspeed;
-    String mcurdate;
-    int mspotid;
-    String mspotName;
+    int actionid;
+    int webduinosystemid;
+    String param;
+    String date;
 
     private Ringtone ringtone;
     private TextView timerTextView;
@@ -71,11 +71,10 @@ public class AlarmFragment extends Fragment implements
                              Bundle savedInstanceState) {
 
         if (getArguments() != null)  {
-            mcurspeed = getArguments().getDouble("curspeed");
-            mcuravspeed = getArguments().getDouble("curavspeed");
-            mcurdate = getArguments().getString("curdate");
-            mspotid = getArguments().getInt("spotid");
-            mspotName = getArguments().getString("spotName");
+            actionid = getArguments().getInt("actionid");
+            webduinosystemid = getArguments().getInt("webduinosystemid");
+            param = getArguments().getString("param");
+            date = getArguments().getString("date");
         }
 
         View v;
@@ -97,19 +96,18 @@ public class AlarmFragment extends Fragment implements
 
         timerTextView = (TextView) v.findViewById(R.id.timerTextView);
 
-        TextView tv = (TextView) v.findViewById(R.id.curspeedTextView);
-        tv.setText("velocità: " + mcurspeed);
-        tv = (TextView) v.findViewById(R.id.curavspeedTextView);
-        tv.setText("velocità media: " + mcuravspeed);
-        tv = (TextView) v.findViewById(R.id.curdateTextView);
-        tv.setText("data: " + mcurdate.toString());
-        tv = (TextView) v.findViewById(R.id.spotTextView);
-        tv.setText("spot: " + mspotName);
-
+        TextView tv = (TextView) v.findViewById(R.id.actionidTextView);
+        tv.setText("actionid " + actionid);
+        tv = (TextView) v.findViewById(R.id.webduinosystemidTextView);
+        tv.setText("webduinosystemid " + webduinosystemid);
+        tv = (TextView) v.findViewById(R.id.paramTextView);
+        tv.setText("allarme: " + param);
+        tv = (TextView) v.findViewById(R.id.dateTextView);
+        tv.setText("data: " + date);
         return v;
     }
 
-    public void playAlarm(int spot) {
+    public void playAlarm() {
 
         Uri alarmUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
         if (alarmUri == null) {
@@ -164,69 +162,4 @@ public class AlarmFragment extends Fragment implements
         // TODO Auto-generated method stub
     }
 
-    /*public void getMeteoData(final int spotID) {
-
-        final AlarmFragment fragment = this;
-
-        new requestMeteoDataTask(this.getActivity(), new AsyncRequestMeteoDataResponse() {
-
-            @Override
-            public void processFinishFavoritesLastMeteoData(List<Object> list, boolean error, String errorMessage) {
-
-                if (error) {
-
-                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-
-                    alertDialogBuilder.setTitle("Errore");
-                    alertDialogBuilder
-                            .setMessage(errorMessage)
-                            .setCancelable(false);
-                    alertDialogBuilder
-                            .setNegativeButton("Ok", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    // if this button is clicked, just close
-                                    // the dialog box and do nothing
-                                    dialog.cancel();
-                                }
-                            });
-                    AlertDialog alertDialog;
-                    alertDialog = alertDialogBuilder.create();
-                    alertDialog.show();
-
-                } else {
-
-                    MeteoStationData md = null;
-                    for (int i = 0; i < list.size(); i++) {
-                        md = (MeteoStationData) list.get(i);
-                        if (md.spotID == spotID)
-                            break;
-                    }
-                    mCarditem.spotID = spotID;
-                    mCarditem.mWecamUrl = md.webcamurl;
-                    mCarditem.update(md);
-                }
-            }
-
-            @Override
-            public void processFinishHistory(List<Object> list, boolean error, String errorMessage) {
-
-            }
-
-            @Override
-            public void processFinishSpotList(List<Object> list, boolean error, String errorMessage) {
-
-            }
-        }).execute(requestMeteoDataTask.REQUEST_LASTMETEODATA, "" + spotID);
-    }
-
-    @Override
-    public void meteocardselected(long index) {
-
-
-        Intent intent = new Intent(getActivity(), MainActivity.class);
-        intent.putExtra(MainActivity.GO_DIRECTLY_TO_SPOT_DETAILS, mCarditem.spotID); //Optional parameters
-        intent.putExtra("spotID", mCarditem.spotID); //Optional parameters
-        startActivity(intent);
-
-    }*/
 }

@@ -53,6 +53,7 @@ public class ListOptionCardValue extends OptionCardValue {
     public int getIntValue() {
 
         if (itemIntValues == null || getValue() == null || !(getValue() instanceof Integer)) return 0;
+        //return (Integer)getValue();
         return itemIntValues[((Integer) getValue()).intValue()];
     }
 
